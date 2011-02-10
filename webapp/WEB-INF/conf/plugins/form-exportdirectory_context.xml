@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+ 	 <bean id="formConfigurationDAO"  class="fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigurationDAO" />
+ 	 <bean id="entryConfigurationDAO"  class="fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfigurationDAO" />
+	 <bean id="form-exportdirectory.exportDirectory" class="fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory">
+		<property name="key" value="exportDirectory"/>
+	 </bean>
+</beans>
+ 	

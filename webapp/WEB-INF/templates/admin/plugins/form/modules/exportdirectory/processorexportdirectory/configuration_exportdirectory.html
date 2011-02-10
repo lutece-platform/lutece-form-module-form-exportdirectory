@@ -1,0 +1,222 @@
+<div>
+	<h2>#i18n{module.form.exportdirectory.configuration_exportdirectory.title}</h2>
+<#if permission_manage>
+	<#if is_mapped>
+		<p>
+			#i18n{module.form.exportdirectory.configuration_exportdirectory.is_mapped.title} : ${mapped_directory_title}
+		</p>
+		<p>
+		   	<label for="delete_mapping_directory"><font style="color: red;">#i18n{module.form.exportdirectory.configuration_exportdirectory.removeMappingDirectory}</font> : </label>
+		    <input type="radio" name="action_exportdirectory" id="delete_mapping_directory" tabindex="1" value="delete_mapping_directory" onclick="javascript:display()"/>
+		</p>
+	</#if>
+		<p>
+	    	<label for="create_directory"><font style="color: red;"><#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.createDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory}</#if></font> : </label>
+	        <input type="radio" name="action_exportdirectory" id="create_directory" tabindex="1" value="create_directory" onclick="javascript:display()"/>
+		</p>
+		
+	<#if !directory_list_is_empty>
+		<p>
+	    	<label for="use_directory_exist"><font style="color: red;"><#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.useDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory}</#if></font> : </label>
+	        <#if use_directory_exist>
+	        	<input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" checked="checked" onclick="javascript:display()"/>
+	        <#else>
+	        	<input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" onclick="javascript:display()"/>
+	        </#if>
+		</p>	
+		<div class="highlight-box" id="display_use_directory_exist">
+			<br>
+			<label for="directory_list">#i18n{module.form.exportdirectory.configuration_exportdirectory.directoryExist} : </label>
+		   	<@combo name="id_directory"  items=directory_list default_value=directory_list_default_item/>
+			<input class="button" type="submit" name="redirect" value="charger">
+			<br /><br />
+			<p>
+				<label style="width: 450px;">#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title} :</label>
+				&nbsp;
+			</p>
+			<#list entry_configuration_list as entry>
+				<p>
+					<label>${entry.use_directory_form_entry.formEntryTitle} * :</label>
+				    <@combo name="id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}" items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry />
+				</p>
+			</#list>
+		</div>
+	</#if>
+	<div class="highlight-box" id="display_create_directory">
+			<#if workflow_list?exists && workflow_list?size &gt; 0 >
+			<p id="id_workflow">
+				<label for="id_workflow">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddWorkflow} : </label>
+				<@combo name="id_workflow"  items=workflow_list default_value="-1" />
+			</p>
+			</#if>
+			<#if entry_configuration_list?exists && entry_configuration_list?size &gt; 0 >
+			<table>
+				<tr>
+					<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.entry_form}</th>
+		  			<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.result_list}</th>
+		  			<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.search}</th>
+	  			</tr>
+				<#list entry_configuration_list as entry>
+						<tr>
+							<td>${entry.use_directory_form_entry.formEntryTitle}</td>
+							<td><input type="checkbox" name="is_in_result_list_${entry.use_directory_form_entry.idFormEntry}" /></td>
+							<#if entry.use_directory_form_entry_type!=entry_type_file & entry.use_directory_form_entry_type!=entry_type_image>
+								
+								<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}" /></td>
+							<#else>
+								<td>&nbsp;</td>
+							</#if>
+						</tr>
+				</#list>
+			</table>
+			</#if>
+			<p id="numbering_entry">
+				<label for="add_numbering_entry">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntry} : </label>
+				<input type="radio" name="add_numbering_entry" id="add_numbering_entry" tabindex="1" value="1" checked="checked" />#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryYes}
+				<input type="radio" name="add_numbering_entry" id="add_numbering_entry" tabindex="1" value="0"/>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryNo}
+			</p>
+			<#if create_directory?has_content>
+			
+				<label style="width: 455px;">#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title} :</label>
+				<br><br>
+				<#list create_directory as entry>
+					<p>
+						<label for="create_directory_${entry.form_entry.idEntry}">${entry.form_entry.title}</label> * :
+					    <#list entry.directory_entry_type as entry_type>
+					    	#i18n{${entry_type.titleI18nKey}}<input type="radio" name="id_entry_type_${entry.form_entry.idEntry}" value="${entry_type.idType}" />
+					    </#list>
+					</p>
+				</#list>				
+			</#if>
+			<#if (list_entry_image?size > 0) >
+					<label for="">#i18n{module.form.exportdirectory.configuration_exportdirectory.image_configuration} :</label>
+					<br>
+						<#list list_entry_image as image>
+							<p><label for="">${image.title}</label>
+								
+									<label for="create_thumbnail_${image.idEntry}">#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_thumbnail}:</label>
+									<input type="checkbox" name="create_thumbnail_${image.idEntry}" id="create_thumbnail_${image.idEntry}" onclick="hideField( 'create_thumbnail_${image.idEntry}', 'thumbnail_field_${image.idEntry}' );">
+									<div name="thumbnail_field_${image.idEntry}" id="thumbnail_field_${image.idEntry}">
+										<label for="">&nbsp;</label>
+										<label for="thumbnail_height_${image.idEntry}">#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_height} * :</label> 
+										<input type="text" name="thumbnail_height_${image.idEntry}" id="thumbnail_height_${image.idEntry}">
+										<br>
+										<label for="">&nbsp;</label>
+										<label for="thumbnail_width_${image.idEntry}">#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_width} * :</label> 
+										<input type="text" name="thumbnail_width_${image.idEntry}" id="thumbnail_width_${image.idEntry}">
+									</div>
+									
+									<label for="">&nbsp;</label><label for="create_big_thumbnail_${image.idEntry}">#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_big_thumbnail}:</label>
+									<input type="checkbox" name="create_big_thumbnail_${image.idEntry}" id="create_big_thumbnail_${image.idEntry}" onclick="hideField( 'create_big_thumbnail_${image.idEntry}', 'big_thumbnail_field_${image.idEntry}' )">
+									<div name="big_thumbnail_field_${image.idEntry}" id="big_thumbnail_field_${image.idEntry}">									
+										<label for="">&nbsp;</label>
+										<label for="">#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_height} * :</label>
+										<input type="text" name="big_thumbnail_height_${image.idEntry}" id="big_thumbnail_height_${image.idEntry}">
+										<br>
+										<label for="">&nbsp;</label>
+										<label for="">#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_width} * :</label> 
+										<input type="text" name="big_thumbnail_width_${image.idEntry}" id="big_thumbnail_width_${image.idEntry}">
+									</div>
+									
+									<script type="text/javascript" charset="utf-8">
+										document.getElementById( 'thumbnail_field_${image.idEntry}' ).style.display="none";
+										document.getElementById( 'big_thumbnail_field_${image.idEntry}' ).style.display="none";
+									</script>
+							</p>
+						</#list>
+					
+				</#if>
+				
+				<#list list_entry_geolocalisation as entry>
+					<p>
+						<label for="create_directory_${entry.idEntry}">${entry.title} <#if entry.mapProvider?has_content> (${entry.mapProvider.displayedName}) </#if></label> * :
+					    <#list list_directory_map_providers as map_provider>
+					    	${map_provider.displayedName}<input type="radio" name="key_geolocation_${entry.idEntry}" value="${map_provider.key}" />
+					    </#list>
+					    #i18n{module.form.exportdirectory.configuration_exportdirectory.noMapProvider}<input type="radio" name="key_geolocation_${entry.idEntry}" value="none" />
+					</p>
+				</#list>
+		</div>
+
+
+	<#if record_form &gt; 0>
+		<div class="highlight-box" id="record_Form">
+			<p>
+				<label for="export_all"><font style="color: red;">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAll}</font> : </label>
+				<input type="radio" name="export_all" id="export_record_form" tabindex="1" value="1" checked="checked" />#i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAllYes}
+				<input type="radio" name="export_all" id="export_record_form" tabindex="1" value="0"/>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAllNo}
+			</p>
+		</div>
+	</#if>
+<#else>
+<p>
+	#i18n{module.form.exportdirectory.configuration_exportdirectory.labelNotPermission}
+</p>
+</#if>
+</div>
+
+
+<script language="javascript">
+	
+	function submitForm()
+	{
+		if(document.getElementById("form_directory")!=null)
+		{
+			document.getElementById("form_directory").submit();
+		}
+	}
+	
+	function display()
+	{
+		<#if record_form &gt; 0>
+			document.getElementById("record_Form").style.display="none";
+		</#if>
+		<#if !directory_list_is_empty>
+			document.getElementById("display_use_directory_exist").style.display="none";
+		</#if>
+		<#if create_directory?has_content>
+			document.getElementById("display_create_directory").style.display="none";
+		</#if>	
+		var create = document.getElementById("create_directory");
+		var use = document.getElementById("use_directory_exist");
+		document.getElementById("display_create_directory").style.display="none";
+		if(create.checked)
+		{
+			<#if record_form &gt; 0>
+				document.getElementById("record_Form").style.display="block";
+			</#if>
+			<#if !directory_list_is_empty>
+				document.getElementById("display_use_directory_exist").style.display="none";
+			</#if>
+			document.getElementById("display_create_directory").style.display="block";
+		}
+		<#if !directory_list_is_empty>
+		if(use.checked)
+		{
+			<#if record_form &gt; 0>
+			document.getElementById("record_Form").style.display="block";
+			</#if>
+			<#if !directory_list_is_empty>
+				document.getElementById("display_use_directory_exist").style.display="block";
+			</#if>
+			document.getElementById("display_create_directory").style.display="none";
+
+		}
+		</#if>
+	}
+	display();
+</script>
+
+<script type="text/javascript" charset="utf-8">
+
+function hideField( checkbox, field ){
+
+	var objcheckbox = document.getElementById(checkbox);
+	var objfield = document.getElementById(field);		
+	
+	objfield.style.display=(objcheckbox.checked==false)?"none":"block";
+	
+	return true;
+}
+</script>
+
