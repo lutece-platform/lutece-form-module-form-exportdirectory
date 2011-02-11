@@ -14,13 +14,13 @@
 		<repository>
 			<id>lutece</id>
 			<name>luteceRepository</name>
-			<url>http://dev.lutece.paris.fr/maven_repository</url>
+			<url>http://dev.lutece.paris.fr/maven_repository/module-form-exportdirectory</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
           <id>luteceSnapshot</id>
           <name>luteceSnapshot</name>
-          <url>http://dev.lutece.paris.fr/snapshot_repository</url>
+          <url>http://dev.lutece.paris.fr/snapshot_repository/module-form-exportdirectory</url>
           <snapshots>
               <enabled>true</enabled>
           </snapshots>
@@ -46,8 +46,8 @@
 		</dependency>
 	</dependencies>
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/portal/trunk/plugins/directory-form-workflow</url>
+        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</connection>
+        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</developerConnection>
+        <url>http://dev.lutece.paris.fr/viewvc/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</url>
     </scm>
 </project>
