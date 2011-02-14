@@ -482,7 +482,7 @@ public final class ExportDirectoryUtils
         Directory directory = DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory(  ), pluginDirectory );
         record.setDirectory( directory );
         record.setDateCreation( formSubmit.getDateResponse(  ) );
-        record.setEnabled( true );
+        record.setEnabled( directory.isRecordActivated(  ) );
         record.setListRecordField( new ArrayList<RecordField>(  ) );
         RecordHome.create( record, pluginDirectory );
 
