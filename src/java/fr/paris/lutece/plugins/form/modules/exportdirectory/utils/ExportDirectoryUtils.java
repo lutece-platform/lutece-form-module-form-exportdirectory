@@ -668,7 +668,9 @@ public final class ExportDirectoryUtils
                 recordField.setRecord( record );
 
                 List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry(  ), pluginDirectory );
-                int numbering = DirectoryUtils.convertStringToInt( listField.get( 0 ).getValue(  ) );
+                //int numbering = DirectoryUtils.convertStringToInt( listField.get( 0 ).getValue(  ) );
+                int numbering = RecordFieldHome.findMaxNumber( entry.getEntryType(  ).getIdType(  ), 
+                		entry.getDirectory(  ).getIdDirectory(  ), pluginDirectory );
                 recordField.setValue( String.valueOf( numbering ) );
                 RecordFieldHome.create( recordField, pluginDirectory );
 
