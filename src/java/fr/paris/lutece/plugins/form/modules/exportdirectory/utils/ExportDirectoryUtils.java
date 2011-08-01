@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.business.RecordHome;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
+import fr.paris.lutece.plugins.directory.service.DirectoryService;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
@@ -668,9 +669,7 @@ public final class ExportDirectoryUtils
                 recordField.setRecord( record );
 
                 List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry(  ), pluginDirectory );
-                //int numbering = DirectoryUtils.convertStringToInt( listField.get( 0 ).getValue(  ) );
-                int numbering = RecordFieldHome.findMaxNumber( entry.getEntryType(  ).getIdType(  ), 
-                		entry.getDirectory(  ).getIdDirectory(  ), pluginDirectory );
+                int numbering = DirectoryService.getInstance(  ).getMaxNumber( entry );
                 recordField.setValue( String.valueOf( numbering ) );
                 RecordFieldHome.create( recordField, pluginDirectory );
 
