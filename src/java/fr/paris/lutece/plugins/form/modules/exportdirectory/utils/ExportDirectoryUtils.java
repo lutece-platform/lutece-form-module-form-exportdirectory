@@ -96,6 +96,7 @@ public final class ExportDirectoryUtils
     private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
     public static final String PARAMETER_PREFIX_KEY_GEOLOCATION = "key_geolocation_";
     private static final String PARAMETER_ADD_NUMBERING_ENTRY = "add_numbering_entry";
+    private static final String PARAMETER_ADD_NUMBERING_ENTRY_PREFIX = "add_numbering_entry_prefix";
     private static final String PARAMETER_ID_WORKFLOW = "id_workflow";
     private static final String PARAMETER_IS_IN_RESULT_LIST = "is_in_result_list_";
     private static final String PARAMETER_IS_IN_SEARCH = "is_in_search_";
@@ -220,7 +221,8 @@ public final class ExportDirectoryUtils
         String error = null;
         if ( request.getParameter( PARAMETER_ADD_NUMBERING_ENTRY ).equals( "1" ) )
         {
-            createDirectoryNumberingEntry( pluginDirectory, directory );
+        	String strPrefix = request.getParameter( PARAMETER_ADD_NUMBERING_ENTRY_PREFIX );
+        	createDirectoryNumberingEntry( pluginDirectory, directory, strPrefix );
         }
 
         for ( fr.paris.lutece.plugins.form.business.IEntry formEntry : listFormEntry )
@@ -402,41 +404,46 @@ public final class ExportDirectoryUtils
         }
         return null;
     }
+    
+    public static void createDirectoryNumberingEntry( Plugin pluginDirectory, Directory directory, String strPrefix )
+    {
+    	int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( 
+	                PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
+	    EntryType entryType = EntryTypeHome.findByPrimaryKey( directoryNumberingType, pluginDirectory );
+	    fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( directoryNumberingType,
+	            pluginDirectory );
+	
+	    if ( entryDirectory != null )
+	    {
+	        entryDirectory.setEntryType( entryType );
+	        entryDirectory.setDirectory( directory );
+	        entryDirectory.setTitle( AppPropertiesService.getProperty( PROPERTY_TITLE_ENTRY_TYPE_NUMBERING ) );
+	        entryDirectory.setHelpMessageSearch( "" );
+	        entryDirectory.setComment( "" );
+	        entryDirectory.setIndexed( true );
+	        entryDirectory.setShownInAdvancedSearch( false );
+	        entryDirectory.setShownInResultList( true );
+	        entryDirectory.setShownInResultRecord( true );
+	
+	        EntryHome.create( entryDirectory, pluginDirectory );
+	
+	        Field fieldDirectory = new Field(  );
+	        fieldDirectory.setEntry( entryDirectory );
+	        fieldDirectory.setTitle( strPrefix );
+	        fieldDirectory.setDefaultValue( false );
+	        fieldDirectory.setHeight( 0 );
+	        fieldDirectory.setWidth( 0 );
+	        fieldDirectory.setMaxSizeEnter( 0 );
+	        fieldDirectory.setValue( "1" );
+	        fieldDirectory.setValueTypeDate( null );
+	
+	        fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
+	    }
+    }
 
     public static void createDirectoryNumberingEntry( Plugin pluginDirectory, Directory directory )
     {
-        int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( 
-                    PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
-        EntryType entryType = EntryTypeHome.findByPrimaryKey( directoryNumberingType, pluginDirectory );
-        fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( directoryNumberingType,
-                pluginDirectory );
-
-        if ( entryDirectory != null )
-        {
-            entryDirectory.setEntryType( entryType );
-            entryDirectory.setDirectory( directory );
-            entryDirectory.setTitle( AppPropertiesService.getProperty( PROPERTY_TITLE_ENTRY_TYPE_NUMBERING ) );
-            entryDirectory.setHelpMessageSearch( "" );
-            entryDirectory.setComment( "" );
-            entryDirectory.setIndexed( true );
-            entryDirectory.setShownInAdvancedSearch( false );
-            entryDirectory.setShownInResultList( true );
-            entryDirectory.setShownInResultRecord( true );
-
-            EntryHome.create( entryDirectory, pluginDirectory );
-
-            Field fieldDirectory = new Field(  );
-            fieldDirectory.setEntry( entryDirectory );
-            fieldDirectory.setTitle( null );
-            fieldDirectory.setDefaultValue( false );
-            fieldDirectory.setHeight( 0 );
-            fieldDirectory.setWidth( 0 );
-            fieldDirectory.setMaxSizeEnter( 0 );
-            fieldDirectory.setValue( "1" );
-            fieldDirectory.setValueTypeDate( null );
-
-            fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
-        }
+    	createDirectoryNumberingEntry( pluginDirectory, directory, StringUtils.EMPTY );
     }
 
     public static void createAllDirectoryField( int nIdEntryForm,
