@@ -45,6 +45,10 @@
 			<version>[1.0.0,4.0.0-SNAPSHOT)</version>
 		</dependency>
 	</dependencies>
+	<properties>
+		<componentName>form-exportdirectory</componentName>
+		<jiraProjectName>FORMEXPORTDIRECTORY</jiraProjectName>
+	</properties>
     <scm>
         <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</connection>
         <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</developerConnection>
