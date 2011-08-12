@@ -48,6 +48,7 @@
 	<properties>
 		<componentName>form-exportdirectory</componentName>
 		<jiraProjectName>FORMEXPORTDIRECTORY</jiraProjectName>
+		<jiraComponentId>10251</jiraComponentId>
 	</properties>
     <scm>
         <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-form-exportdirectory</connection>
