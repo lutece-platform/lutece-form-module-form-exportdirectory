@@ -305,6 +305,7 @@ public final class ExportDirectoryUtils
                 }
 
                 entryDirectory.setShownInResultRecord( true );
+                entryDirectory.setShownInExport( true );
                 entryDirectory.setMandatory( entryForm.isMandatory(  ) );
 
                 //For entry type sql
