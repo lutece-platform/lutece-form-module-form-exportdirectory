@@ -107,6 +107,7 @@ public final class ExportDirectoryUtils
     private static final String PARAMETER_CREATE_THUMBNAIL = "create_thumbnail_";
     private static final String PARAMETER_CREATE_BIG_THUMBNAIL = "create_big_thumbnail_";
     private static final String PARAMETER_ACTIVATE_DIRECTORY_RECORD = "activate_directory_record";
+    private static final String PARAMETER_IS_INDEXED = "is_indexed";
 
     //property
     private static final String PROPERTY_DIRECTORY_ID_FORM_SEARCH_STYLE = "form-exportdirectory.directory.id_form_search_style";
@@ -181,6 +182,7 @@ public final class ExportDirectoryUtils
         int nNumberRecordPerPage = AppPropertiesService.getPropertyInt( PROPERTY_NUMBER_RECORD_PER_PAGE,
                 PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_RECORD_STYLE );
         String strRecordActivated = request.getParameter( PARAMETER_ACTIVATE_DIRECTORY_RECORD );
+        String strIsIndexed = request.getParameter( PARAMETER_IS_INDEXED );
 
         if ( nIdResultRecordStyle < 1 )
         {
@@ -199,6 +201,7 @@ public final class ExportDirectoryUtils
         directory.setDateCreation( DirectoryUtils.getCurrentTimestamp(  ) );
         directory.setWorkgroup( form.getWorkgroup(  ) );
         directory.setRecordActivated( strRecordActivated != null );
+        directory.setIndexed( strIsIndexed != null );
 
         if ( ( request.getParameter( PARAMETER_ID_WORKFLOW ) != null ) &&
                 ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_WORKFLOW ) ) != DirectoryUtils.CONSTANT_ID_NULL ) )

@@ -437,7 +437,6 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         for ( IEntry entry : FormUtils.getAllQuestionList( form.getIdForm(  ), plugin ) )
         {
-            HashMap entryFormType = new HashMap(  );
             List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType(  ) );
 
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
