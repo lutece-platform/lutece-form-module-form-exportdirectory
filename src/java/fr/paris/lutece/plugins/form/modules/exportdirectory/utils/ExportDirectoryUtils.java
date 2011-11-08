@@ -63,6 +63,7 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
+import fr.paris.lutece.plugins.form.utils.StringUtil;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -633,7 +634,7 @@ public final class ExportDirectoryUtils
 
                         if ( response.getValueResponse(  ) != null )
                         {
-                            strValue = new String( response.getValueResponse(  ), "8859_1" );
+                            strValue = StringUtil.convertToString( response.getValueResponse(  ) );
                         }
 
                         recordField.setValue( strValue );
