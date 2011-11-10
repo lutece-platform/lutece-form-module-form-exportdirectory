@@ -4,7 +4,7 @@
     <!-- Plugin Informations -->
 	<name>form-exportdirectory</name>
 	<class>fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin</class>
-	<version>1.1.6</version>
+	<version>1.1.7</version>
 	<description>module.form.exportdirectory.module.description</description>
 	<documentation/>
 	<installation/>
