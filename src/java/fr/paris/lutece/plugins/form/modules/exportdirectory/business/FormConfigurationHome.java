@@ -45,7 +45,7 @@ import java.util.Collection;
  * @author ELY
  *
  */
-public class FormConfigurationHome
+public final class FormConfigurationHome
 {
     // Static variable pointed at the DAO instance
     private static IFormConfigurationDAO _dao = (IFormConfigurationDAO) SpringContextService.getPluginBean( ExportdirectoryPlugin.PLUGIN_NAME,

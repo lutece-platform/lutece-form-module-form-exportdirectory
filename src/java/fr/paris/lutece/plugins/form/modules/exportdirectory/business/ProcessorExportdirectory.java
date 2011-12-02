@@ -33,18 +33,6 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
-
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.EntryFilter;
 import fr.paris.lutece.plugins.directory.business.EntryHome;
@@ -78,6 +66,18 @@ import fr.paris.lutece.portal.web.constants.Messages;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.io.UnsupportedEncodingException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -87,6 +87,8 @@ import fr.paris.lutece.util.html.HtmlTemplate;
  */
 public class ProcessorExportdirectory extends OutputProcessor
 {
+    public static final String PROPERTY_FORM_ENTRY_TYPE_IMAGE = "form-exportdirectory.form-entry-type_image";
+
     // Templates
     private static final String TEMPLATE_CONFIGURATION_EXPORTDIRECTORY = "admin/plugins/form/modules/exportdirectory/processorexportdirectory/configuration_exportdirectory.html";
     private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
@@ -140,17 +142,15 @@ public class ProcessorExportdirectory extends OutputProcessor
     //property
     private static final String PROPERTY_FORM_ENTRY_TYPE_COMMENT = "form-exportdirectory.form-entry-type_comment";
     private static final String PROPERTY_FORM_ENTRY_TYPE_FILE = "form-exportdirectory.form-entry-type_file";
-    public static final String PROPERTY_FORM_ENTRY_TYPE_IMAGE = "form-exportdirectory.form-entry-type_image";
-    
+
     //DEFAULT
     private static final String DEFAULT_FORM_IMAGE_TYPE = "12";
-    
+
     //constants
     private static final String CONSTANT_IMAGE_CLASS_NAME = "fr.paris.lutece.plugins.form.business.EntryTypeImage";
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.business.outputprocessor.IOutputProcessor#getOutputConfigForm(fr.paris.lutece.plugins.form.business.Form, java.util.Locale, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public String getOutputConfigForm( HttpServletRequest request, Form form, Locale locale, Plugin plugin )
     {
@@ -190,21 +190,22 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         for ( IEntry entry : FormUtils.getAllQuestionList( form.getIdForm(  ), plugin ) )
         {
-        	if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
-        	{
-        		formEntriesMapProvider.add( entry );
-        	}
-        	if ( entry.getEntryType(  )!= null 
-        			&& entry.getEntryType().getClassName(  ).equals( CONSTANT_IMAGE_CLASS_NAME )  )
-        	{        		
-        		formEntriesImage.add( entry );
-        	}
-        	
+            if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
+            {
+                formEntriesMapProvider.add( entry );
+            }
+
+            if ( ( entry.getEntryType(  ) != null ) &&
+                    entry.getEntryType(  ).getClassName(  ).equals( CONSTANT_IMAGE_CLASS_NAME ) )
+            {
+                formEntriesImage.add( entry );
+            }
+
             if ( entry.getEntryType(  ).getIdType(  ) != nFormEntryTypeComment )
             {
                 Map<String, Object> entryFormType = new HashMap<String, Object>(  );
                 List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType(  ) );
-                
+
                 if ( listEntryTypeDirectory.size(  ) > 1 )
                 {
                     entryFormType.put( MARK_FORM_ENTRY, entry );
@@ -282,9 +283,10 @@ public class ProcessorExportdirectory extends OutputProcessor
         ResponseFilter filter = new ResponseFilter(  );
         filter.setIdForm( form.getIdForm(  ) );
 
-        model.put( MARK_LIST_ENTRY_GEOLOCATION , formEntriesMapProvider );
-        model.put( MARK_LIST_ENTRY_IMAGE , formEntriesImage );
-        model.put( MARK_LIST_DIRECTORY_MAP_PROVIDERS , MapProviderManager.getMapProvidersList(  ) );
+        model.put( MARK_LIST_ENTRY_GEOLOCATION, formEntriesMapProvider );
+        model.put( MARK_LIST_ENTRY_IMAGE, formEntriesImage );
+        model.put( MARK_LIST_DIRECTORY_MAP_PROVIDERS, MapProviderManager.getMapProvidersList(  ) );
+
         int nCountFormSubmit = FormSubmitHome.getCountFormSubmit( filter, plugin );
         model.put( MARK_RECORD_FORM, nCountFormSubmit );
         model.put( MARK_CREATE_DIRECTORY, formEntryTypeWithSeveralDirectoryEntryType );
@@ -313,15 +315,16 @@ public class ProcessorExportdirectory extends OutputProcessor
         }
 
         model.put( MARK_ENTRY_CONFIGURATION_LIST, entryConfigurationList );
-        model.put( MARK_DIRECTORY_LIST_IS_EMPTY, listDirectory.isEmpty(  ) );
+        model.put( MARK_DIRECTORY_LIST_IS_EMPTY, ( listDirectory != null ) ? listDirectory.isEmpty(  ) : true );
         model.put( MARK_MAPPED, isMapped );
         model.put( MARK_FORM, form );
         model.put( MARK_LOCALE, locale );
         model.put( MARK_FORM_CONFIGURATION, formConfiguration );
         model.put( MARK_FORM_ENTRY_FILE,
             DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_FILE ) ) );
-        model.put( MARK_FORM_ENTRY_IMAGE, DirectoryUtils.convertStringToInt(
-        		AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_IMAGE, DEFAULT_FORM_IMAGE_TYPE ) ) );
+        model.put( MARK_FORM_ENTRY_IMAGE,
+            DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_IMAGE,
+                    DEFAULT_FORM_IMAGE_TYPE ) ) );
 
         if ( WorkflowService.getInstance(  ).isAvailable(  ) &&
                 ( WorkflowService.getInstance(  ).getWorkflowsEnabled( AdminUserService.getAdminUser( request ), locale ) != null ) )
@@ -335,9 +338,8 @@ public class ProcessorExportdirectory extends OutputProcessor
         return template.getHtml(  );
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.business.outputprocessor.IOutputProcessor#doOutputConfigForm(javax.servlet.http.HttpServletRequest, java.util.Locale, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public String doOutputConfigForm( HttpServletRequest request, Locale locale, Plugin plugin )
     {
@@ -384,9 +386,8 @@ public class ProcessorExportdirectory extends OutputProcessor
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.business.outputprocessor.IOutputProcessor#process(fr.paris.lutece.plugins.form.business.FormSubmit, javax.servlet.http.HttpServletRequest, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public String process( FormSubmit formSubmit, HttpServletRequest request, Plugin plugin )
     {
@@ -419,6 +420,7 @@ public class ProcessorExportdirectory extends OutputProcessor
      * @param request The {@link HttpServletRequest}
      * @param form The {@link Form} linked to this outputProcessor
      * @param plugin The {@link Plugin}
+     * @param pluginExportdirectory the plugin export directory
      * @return An error message key or null if no error
      */
     private String doActionCreateDirectory( HttpServletRequest request, Form form, Plugin plugin,
@@ -441,12 +443,13 @@ public class ProcessorExportdirectory extends OutputProcessor
 
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
             {
-            	if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION + entry.getIdEntry(  ) ) ) )
-            	{
-            		return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
-            	}
+                if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION +
+                                entry.getIdEntry(  ) ) ) )
+                {
+                    return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
+                }
             }
-            
+
             if ( listEntryTypeDirectory.size(  ) > 1 )
             {
                 if ( request.getParameter( PARAMETER_ID_ENTRY_TYPE + "_" + entry.getIdEntry(  ) ) == null )
@@ -455,14 +458,17 @@ public class ProcessorExportdirectory extends OutputProcessor
                 }
             }
         }
+
         String error = null;
         error = ExportDirectoryUtils.createDirectoryByIdForm( form.getIdForm(  ), request,
-            PluginService.getPlugin( FormPlugin.PLUGIN_NAME ), PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
+                PluginService.getPlugin( FormPlugin.PLUGIN_NAME ),
+                PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
 
-        if( error != null )
+        if ( error != null )
         {
-        	return error;
+            return error;
         }
+
         if ( ( request.getParameter( PARAMETER_EXPORT_ALL ) != null ) &&
                 ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_EXPORT_ALL ) ) == 1 ) )
         {
@@ -496,7 +502,7 @@ public class ProcessorExportdirectory extends OutputProcessor
      * @param request The {@link HttpServletRequest}
      * @param form The {@link Form} linked to this outputProcessor
      * @param plugin The {@link Plugin}
-     * @param plugin The form plugin
+     * @param pluginExportdirectory the plugin export directory
      * @return An error message key or null if no error
      */
     private String doActionUseDirectoryExist( HttpServletRequest request, Form form, Plugin plugin,
@@ -595,7 +601,7 @@ public class ProcessorExportdirectory extends OutputProcessor
      *
      * @param request The {@link HttpServletRequest}
      * @param form The {@link Form} linked to this outputProcessor
-     * @param plugin The {@link Plugin}
+     * @param pluginExportdirectory the plugin export directory
      * @return An error message key or null if no error
      */
     private String doActionRemoveMapping( HttpServletRequest request, Form form, Plugin pluginExportdirectory )

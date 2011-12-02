@@ -73,15 +73,15 @@ public class FormConfiguration
     }
 
     /**
-     * @param idForm the idForm to set
+     * @param nIdForm the idForm to set
      */
-    public void setIdForm( int idForm )
+    public void setIdForm( int nIdForm )
     {
-        this._nIdForm = idForm;
+        this._nIdForm = nIdForm;
     }
 
     /**
-     * @return the idForm
+     * @return the id directory
      */
     public int getIdDirectory(  )
     {
@@ -89,10 +89,10 @@ public class FormConfiguration
     }
 
     /**
-     * @param idForm the idForm to set
+     * @param nIdDirectory the id directory to set
      */
-    public void setIdDirectory( int idDirectory )
+    public void setIdDirectory( int nIdDirectory )
     {
-        this._nIdDirectory = idDirectory;
+        this._nIdDirectory = nIdDirectory;
     }
 }

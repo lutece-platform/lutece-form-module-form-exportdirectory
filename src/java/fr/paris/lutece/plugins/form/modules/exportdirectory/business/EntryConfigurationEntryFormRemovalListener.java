@@ -74,10 +74,8 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
         {
             return false;
         }
-        else
-        {
-            return true;
-        }
+
+        return true;
     }
 
     /**

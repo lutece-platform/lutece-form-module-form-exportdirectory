@@ -38,6 +38,11 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
 
+/**
+ *
+ * ExportdirectoryPlugin
+ *
+ */
 public class ExportdirectoryPlugin extends PluginDefaultImplementation
 {
     public static final String PLUGIN_NAME = "form-exportdirectory";

@@ -59,9 +59,8 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
     private static final String SQL_QUERY_SELECT_ENTRY_CONFIGURATION_BY_ID_FORM = " SELECT id_form_entry, id_directory_entry " +
         "FROM form_exportdirectory_entryconfiguration WHERE id_form = ? ";
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfigurationDAO#findEntryConfigurationListByIdForm(int, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public Collection<EntryConfiguration> findEntryConfigurationListByIdForm( int nIdForm, Plugin plugin )
     {
@@ -85,9 +84,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         return entryConfigurationList;
     }
 
-    /* (non-Javadoc)
-         * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfiguration#findByPrimaryKey(int, int, fr.paris.lutece.portal.service.plugin.Plugin)
-         */
+    /**
+     * {@inheritDoc}
+     */
     public EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, Plugin plugin )
     {
         EntryConfiguration entryConfiguration = null;
@@ -110,9 +109,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         return entryConfiguration;
     }
 
-    /* (non-Javadoc)
-         * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfiguration#delete(int, int, fr.paris.lutece.portal.service.plugin.Plugin)
-         */
+    /**
+     * {@inheritDoc}
+     */
     public void delete( int nIdForm, int nIdEntry, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
@@ -123,9 +122,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         daoUtil.free(  );
     }
 
-    /* (non-Javadoc)
-         * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfiguration#deleteByForm(int, fr.paris.lutece.portal.service.plugin.Plugin)
-         */
+    /**
+     * {@inheritDoc}
+     */
     public void deleteByForm( int nIdForm, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_FORM, plugin );
@@ -135,9 +134,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         daoUtil.free(  );
     }
 
-    /* (non-Javadoc)
-         * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfiguration#insert(fr.paris.lutece.plugins.form.modules.exportdatabase.business.EntryConfiguration, fr.paris.lutece.portal.service.plugin.Plugin)
-         */
+    /**
+     * {@inheritDoc}
+     */
     public void insert( EntryConfiguration entryConfiguration, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
@@ -150,9 +149,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         daoUtil.free(  );
     }
 
-    /* (non-Javadoc)
-         * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IEntryConfiguration#store(fr.paris.lutece.plugins.form.modules.exportdatabase.business.EntryConfiguration, fr.paris.lutece.portal.service.plugin.Plugin)
-         */
+    /**
+     * {@inheritDoc}
+     */
     public void store( EntryConfiguration entryConfiguration, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );

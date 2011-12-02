@@ -70,7 +70,6 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         while ( daoUtil.next(  ) )
         {
             FormConfiguration formConfiguration = new FormConfiguration(  );
-            formConfiguration = new FormConfiguration(  );
             formConfiguration.setIdForm( daoUtil.getInt( 1 ) );
             formConfiguration.setIdDirectory( daoUtil.getInt( 2 ) );
             formConfigurationList.add( formConfiguration );
@@ -81,9 +80,8 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         return formConfigurationList;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IFormConfigurationDAO#findByPrimaryKey(int, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public FormConfiguration findByPrimaryKey( int nIdForm, Plugin plugin )
     {
@@ -105,9 +103,8 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         return formConfiguration;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IFormConfigurationDAO#delete(int, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public void delete( int nIdForm, Plugin plugin )
     {
@@ -118,9 +115,8 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         daoUtil.free(  );
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IFormConfigurationDAO#insert(fr.paris.lutece.plugins.form.modules.exportdatabase.business.FormConfiguration, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public void insert( FormConfiguration formConfiguration, Plugin plugin )
     {
@@ -133,9 +129,8 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         daoUtil.free(  );
     }
 
-    /*
-     * (non-Javadoc)
-     * @see fr.paris.lutece.plugins.form.modules.exportdatabase.business.IFormConfigurationDAO#store(fr.paris.lutece.plugins.form.modules.exportdatabase.business.FormConfiguration, fr.paris.lutece.portal.service.plugin.Plugin)
+    /**
+     * {@inheritDoc}
      */
     public void store( FormConfiguration formConfiguration, Plugin plugin )
     {

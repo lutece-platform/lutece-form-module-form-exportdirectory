@@ -45,7 +45,7 @@ import java.util.Collection;
  * @author ELY
  *
  */
-public class EntryConfigurationHome
+public final class EntryConfigurationHome
 {
     // Static variable pointed at the DAO instance
     private static IEntryConfigurationDAO _dao = (IEntryConfigurationDAO) SpringContextService.getPluginBean( ExportdirectoryPlugin.PLUGIN_NAME,

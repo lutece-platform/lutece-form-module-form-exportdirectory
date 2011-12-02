@@ -63,15 +63,16 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
-import fr.paris.lutece.plugins.form.utils.StringUtil;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
-import fr.paris.lutece.util.filesystem.FileSystemUtil;
 import fr.paris.lutece.util.image.ImageUtil;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -81,9 +82,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -94,8 +94,8 @@ import org.apache.commons.lang.StringUtils;
 public final class ExportDirectoryUtils
 {
     //parameter
-    private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
     public static final String PARAMETER_PREFIX_KEY_GEOLOCATION = "key_geolocation_";
+    private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
     private static final String PARAMETER_ADD_NUMBERING_ENTRY = "add_numbering_entry";
     private static final String PARAMETER_ADD_NUMBERING_ENTRY_PREFIX = "add_numbering_entry_prefix";
     private static final String PARAMETER_ID_WORKFLOW = "id_workflow";
@@ -104,7 +104,7 @@ public final class ExportDirectoryUtils
     private static final String PARAMETER_THUMBNAIL_HEIGHT = "thumbnail_height_";
     private static final String PARAMETER_THUMBNAIL_WIDTH = "thumbnail_width_";
     private static final String PARAMETER_BIG_THUMBNAIL_WIDTH = "big_thumbnail_width_";
-    private static final String PARAMETER_BIG_THUMBNAIL_HEIGHT = "big_thumbnail_height_";    
+    private static final String PARAMETER_BIG_THUMBNAIL_HEIGHT = "big_thumbnail_height_";
     private static final String PARAMETER_CREATE_THUMBNAIL = "create_thumbnail_";
     private static final String PARAMETER_CREATE_BIG_THUMBNAIL = "create_big_thumbnail_";
     private static final String PARAMETER_ACTIVATE_DIRECTORY_RECORD = "activate_directory_record";
@@ -114,7 +114,7 @@ public final class ExportDirectoryUtils
     private static final String PROPERTY_DIRECTORY_ID_FORM_SEARCH_STYLE = "form-exportdirectory.directory.id_form_search_style";
     private static final String PROPERTY_DIRECTORY_ID_RESULT_LIST_STYLE = "form-exportdirectory.directory.id_result_list_style";
     private static final String PROPERTY_DIRECTORY_ID_RESULT_RECORD_STYLE = "form-exportdirectory.directory.id_result_record_style";
-  
+
     /**
      * form-exportdirectory.form-entry-type_geolocation
      */
@@ -128,14 +128,12 @@ public final class ExportDirectoryUtils
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_RECORD_STYLE = 5;
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_FORM_SEARCH_STYLE = 3;
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_LIST_STYLE = 4;
-    
     private static final String FIELD_IMAGE = "image_full_size";
     private static final String FIELD_THUMBNAIL = "little_thumbnail";
-    private static final String FIELD_BIG_THUMBNAIL = "big_thumbnail";    
-    
+    private static final String FIELD_BIG_THUMBNAIL = "big_thumbnail";
     private static final int INTEGER_QUALITY_MAXIMUM = 1;
     private static final int CONST_NONE = -1;
-    
+
     //MESSAGES
     private static final String MESSAGE_ERROR_FIELD_THUMBNAIL = "module.form.exportdirectory.configuration_exportdirectory.message.errorThumbnail";
     private static final String MESSAGE_ERROR_FIELD_BIG_THUMBNAIL = "module.form.exportdirectory.configuration_exportdirectory.message.errorBigThumbnail";
@@ -148,6 +146,11 @@ public final class ExportDirectoryUtils
     {
     }
 
+    /**
+     * Get the directory entry for form entry
+     * @param entryType the entry type
+     * @return a list of entry types
+     */
     public static List<EntryType> getDirectoryEntryForFormEntry( 
         fr.paris.lutece.plugins.form.business.EntryType entryType )
     {
@@ -169,6 +172,14 @@ public final class ExportDirectoryUtils
         return listEntryTypeDirectory;
     }
 
+    /**
+     * Create directory by id form
+     * @param nIdForm the id form
+     * @param request the HTTP request
+     * @param pluginForm the plugin form
+     * @param pluginDirectory the plugin directory
+     * @return a property error message if there is an error
+     */
     public static String createDirectoryByIdForm( int nIdForm, HttpServletRequest request, Plugin pluginForm,
         Plugin pluginDirectory )
     {
@@ -223,23 +234,36 @@ public final class ExportDirectoryUtils
         List<fr.paris.lutece.plugins.form.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm, pluginForm );
 
         String error = null;
+
         if ( request.getParameter( PARAMETER_ADD_NUMBERING_ENTRY ).equals( "1" ) )
         {
-        	String strPrefix = request.getParameter( PARAMETER_ADD_NUMBERING_ENTRY_PREFIX );
-        	createDirectoryNumberingEntry( pluginDirectory, directory, strPrefix );
+            String strPrefix = request.getParameter( PARAMETER_ADD_NUMBERING_ENTRY_PREFIX );
+            createDirectoryNumberingEntry( pluginDirectory, directory, strPrefix );
         }
 
         for ( fr.paris.lutece.plugins.form.business.IEntry formEntry : listFormEntry )
         {
             error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null );
-            if( error != null )
+
+            if ( error != null )
             {
-            	return error;
+                return error;
             }
         }
+
         return null;
     }
 
+    /**
+     * Create a directory entry
+     * @param entryForm the entry form
+     * @param request the HTTP request
+     * @param pluginForm the pluginf form
+     * @param pluginDirectory the plugin directory
+     * @param directory the directory
+     * @param entryGroup the entry group
+     * @return a property error message if there is an error
+     */
     public static String createDirectoryEntry( fr.paris.lutece.plugins.form.business.IEntry entryForm,
         HttpServletRequest request, Plugin pluginForm, Plugin pluginDirectory, Directory directory,
         fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
@@ -271,9 +295,10 @@ public final class ExportDirectoryUtils
 
                 if ( isGeolocationEntry( entryType.getIdType(  ) ) )
                 {
-                	entryDirectory.setMapProvider(MapProviderManager.getMapProvider(request.getParameter( PARAMETER_PREFIX_KEY_GEOLOCATION + entryForm.getIdEntry(  ) )));
-                }                
-                
+                    entryDirectory.setMapProvider( MapProviderManager.getMapProvider( request.getParameter( PARAMETER_PREFIX_KEY_GEOLOCATION +
+                                entryForm.getIdEntry(  ) ) ) );
+                }
+
                 //if it's an image
                 if ( entryType.getIdType(  ) == 10 )
                 {
@@ -327,130 +352,155 @@ public final class ExportDirectoryUtils
                 EntryConfigurationHome.insert( entryConfiguration, pluginExport );
 
                 createAllDirectoryField( entryForm.getIdEntry(  ), entryDirectory, pluginForm, pluginDirectory );
-                
+
                 if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
                 {
-                	//create the fields here for image because thumbnails are not generated in form so there is no formfield for thumbnails
-                	int nIdEntryForm = entryForm.getIdEntry(  );
-                	String strCreateThumbnail = request.getParameter( PARAMETER_CREATE_THUMBNAIL + nIdEntryForm );
-                	String strCreateBigThumbnail = request.getParameter( PARAMETER_CREATE_BIG_THUMBNAIL + nIdEntryForm );
-                	String strThumbnailWidth = request.getParameter( PARAMETER_THUMBNAIL_WIDTH + nIdEntryForm );
-                	String strThumbnailHeight = request.getParameter( PARAMETER_THUMBNAIL_HEIGHT + nIdEntryForm );
-                	String strBigThumbnailWidth = request.getParameter( PARAMETER_BIG_THUMBNAIL_WIDTH + nIdEntryForm );
-                	String strBigThumbnailHeight = request.getParameter( PARAMETER_BIG_THUMBNAIL_HEIGHT + nIdEntryForm );
-                	
-                	int nThumbnailWidth = -1;
-                	int nThumbnailHeight = -1;
-                	int nBigThumbnailHeight = -1;
-                	int nBigThumbnailWidth = -1;
+                    //create the fields here for image because thumbnails are not generated in form so there is no formfield for thumbnails
+                    int nIdEntryForm = entryForm.getIdEntry(  );
+                    String strCreateThumbnail = request.getParameter( PARAMETER_CREATE_THUMBNAIL + nIdEntryForm );
+                    String strCreateBigThumbnail = request.getParameter( PARAMETER_CREATE_BIG_THUMBNAIL + nIdEntryForm );
+                    String strThumbnailWidth = request.getParameter( PARAMETER_THUMBNAIL_WIDTH + nIdEntryForm );
+                    String strThumbnailHeight = request.getParameter( PARAMETER_THUMBNAIL_HEIGHT + nIdEntryForm );
+                    String strBigThumbnailWidth = request.getParameter( PARAMETER_BIG_THUMBNAIL_WIDTH + nIdEntryForm );
+                    String strBigThumbnailHeight = request.getParameter( PARAMETER_BIG_THUMBNAIL_HEIGHT + nIdEntryForm );
 
-                	if( strThumbnailWidth != null )
-                	{
-                		nThumbnailWidth = DirectoryUtils.convertStringToInt( strThumbnailWidth );
-                	}
-                	if( strThumbnailHeight != null )
-                	{
-                		nThumbnailHeight = DirectoryUtils.convertStringToInt( strThumbnailHeight );
-                	}
-                	if( strBigThumbnailWidth != null )
-                	{
-                		nBigThumbnailWidth = DirectoryUtils.convertStringToInt( strBigThumbnailWidth );
-                	}
-                	if( strBigThumbnailHeight != null )
-                	{
-                		nBigThumbnailHeight = DirectoryUtils.convertStringToInt( strBigThumbnailHeight );
-                	}
-                     
-                	if( strCreateThumbnail != null )
-                	{
-                		if (  ( nThumbnailWidth <= 0 ) || ( nThumbnailHeight <= 0 ) )            
-                		{
-                			return MESSAGE_ERROR_FIELD_THUMBNAIL;
-                		}
-                		
-                		fr.paris.lutece.plugins.directory.business.Field thumbnailField = new Field(  );
-                		thumbnailField.setWidth( nThumbnailWidth );
-                		thumbnailField.setHeight( nThumbnailHeight );
-                		thumbnailField.setValue( FIELD_THUMBNAIL );
-                		thumbnailField.setEntry( entryDirectory );
-                		thumbnailField.setShownInResultList( true );
-                		fr.paris.lutece.plugins.directory.business.FieldHome.create( thumbnailField, pluginDirectory );
-                    }
-                    
-                    if( strCreateBigThumbnail != null )
+                    int nThumbnailWidth = -1;
+                    int nThumbnailHeight = -1;
+                    int nBigThumbnailHeight = -1;
+                    int nBigThumbnailWidth = -1;
+
+                    if ( strThumbnailWidth != null )
                     {
-                    	if (  ( nBigThumbnailWidth <= 0 ) || ( nBigThumbnailHeight <= 0 ) )            
-                		{
-                			return MESSAGE_ERROR_FIELD_BIG_THUMBNAIL;
-                		}
-                    	fr.paris.lutece.plugins.directory.business.Field bigThumbnailField = new Field(  );
-                    	bigThumbnailField.setWidth( nBigThumbnailWidth );
-                    	bigThumbnailField.setHeight( nBigThumbnailHeight );
-                    	bigThumbnailField.setValue( FIELD_BIG_THUMBNAIL );
-                    	bigThumbnailField.setEntry( entryDirectory );
-                    	fr.paris.lutece.plugins.directory.business.FieldHome.create( bigThumbnailField, pluginDirectory );
+                        nThumbnailWidth = DirectoryUtils.convertStringToInt( strThumbnailWidth );
                     }
-                }              
-                
+
+                    if ( strThumbnailHeight != null )
+                    {
+                        nThumbnailHeight = DirectoryUtils.convertStringToInt( strThumbnailHeight );
+                    }
+
+                    if ( strBigThumbnailWidth != null )
+                    {
+                        nBigThumbnailWidth = DirectoryUtils.convertStringToInt( strBigThumbnailWidth );
+                    }
+
+                    if ( strBigThumbnailHeight != null )
+                    {
+                        nBigThumbnailHeight = DirectoryUtils.convertStringToInt( strBigThumbnailHeight );
+                    }
+
+                    if ( strCreateThumbnail != null )
+                    {
+                        if ( ( nThumbnailWidth <= 0 ) || ( nThumbnailHeight <= 0 ) )
+                        {
+                            return MESSAGE_ERROR_FIELD_THUMBNAIL;
+                        }
+
+                        fr.paris.lutece.plugins.directory.business.Field thumbnailField = new Field(  );
+                        thumbnailField.setWidth( nThumbnailWidth );
+                        thumbnailField.setHeight( nThumbnailHeight );
+                        thumbnailField.setValue( FIELD_THUMBNAIL );
+                        thumbnailField.setEntry( entryDirectory );
+                        thumbnailField.setShownInResultList( true );
+                        fr.paris.lutece.plugins.directory.business.FieldHome.create( thumbnailField, pluginDirectory );
+                    }
+
+                    if ( strCreateBigThumbnail != null )
+                    {
+                        if ( ( nBigThumbnailWidth <= 0 ) || ( nBigThumbnailHeight <= 0 ) )
+                        {
+                            return MESSAGE_ERROR_FIELD_BIG_THUMBNAIL;
+                        }
+
+                        fr.paris.lutece.plugins.directory.business.Field bigThumbnailField = new Field(  );
+                        bigThumbnailField.setWidth( nBigThumbnailWidth );
+                        bigThumbnailField.setHeight( nBigThumbnailHeight );
+                        bigThumbnailField.setValue( FIELD_BIG_THUMBNAIL );
+                        bigThumbnailField.setEntry( entryDirectory );
+                        fr.paris.lutece.plugins.directory.business.FieldHome.create( bigThumbnailField, pluginDirectory );
+                    }
+                }
+
                 if ( entryForm.getEntryType(  ).getGroup(  ) )
                 {
-                	String error = null;
+                    String error = null;
+
                     for ( fr.paris.lutece.plugins.form.business.IEntry entryFormChildren : entryForm.getChildren(  ) )
                     {
-                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory,
-                            entryDirectory );
-                        if( error != null )
+                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
+                                directory, entryDirectory );
+
+                        if ( error != null )
                         {
-                        	return error;
+                            return error;
                         }
                     }
                 }
             }
         }
+
         return null;
     }
-    
+
+    /**
+     * Create a directory entry type numbering
+     * @param pluginDirectory the plugin directory
+     * @param directory the directory
+     * @param strPrefix the prefix of the entry numbering
+     */
     public static void createDirectoryNumberingEntry( Plugin pluginDirectory, Directory directory, String strPrefix )
     {
-    	int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( 
-	                PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
-	    EntryType entryType = EntryTypeHome.findByPrimaryKey( directoryNumberingType, pluginDirectory );
-	    fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( directoryNumberingType,
-	            pluginDirectory );
-	
-	    if ( entryDirectory != null )
-	    {
-	        entryDirectory.setEntryType( entryType );
-	        entryDirectory.setDirectory( directory );
-	        entryDirectory.setTitle( AppPropertiesService.getProperty( PROPERTY_TITLE_ENTRY_TYPE_NUMBERING ) );
-	        entryDirectory.setHelpMessageSearch( "" );
-	        entryDirectory.setComment( "" );
-	        entryDirectory.setIndexed( true );
-	        entryDirectory.setShownInAdvancedSearch( false );
-	        entryDirectory.setShownInResultList( true );
-	        entryDirectory.setShownInResultRecord( true );
-	
-	        EntryHome.create( entryDirectory, pluginDirectory );
-	
-	        Field fieldDirectory = new Field(  );
-	        fieldDirectory.setEntry( entryDirectory );
-	        fieldDirectory.setTitle( strPrefix );
-	        fieldDirectory.setDefaultValue( false );
-	        fieldDirectory.setHeight( 0 );
-	        fieldDirectory.setWidth( 0 );
-	        fieldDirectory.setMaxSizeEnter( 0 );
-	        fieldDirectory.setValue( "1" );
-	        fieldDirectory.setValueTypeDate( null );
-	
-	        fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
-	    }
+        int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( 
+                    PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
+        EntryType entryType = EntryTypeHome.findByPrimaryKey( directoryNumberingType, pluginDirectory );
+        fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( directoryNumberingType,
+                pluginDirectory );
+
+        if ( entryDirectory != null )
+        {
+            entryDirectory.setEntryType( entryType );
+            entryDirectory.setDirectory( directory );
+            entryDirectory.setTitle( AppPropertiesService.getProperty( PROPERTY_TITLE_ENTRY_TYPE_NUMBERING ) );
+            entryDirectory.setHelpMessageSearch( "" );
+            entryDirectory.setComment( "" );
+            entryDirectory.setIndexed( true );
+            entryDirectory.setShownInAdvancedSearch( false );
+            entryDirectory.setShownInResultList( true );
+            entryDirectory.setShownInResultRecord( true );
+
+            EntryHome.create( entryDirectory, pluginDirectory );
+
+            Field fieldDirectory = new Field(  );
+            fieldDirectory.setEntry( entryDirectory );
+            fieldDirectory.setTitle( strPrefix );
+            fieldDirectory.setDefaultValue( false );
+            fieldDirectory.setHeight( 0 );
+            fieldDirectory.setWidth( 0 );
+            fieldDirectory.setMaxSizeEnter( 0 );
+            fieldDirectory.setValue( "1" );
+            fieldDirectory.setValueTypeDate( null );
+
+            fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
+        }
     }
 
+    /**
+     * Create a directory entry type numbering
+     * @param pluginDirectory the plugin directory
+     * @param directory the directory
+     */
     public static void createDirectoryNumberingEntry( Plugin pluginDirectory, Directory directory )
     {
-    	createDirectoryNumberingEntry( pluginDirectory, directory, StringUtils.EMPTY );
+        createDirectoryNumberingEntry( pluginDirectory, directory, StringUtils.EMPTY );
     }
 
+    /**
+     * Create all directory fields
+     * @param nIdEntryForm the id entry form
+     * @param entryDirectory the entry directory
+     * @param pluginForm the plugin form
+     * @param pluginDirectory the plugin directory
+     */
     public static void createAllDirectoryField( int nIdEntryForm,
         fr.paris.lutece.plugins.directory.business.IEntry entryDirectory, Plugin pluginForm, Plugin pluginDirectory )
     {
@@ -469,23 +519,34 @@ public final class ExportDirectoryUtils
                 fieldDirectory.setHeight( fieldForm.getHeight(  ) );
                 fieldDirectory.setWidth( fieldForm.getWidth(  ) );
                 fieldDirectory.setMaxSizeEnter( fieldForm.getMaxSizeEnter(  ) );
-                
+
                 fieldDirectory.setValueTypeDate( fieldForm.getValueTypeDate(  ) );
                 fieldDirectory.setShownInResultRecord( true );
-                if( entryForm.getEntryType(  ).getIdType(  ) == 
-                	AppPropertiesService.getPropertyInt( ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) )
+
+                if ( entryForm.getEntryType(  ).getIdType(  ) == AppPropertiesService.getPropertyInt( 
+                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) )
                 {
-                	fieldDirectory.setValue( FIELD_IMAGE );
+                    fieldDirectory.setValue( FIELD_IMAGE );
                 }
                 else
                 {
-                	fieldDirectory.setValue( fieldForm.getValue(  ) );
+                    fieldDirectory.setValue( fieldForm.getValue(  ) );
                 }
+
                 fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
             }
         }
     }
 
+    /**
+     * Create a directory record
+     * @param request the HTTP request
+     * @param formConfiguration the form configuration
+     * @param formSubmit the form submit
+     * @param pluginForm the plugin form
+     * @param pluginDirectory the plugin directory
+     * @throws UnsupportedEncodingException error if there is an encoding problem
+     */
     public static void createDirectoryRecord( HttpServletRequest request, FormConfiguration formConfiguration,
         FormSubmit formSubmit, Plugin pluginForm, Plugin pluginDirectory )
         throws UnsupportedEncodingException
@@ -518,146 +579,137 @@ public final class ExportDirectoryUtils
                     // Entry of type file
                     if ( isDirectoryFileType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
                     {
-                        if ( ( response.getValueResponse(  ) != null ) && ( response.getValueResponse(  ).length > 0 ) )
+                        if ( ( response.getFile(  ) != null ) && ( response.getFile(  ).getPhysicalFile(  ) != null ) &&
+                                ( response.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
                         {
                             File file = new File(  );
-                            file.setTitle( response.getFileName(  ) );
-                            file.setExtension( response.getFileExtension(  ) );
-
-                            if ( ( response.getFileExtension(  ) != null ) && ( response.getFileName(  ) != null ) )
-                            {
-                                if ( response.getFileExtension(  ).equals( "csv" ) )
-                                {
-                                    file.setMimeType( "application/csv" );
-                                }
-                                else
-                                {
-                                    file.setMimeType( FileSystemUtil.getMIMEType( response.getFileName(  ) ) );
-                                }
-                            }
+                            file.setTitle( response.getFile(  ).getTitle(  ) );
+                            file.setExtension( FilenameUtils.getExtension( response.getFile(  ).getTitle(  ) ) );
+                            file.setMimeType( response.getFile(  ).getMimeType(  ) );
 
                             PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( response.getValueResponse(  ) );
+                            physicalFile.setValue( response.getFile(  ).getPhysicalFile(  ).getValue(  ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( response.getValueResponse(  ).length );
+                            file.setSize( response.getFile(  ).getSize(  ) );
 
                             recordField.setFile( file );
                         }
                     }
+
                     // Entry of type file
                     else if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
                     {
-                        if ( ( response.getValueResponse(  ) != null ) && ( response.getValueResponse(  ).length > 0 ) )
+                        if ( ( response.getFile(  ) != null ) && ( response.getFile(  ).getPhysicalFile(  ) != null ) &&
+                                ( response.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
                         {
                             File file = new File(  );
-                            file.setTitle( response.getFileName(  ) );
-                            file.setExtension( response.getFileExtension(  ) );
-
-                            if ( ( response.getFileExtension(  ) != null ) && ( response.getFileName(  ) != null ) )
-                            {                               
-                            	file.setMimeType( FileSystemUtil.getMIMEType( response.getFileName(  ) ) );                                
-                            }
+                            file.setTitle( response.getFile(  ).getTitle(  ) );
+                            file.setExtension( FilenameUtils.getExtension( response.getFile(  ).getTitle(  ) ) );
+                            file.setMimeType( response.getFile(  ).getMimeType(  ) );
 
                             PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( response.getValueResponse(  ) );
+                            physicalFile.setValue( response.getFile(  ).getPhysicalFile(  ).getValue(  ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( response.getValueResponse(  ).length );
+                            file.setSize( response.getFile(  ).getSize(  ) );
 
                             recordField.setFile( file );
-                           
+
                             //Create thumbnails records
-                           
                             try
                             {
-                            	//verify that the file is an image
-                            	ImageIO.read( new ByteArrayInputStream( response.getValueResponse(  ) ) );
+                                //verify that the file is an image
+                                ImageIO.read( new ByteArrayInputStream( 
+                                        response.getFile(  ).getPhysicalFile(  ).getValue(  ) ) );
 
-                            	for( Field field : entryDirectory.getFields(  ) )
-                            	{
-                            		if ( ( field.getValue(  ) != null ) &&  ( field.getValue(  ).equals( FIELD_IMAGE ) ) )
-                            		{
-                            			recordField.setField( field );
-                            		}
-                            		if( ( field.getValue(  ) != null ) && ( ( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
-                            				|| ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) ) ) )
-                            		{
-                            			byte[] resizedImage = ImageUtil.resizeImage( response.getValueResponse(  )
-                                				, String.valueOf( field.getWidth( ) )
-                                				, String.valueOf( field.getHeight( ) )
-                                				, INTEGER_QUALITY_MAXIMUM );
+                                for ( Field field : entryDirectory.getFields(  ) )
+                                {
+                                    if ( ( field.getValue(  ) != null ) && ( field.getValue(  ).equals( FIELD_IMAGE ) ) )
+                                    {
+                                        recordField.setField( field );
+                                    }
 
+                                    if ( ( field.getValue(  ) != null ) &&
+                                            ( ( field.getValue(  ).equals( FIELD_THUMBNAIL ) ) ||
+                                            ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) ) ) )
+                                    {
+                                        byte[] resizedImage = ImageUtil.resizeImage( response.getFile(  )
+                                                                                             .getPhysicalFile(  )
+                                                                                             .getValue(  ),
+                                                String.valueOf( field.getWidth(  ) ),
+                                                String.valueOf( field.getHeight(  ) ), INTEGER_QUALITY_MAXIMUM );
 
-                                		RecordField thbnailRecordField = new RecordField(  );
-                                		thbnailRecordField.setEntry( entryDirectory );
+                                        RecordField thbnailRecordField = new RecordField(  );
+                                        thbnailRecordField.setEntry( entryDirectory );
 
-                                		PhysicalFile thbnailPhysicalFile = new PhysicalFile(  );
-                                		thbnailPhysicalFile.setValue( resizedImage );
-                                		File thbnailFile = new File(  );
-                                		thbnailFile.setTitle( response.getFileName(  ) );
-                                		thbnailFile.setExtension( response.getFileExtension(  ) );
+                                        PhysicalFile thbnailPhysicalFile = new PhysicalFile(  );
+                                        thbnailPhysicalFile.setValue( resizedImage );
 
-                                		if ( ( response.getFileExtension(  ) != null ) && ( response.getFileName(  ) != null ) )
-                                		{                               
-                                			thbnailFile.setMimeType( FileSystemUtil.getMIMEType( response.getFileName(  ) ) );                                
-                                		}
-                                		thbnailFile.setPhysicalFile( thbnailPhysicalFile );
-                                		thbnailFile.setSize( resizedImage.length );
+                                        File thbnailFile = new File(  );
+                                        thbnailFile.setTitle( response.getFile(  ).getTitle(  ) );
+                                        thbnailFile.setExtension( FilenameUtils.getExtension( 
+                                                response.getFile(  ).getTitle(  ) ) );
+                                        thbnailFile.setMimeType( response.getFile(  ).getMimeType(  ) );
+                                        thbnailFile.setPhysicalFile( thbnailPhysicalFile );
+                                        thbnailFile.setSize( resizedImage.length );
 
-                                		thbnailRecordField.setFile( thbnailFile );
-                                		thbnailRecordField.setField( field );
+                                        thbnailRecordField.setFile( thbnailFile );
+                                        thbnailRecordField.setField( field );
 
-                                		thbnailRecordField.setRecord( record );
-                                		if( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
-                                		{                            			
-                                			thbnailRecordField.setValue( FIELD_THUMBNAIL );                                        
-                                		}
-                                		else if( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) )
-                                		{                            			
-                                			thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL );                                       
-                                		}
-                                		RecordFieldHome.create( thbnailRecordField, pluginDirectory );
-                            		}
-                            	
-                            	}
+                                        thbnailRecordField.setRecord( record );
 
-                    		} 
+                                        if ( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
+                                        {
+                                            thbnailRecordField.setValue( FIELD_THUMBNAIL );
+                                        }
+                                        else if ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) )
+                                        {
+                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL );
+                                        }
+
+                                        RecordFieldHome.create( thbnailRecordField, pluginDirectory );
+                                    }
+                                }
+                            }
                             catch ( IOException e )
-                    		{			
-                    			AppLogService.error( e );
-                    		}                                                     
-                            
+                            {
+                                AppLogService.error( e );
+                            }
                         }
                     }
                     else
                     {
                         String strValue = DirectoryUtils.EMPTY_STRING;
 
-                        if ( response.getValueResponse(  ) != null )
+                        if ( StringUtils.isNotBlank( response.getResponseValue(  ) ) )
                         {
-                            strValue = StringUtil.convertToString( response.getValueResponse(  ) );
+                            strValue = response.getResponseValue(  );
                         }
 
                         recordField.setValue( strValue );
 
                         if ( ( response.getField(  ) != null ) )
                         {
-                        	Field fieldDirectory = null;
-                        	// entry of type geolocation ==> get response value
-                        	if ( ( entryDirectory != null ) && 
-                        			( entryDirectory.getEntryType(  ) != null ) && 
-                        			( isGeolocationEntry( entryDirectory.getEntryType(  ).getIdType(  ) ) ) )
-                        	{
-                        		fr.paris.lutece.plugins.form.business.Field formField = fr.paris.lutece.plugins.form.business.FieldHome.findByPrimaryKey( response.getField(  ).getIdField(  ), pluginForm );
-                        		fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ), formField.getValue(  ),
-	                                    pluginDirectory );
-                        	}
-	                        // Entry of type select box, checkbox, radio
-                        	else if ( ( response.getField(  ).getIdField(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
-	                        {
-	                            fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ), strValue,
-	                                    pluginDirectory );
-	                        }
-                        	recordField.setField( fieldDirectory );
+                            Field fieldDirectory = null;
+
+                            // entry of type geolocation ==> get response value
+                            if ( ( entryDirectory != null ) && ( entryDirectory.getEntryType(  ) != null ) &&
+                                    ( isGeolocationEntry( entryDirectory.getEntryType(  ).getIdType(  ) ) ) )
+                            {
+                                fr.paris.lutece.plugins.form.business.Field formField = fr.paris.lutece.plugins.form.business.FieldHome.findByPrimaryKey( response.getField(  )
+                                                                                                                                                                  .getIdField(  ),
+                                        pluginForm );
+                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ),
+                                        formField.getValue(  ), pluginDirectory );
+                            }
+
+                            // Entry of type select box, checkbox, radio
+                            else if ( ( response.getField(  ).getIdField(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+                            {
+                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ), strValue,
+                                        pluginDirectory );
+                            }
+
+                            recordField.setField( fieldDirectory );
                         }
                     }
 
@@ -689,29 +741,32 @@ public final class ExportDirectoryUtils
                 FieldHome.update( listField.get( 0 ), pluginDirectory );
             }
         }
-        
+
         WorkflowService workflowService = WorkflowService.getInstance(  );
-        
-        if ( workflowService.isAvailable(  ) &&
-                ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+
+        if ( workflowService.isAvailable(  ) && ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
         {
-            State state = workflowService.getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE
-            		, directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
-            
+            State state = workflowService.getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                    directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
+
             if ( state != null )
             {
-            	workflowService.executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE
-                        , directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+                workflowService.executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                    directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
             }
             else
             {
-            	AppLogService.info(" FormExportDirectory : No initial state for workflow : " 
-            			+ directory.getIdWorkflow(  ) + ". The form will be recorded but will not be shown in directory." );
+                AppLogService.info( " FormExportDirectory : No initial state for workflow : " +
+                    directory.getIdWorkflow(  ) + ". The form will be recorded but will not be shown in directory." );
             }
-        	
         }
     }
 
+    /**
+     * Check if the given id entry type is an entry type file
+     * @param nIdEntryType the id entry type
+     * @return true if it is an entry type file, false otherwise
+     */
     public static boolean isDirectoryFileType( int nIdEntryType )
     {
         String strMappingFileType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_FILE );
@@ -731,7 +786,12 @@ public final class ExportDirectoryUtils
 
         return false;
     }
-    
+
+    /**
+     * Check if the given id entry type is an entry type image
+     * @param nIdEntryType the id entry type
+     * @return true if it is an entry type image
+     */
     public static boolean isDirectoryImageType( int nIdEntryType )
     {
         String strMappingImageType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_IMAGE );
@@ -751,29 +811,12 @@ public final class ExportDirectoryUtils
 
         return false;
     }
-    
-    /*public static boolean isFormImageType( int nIdEntryType )
-    {
-        String strMappingImageType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_IMAGE );
 
-        if ( strMappingImageType != null )
-        {
-            String[] tabImageType = strMappingImageType.split( "," );
-
-            for ( String strIdTypeFile : tabImageType )
-            {
-                if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeFile ) )
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }*/
-    
-    
-
+    /**
+     * Check if the given id entry type is an entry type numbering
+     * @param nIdEntryType the id entry type
+     * @return true if it is an entry type numbering, false otherwise
+     */
     public static boolean isDirectoryNumberingType( int nIdEntryType )
     {
         String strMappingFileType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING );
@@ -793,48 +836,50 @@ public final class ExportDirectoryUtils
 
         return false;
     }
-    
+
     /**
      * Finds if the given form entry is a geolocation entry
      * @param formEntry the form entry
      * @return <code>true</code> if the entry type is a geolocation type, <code>false</code> otherwise.
      */
-    public static final boolean isGeolocationFormEntry( fr.paris.lutece.plugins.form.business.IEntry formEntry )
+    public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.form.business.IEntry formEntry )
     {
-    	
-    	List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType(  ) );
-    	for ( EntryType entryType : entryTypes )
-    	{
-    		if ( isGeolocationEntry( entryType.getIdType(  ) ) )
-    		{
-    			return true;
-    		}
-    	}
-    	return false;
+        List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType(  ) );
+
+        for ( EntryType entryType : entryTypes )
+        {
+            if ( isGeolocationEntry( entryType.getIdType(  ) ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
-    
+
     /**
      * Geolocation type ids are set with the proprety {@link ExportDirectoryUtils#PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION}
      * @param nIdEntryType the type to check
      * @return <code>true</code> if the entry type is a geolocation type, <code>false</code> otherwise.
      */
-    public static final boolean isGeolocationEntry( int nIdEntryType )
+    public static boolean isGeolocationEntry( int nIdEntryType )
     {
-    	String strIdsGeolocation = AppPropertiesService.getProperty( PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION, DirectoryUtils.EMPTY_STRING );
-    	
-    	if ( StringUtils.isNotBlank( strIdsGeolocation ) )
-    	{
-    		 String[] tabGeolocationType = strIdsGeolocation.split( "," );
+        String strIdsGeolocation = AppPropertiesService.getProperty( PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION,
+                DirectoryUtils.EMPTY_STRING );
 
-             for ( String strIdTypeGeolocation : tabGeolocationType )
-             {
-                 if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeGeolocation ) )
-                 {
-                     return true;
-                 }
-             }
-    	}
-    	
-    	return false;
+        if ( StringUtils.isNotBlank( strIdsGeolocation ) )
+        {
+            String[] tabGeolocationType = strIdsGeolocation.split( "," );
+
+            for ( String strIdTypeGeolocation : tabGeolocationType )
+            {
+                if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeGeolocation ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
