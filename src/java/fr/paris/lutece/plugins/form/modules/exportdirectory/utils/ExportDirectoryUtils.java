@@ -524,7 +524,8 @@ public final class ExportDirectoryUtils
                 fieldDirectory.setShownInResultRecord( true );
 
                 if ( entryForm.getEntryType(  ).getIdType(  ) == AppPropertiesService.getPropertyInt( 
-                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) )
+                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) && 
+                            StringUtils.isBlank( fieldForm.getTitle(  ) ) )
                 {
                     fieldDirectory.setValue( FIELD_IMAGE );
                 }
@@ -560,6 +561,8 @@ public final class ExportDirectoryUtils
         record.setListRecordField( new ArrayList<RecordField>(  ) );
         RecordHome.create( record, pluginDirectory );
 
+        // The index is used to distinguish the thumbnails of one image from another
+        int nIndexForImg = 0;
         for ( Response response : formSubmit.getListResponse(  ) )
         {
             EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( formSubmit.getForm(  )
@@ -625,6 +628,7 @@ public final class ExportDirectoryUtils
                                 {
                                     if ( ( field.getValue(  ) != null ) && ( field.getValue(  ).equals( FIELD_IMAGE ) ) )
                                     {
+                                    	recordField.setValue( FIELD_IMAGE + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         recordField.setField( field );
                                     }
 
@@ -659,11 +663,11 @@ public final class ExportDirectoryUtils
 
                                         if ( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_THUMBNAIL );
+                                            thbnailRecordField.setValue( FIELD_THUMBNAIL + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
                                         else if ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL );
+                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
 
                                         RecordFieldHome.create( thbnailRecordField, pluginDirectory );
@@ -675,6 +679,7 @@ public final class ExportDirectoryUtils
                                 AppLogService.error( e );
                             }
                         }
+                        nIndexForImg++;
                     }
                     else
                     {
