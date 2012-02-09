@@ -481,9 +481,10 @@ public class ProcessorExportdirectory extends OutputProcessor
             {
                 ResponseFilter responseFilterFormSubmit = new ResponseFilter(  );
                 responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit(  ) );
-                ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( 
-                		FormPlugin.PLUGIN_NAME, FormUtils.BEAN_FORM_RESPONSE_SERVICE );
-                formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, true ) );
+
+                ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
+                        FormUtils.BEAN_FORM_RESPONSE_SERVICE );
+                formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
 
                 try
                 {
@@ -581,7 +582,10 @@ public class ProcessorExportdirectory extends OutputProcessor
                 {
                     ResponseFilter responseFilterFormSubmit = new ResponseFilter(  );
                     responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit(  ) );
-                    formSubmit.setListResponse( ResponseHome.getResponseList( responseFilterFormSubmit, pluginForm ) );
+
+                    ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
+                            FormUtils.BEAN_FORM_RESPONSE_SERVICE );
+                    formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
 
                     try
                     {

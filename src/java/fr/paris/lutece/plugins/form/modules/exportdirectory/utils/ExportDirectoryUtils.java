@@ -62,10 +62,13 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigurationHome;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
+import fr.paris.lutece.plugins.form.service.FormPlugin;
+import fr.paris.lutece.plugins.form.service.ResponseService;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
@@ -523,9 +526,9 @@ public final class ExportDirectoryUtils
                 fieldDirectory.setValueTypeDate( fieldForm.getValueTypeDate(  ) );
                 fieldDirectory.setShownInResultRecord( true );
 
-                if ( entryForm.getEntryType(  ).getIdType(  ) == AppPropertiesService.getPropertyInt( 
-                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) && 
-                            StringUtils.isBlank( fieldForm.getTitle(  ) ) )
+                if ( ( entryForm.getEntryType(  ).getIdType(  ) == AppPropertiesService.getPropertyInt( 
+                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) ) &&
+                        StringUtils.isBlank( fieldForm.getTitle(  ) ) )
                 {
                     fieldDirectory.setValue( FIELD_IMAGE );
                 }
@@ -561,8 +564,12 @@ public final class ExportDirectoryUtils
         record.setListRecordField( new ArrayList<RecordField>(  ) );
         RecordHome.create( record, pluginDirectory );
 
+        ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
+                FormUtils.BEAN_FORM_RESPONSE_SERVICE );
+
         // The index is used to distinguish the thumbnails of one image from another
         int nIndexForImg = 0;
+
         for ( Response response : formSubmit.getListResponse(  ) )
         {
             EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( formSubmit.getForm(  )
@@ -582,18 +589,21 @@ public final class ExportDirectoryUtils
                     // Entry of type file
                     if ( isDirectoryFileType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
                     {
-                        if ( ( response.getFile(  ) != null ) && ( response.getFile(  ).getPhysicalFile(  ) != null ) &&
-                                ( response.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
+                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse(  ), true );
+
+                        if ( ( responseFile.getFile(  ) != null ) &&
+                                ( responseFile.getFile(  ).getPhysicalFile(  ) != null ) &&
+                                ( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
                         {
                             File file = new File(  );
-                            file.setTitle( response.getFile(  ).getTitle(  ) );
-                            file.setExtension( FilenameUtils.getExtension( response.getFile(  ).getTitle(  ) ) );
-                            file.setMimeType( response.getFile(  ).getMimeType(  ) );
+                            file.setTitle( responseFile.getFile(  ).getTitle(  ) );
+                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile(  ).getTitle(  ) ) );
+                            file.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
 
                             PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( response.getFile(  ).getPhysicalFile(  ).getValue(  ) );
+                            physicalFile.setValue( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( response.getFile(  ).getSize(  ) );
+                            file.setSize( responseFile.getFile(  ).getSize(  ) );
 
                             recordField.setFile( file );
                         }
@@ -602,18 +612,21 @@ public final class ExportDirectoryUtils
                     // Entry of type file
                     else if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
                     {
-                        if ( ( response.getFile(  ) != null ) && ( response.getFile(  ).getPhysicalFile(  ) != null ) &&
-                                ( response.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
+                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse(  ), true );
+
+                        if ( ( responseFile.getFile(  ) != null ) &&
+                                ( responseFile.getFile(  ).getPhysicalFile(  ) != null ) &&
+                                ( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
                         {
                             File file = new File(  );
-                            file.setTitle( response.getFile(  ).getTitle(  ) );
-                            file.setExtension( FilenameUtils.getExtension( response.getFile(  ).getTitle(  ) ) );
-                            file.setMimeType( response.getFile(  ).getMimeType(  ) );
+                            file.setTitle( responseFile.getFile(  ).getTitle(  ) );
+                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile(  ).getTitle(  ) ) );
+                            file.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
 
                             PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( response.getFile(  ).getPhysicalFile(  ).getValue(  ) );
+                            physicalFile.setValue( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( response.getFile(  ).getSize(  ) );
+                            file.setSize( responseFile.getFile(  ).getSize(  ) );
 
                             recordField.setFile( file );
 
@@ -622,13 +635,14 @@ public final class ExportDirectoryUtils
                             {
                                 //verify that the file is an image
                                 ImageIO.read( new ByteArrayInputStream( 
-                                        response.getFile(  ).getPhysicalFile(  ).getValue(  ) ) );
+                                        responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) ) );
 
                                 for ( Field field : entryDirectory.getFields(  ) )
                                 {
                                     if ( ( field.getValue(  ) != null ) && ( field.getValue(  ).equals( FIELD_IMAGE ) ) )
                                     {
-                                    	recordField.setValue( FIELD_IMAGE + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
+                                        recordField.setValue( FIELD_IMAGE + FormUtils.CONSTANT_UNDERSCORE +
+                                            nIndexForImg );
                                         recordField.setField( field );
                                     }
 
@@ -636,9 +650,9 @@ public final class ExportDirectoryUtils
                                             ( ( field.getValue(  ).equals( FIELD_THUMBNAIL ) ) ||
                                             ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) ) ) )
                                     {
-                                        byte[] resizedImage = ImageUtil.resizeImage( response.getFile(  )
-                                                                                             .getPhysicalFile(  )
-                                                                                             .getValue(  ),
+                                        byte[] resizedImage = ImageUtil.resizeImage( responseFile.getFile(  )
+                                                                                                 .getPhysicalFile(  )
+                                                                                                 .getValue(  ),
                                                 String.valueOf( field.getWidth(  ) ),
                                                 String.valueOf( field.getHeight(  ) ), INTEGER_QUALITY_MAXIMUM );
 
@@ -649,10 +663,10 @@ public final class ExportDirectoryUtils
                                         thbnailPhysicalFile.setValue( resizedImage );
 
                                         File thbnailFile = new File(  );
-                                        thbnailFile.setTitle( response.getFile(  ).getTitle(  ) );
+                                        thbnailFile.setTitle( responseFile.getFile(  ).getTitle(  ) );
                                         thbnailFile.setExtension( FilenameUtils.getExtension( 
-                                                response.getFile(  ).getTitle(  ) ) );
-                                        thbnailFile.setMimeType( response.getFile(  ).getMimeType(  ) );
+                                                responseFile.getFile(  ).getTitle(  ) ) );
+                                        thbnailFile.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
                                         thbnailFile.setPhysicalFile( thbnailPhysicalFile );
                                         thbnailFile.setSize( resizedImage.length );
 
@@ -663,11 +677,13 @@ public final class ExportDirectoryUtils
 
                                         if ( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_THUMBNAIL + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
+                                            thbnailRecordField.setValue( FIELD_THUMBNAIL +
+                                                FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
                                         else if ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
+                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL +
+                                                FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
 
                                         RecordFieldHome.create( thbnailRecordField, pluginDirectory );
@@ -679,6 +695,7 @@ public final class ExportDirectoryUtils
                                 AppLogService.error( e );
                             }
                         }
+
                         nIndexForImg++;
                     }
                     else
