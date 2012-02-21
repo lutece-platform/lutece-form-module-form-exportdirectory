@@ -52,7 +52,7 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.service.Exportdirect
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryResourceIdService;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.utils.ExportDirectoryUtils;
 import fr.paris.lutece.plugins.form.service.FormPlugin;
-import fr.paris.lutece.plugins.form.service.ResponseService;
+import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.form.web.FormJspBean;
 import fr.paris.lutece.portal.business.rbac.RBAC;
@@ -482,7 +482,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                 ResponseFilter responseFilterFormSubmit = new ResponseFilter(  );
                 responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit(  ) );
 
-                ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
+                IResponseService responseService = (IResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
                         FormUtils.BEAN_FORM_RESPONSE_SERVICE );
                 formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
 
@@ -583,7 +583,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                     ResponseFilter responseFilterFormSubmit = new ResponseFilter(  );
                     responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit(  ) );
 
-                    ResponseService responseService = (ResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
+                    IResponseService responseService = (IResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
                             FormUtils.BEAN_FORM_RESPONSE_SERVICE );
                     formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
 
