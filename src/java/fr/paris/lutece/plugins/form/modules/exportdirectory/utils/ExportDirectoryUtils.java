@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.directory.business.MapProviderManager;
 import fr.paris.lutece.plugins.directory.business.PhysicalFile;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
+import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
 import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.business.RecordHome;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
@@ -74,17 +75,19 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.util.image.ImageUtil;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -748,17 +751,26 @@ public final class ExportDirectoryUtils
         {
             if ( isDirectoryNumberingType( entry.getEntryType(  ).getIdType(  ) ) )
             {
-                RecordField recordField = new RecordField(  );
-                recordField.setEntry( entry );
-                recordField.setRecord( record );
+                RecordFieldFilter filter = new RecordFieldFilter(  );
+                filter.setIdEntry( entry.getIdEntry(  ) );
+                filter.setIdRecord( record.getIdRecord(  ) );
 
-                List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry(  ), pluginDirectory );
-                int numbering = DirectoryService.getInstance(  ).getMaxNumber( entry );
-                recordField.setValue( String.valueOf( numbering ) );
-                RecordFieldHome.create( recordField, pluginDirectory );
+                List<RecordField> listRecordFields = RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
 
-                listField.get( 0 ).setValue( String.valueOf( numbering + 1 ) );
-                FieldHome.update( listField.get( 0 ), pluginDirectory );
+                if ( ( listRecordFields == null ) || listRecordFields.isEmpty(  ) )
+                {
+                    RecordField recordField = new RecordField(  );
+                    recordField.setEntry( entry );
+                    recordField.setRecord( record );
+
+                    List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry(  ), pluginDirectory );
+                    int numbering = DirectoryService.getInstance(  ).getMaxNumber( entry );
+                    recordField.setValue( String.valueOf( numbering ) );
+                    RecordFieldHome.create( recordField, pluginDirectory );
+
+                    listField.get( 0 ).setValue( String.valueOf( numbering + 1 ) );
+                    FieldHome.update( listField.get( 0 ), pluginDirectory );
+                }
             }
         }
 

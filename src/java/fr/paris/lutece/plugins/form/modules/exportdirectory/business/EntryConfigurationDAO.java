@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
+import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
@@ -74,8 +75,8 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         {
             EntryConfiguration entryConfiguration = new EntryConfiguration(  );
 
-            entryConfiguration.setIdFormEntry( daoUtil.getInt( 1 ) );
-            entryConfiguration.setIdDirectoryEntry( daoUtil.getInt( 2 ) );
+            entryConfiguration.setIdFormEntry( DirectoryUtils.convertStringToInt( daoUtil.getString( 1 ) ) );
+            entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( daoUtil.getString( 2 ) ) );
             entryConfigurationList.add( entryConfiguration );
         }
 
@@ -92,7 +93,7 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         EntryConfiguration entryConfiguration = null;
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_PRIMARY_KEY, plugin );
         daoUtil.setInt( 1, nIdForm );
-        daoUtil.setInt( 2, nIdEntry );
+        daoUtil.setString( 2, Integer.toString( nIdEntry ) );
 
         daoUtil.executeQuery(  );
 
@@ -116,7 +117,7 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nIdForm );
-        daoUtil.setInt( 2, nIdEntry );
+        daoUtil.setString( 2, Integer.toString( nIdEntry ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -142,8 +143,8 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
 
         daoUtil.setInt( 1, entryConfiguration.getIdForm(  ) );
-        daoUtil.setInt( 2, entryConfiguration.getIdFormEntry(  ) );
-        daoUtil.setInt( 3, entryConfiguration.getIdDirectoryEntry(  ) );
+        daoUtil.setString( 2, Integer.toString( entryConfiguration.getIdFormEntry(  ) ) );
+        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdDirectoryEntry(  ) ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -156,9 +157,9 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
 
-        daoUtil.setInt( 1, entryConfiguration.getIdDirectoryEntry(  ) );
+        daoUtil.setString( 1, Integer.toString( entryConfiguration.getIdDirectoryEntry(  ) ) );
         daoUtil.setInt( 2, entryConfiguration.getIdForm(  ) );
-        daoUtil.setInt( 3, entryConfiguration.getIdFormEntry(  ) );
+        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdFormEntry(  ) ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
