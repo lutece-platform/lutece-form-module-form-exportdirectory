@@ -1,0 +1,1 @@
+INSERT INTO core_admin_role_resource VALUES (992, 'super_admin','FORM_EXPORT_DIRECTORY_TYPE','*','*');
