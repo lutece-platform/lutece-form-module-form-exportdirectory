@@ -63,7 +63,6 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigurationHome;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
-import fr.paris.lutece.plugins.form.service.FormPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
@@ -75,29 +74,30 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.util.image.ImageUtil;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
- *
+ * 
  * class FormUtils
- *
+ * 
  */
 public final class ExportDirectoryUtils
 {
     //parameter
+    /**
+     * prefix key for geolocation
+     */
     public static final String PARAMETER_PREFIX_KEY_GEOLOCATION = "key_geolocation_";
     private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
     private static final String PARAMETER_ADD_NUMBERING_ENTRY = "add_numbering_entry";
@@ -144,9 +144,9 @@ public final class ExportDirectoryUtils
 
     /**
      * ExportDirectoryUtils
-     *
+     * 
      */
-    private ExportDirectoryUtils(  )
+    private ExportDirectoryUtils( )
     {
     }
 
@@ -155,12 +155,12 @@ public final class ExportDirectoryUtils
      * @param entryType the entry type
      * @return a list of entry types
      */
-    public static List<EntryType> getDirectoryEntryForFormEntry( 
-        fr.paris.lutece.plugins.form.business.EntryType entryType )
+    public static List<EntryType> getDirectoryEntryForFormEntry(
+            fr.paris.lutece.plugins.form.business.EntryType entryType )
     {
-        List<EntryType> listEntryTypeDirectory = new ArrayList<EntryType>(  );
-        String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_" +
-                entryType.getIdType(  ) );
+        List<EntryType> listEntryTypeDirectory = new ArrayList<EntryType>( );
+        String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_"
+                + entryType.getIdType( ) );
 
         if ( strMappingEntryType != null )
         {
@@ -168,7 +168,8 @@ public final class ExportDirectoryUtils
 
             for ( int i = 0; i < strTabMappingEntryType.length; i++ )
             {
-                listEntryTypeDirectory.add( EntryTypeHome.findByPrimaryKey( Integer.parseInt( strTabMappingEntryType[i] ),
+                listEntryTypeDirectory.add( EntryTypeHome.findByPrimaryKey(
+                        Integer.parseInt( strTabMappingEntryType[i] ),
                         PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) ) );
             }
         }
@@ -185,7 +186,7 @@ public final class ExportDirectoryUtils
      * @return a property error message if there is an error
      */
     public static String createDirectoryByIdForm( int nIdForm, HttpServletRequest request, Plugin pluginForm,
-        Plugin pluginDirectory )
+            Plugin pluginDirectory )
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
 
@@ -206,36 +207,38 @@ public final class ExportDirectoryUtils
         }
 
         Form form = FormHome.findByPrimaryKey( nIdForm, pluginForm );
-        Directory directory = new Directory(  );
-        directory.setTitle( form.getTitle(  ) );
-        directory.setDescription( form.getDescription(  ) );
-        directory.setUnavailabilityMessage( form.getUnavailabilityMessage(  ) );
+        Directory directory = new Directory( );
+        directory.setTitle( form.getTitle( ) );
+        directory.setDescription( form.getDescription( ) );
+        directory.setUnavailabilityMessage( form.getUnavailabilityMessage( ) );
         directory.setIdFormSearchTemplate( nIdFormSearchStyle );
         directory.setIdResultListTemplate( nIdResultListStyle );
         directory.setNumberRecordPerPage( nNumberRecordPerPage );
         directory.setIdResultRecordTemplate( nIdResultRecordStyle );
-        directory.setDateCreation( DirectoryUtils.getCurrentTimestamp(  ) );
-        directory.setWorkgroup( form.getWorkgroup(  ) );
+        directory.setDateCreation( DirectoryUtils.getCurrentTimestamp( ) );
+        directory.setWorkgroup( form.getWorkgroup( ) );
         directory.setRecordActivated( strRecordActivated != null );
         directory.setIndexed( strIsIndexed != null );
 
-        if ( ( request.getParameter( PARAMETER_ID_WORKFLOW ) != null ) &&
-                ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_WORKFLOW ) ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+        if ( ( request.getParameter( PARAMETER_ID_WORKFLOW ) != null )
+                && ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_WORKFLOW ) ) != DirectoryUtils.CONSTANT_ID_NULL ) )
         {
-            directory.setIdWorkflow( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_WORKFLOW ) ) );
+            directory
+                    .setIdWorkflow( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_WORKFLOW ) ) );
         }
 
         //create directory
         DirectoryHome.create( directory, pluginDirectory );
 
         //create FormConfiguration
-        FormConfiguration formConfiguration = new FormConfiguration(  );
-        formConfiguration.setIdForm( form.getIdForm(  ) );
-        formConfiguration.setIdDirectory( directory.getIdDirectory(  ) );
+        FormConfiguration formConfiguration = new FormConfiguration( );
+        formConfiguration.setIdForm( form.getIdForm( ) );
+        formConfiguration.setIdDirectory( directory.getIdDirectory( ) );
         FormConfigurationHome.insert( formConfiguration, pluginExport );
 
         //get List Entry
-        List<fr.paris.lutece.plugins.form.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm, pluginForm );
+        List<fr.paris.lutece.plugins.form.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm,
+                pluginForm );
 
         String error = null;
 
@@ -269,12 +272,12 @@ public final class ExportDirectoryUtils
      * @return a property error message if there is an error
      */
     public static String createDirectoryEntry( fr.paris.lutece.plugins.form.business.IEntry entryForm,
-        HttpServletRequest request, Plugin pluginForm, Plugin pluginDirectory, Directory directory,
-        fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
+            HttpServletRequest request, Plugin pluginForm, Plugin pluginDirectory, Directory directory,
+            fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
-        String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_" +
-                entryForm.getEntryType(  ).getIdType(  ) );
+        String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_"
+                + entryForm.getEntryType( ).getIdType( ) );
         int nIdDirectoryEntryType = DirectoryUtils.CONSTANT_ID_NULL;
 
         if ( strMappingEntryType != null )
@@ -285,38 +288,38 @@ public final class ExportDirectoryUtils
             }
             else
             {
-                nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE +
-                            "_" + entryForm.getIdEntry(  ) ) );
+                nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request
+                        .getParameter( PARAMETER_ID_ENTRY_TYPE + "_" + entryForm.getIdEntry( ) ) );
             }
 
             EntryType entryType = EntryTypeHome.findByPrimaryKey( nIdDirectoryEntryType, pluginDirectory );
-            fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( nIdDirectoryEntryType,
-                    pluginDirectory );
+            fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType(
+                    nIdDirectoryEntryType, pluginDirectory );
 
             if ( entryDirectory != null )
             {
                 entryDirectory.setEntryType( entryType );
 
-                if ( isGeolocationEntry( entryType.getIdType(  ) ) )
+                if ( isGeolocationEntry( entryType.getIdType( ) ) )
                 {
-                    entryDirectory.setMapProvider( MapProviderManager.getMapProvider( request.getParameter( PARAMETER_PREFIX_KEY_GEOLOCATION +
-                                entryForm.getIdEntry(  ) ) ) );
+                    entryDirectory.setMapProvider( MapProviderManager.getMapProvider( request
+                            .getParameter( PARAMETER_PREFIX_KEY_GEOLOCATION + entryForm.getIdEntry( ) ) ) );
                 }
 
                 //if it's an image
-                if ( entryType.getIdType(  ) == 10 )
+                if ( entryType.getIdType( ) == 10 )
                 {
                     entryDirectory.setDisplayHeight( CONST_NONE );
                     entryDirectory.setDisplayWidth( CONST_NONE );
                 }
 
                 entryDirectory.setDirectory( directory );
-                entryDirectory.setTitle( entryForm.getTitle(  ) );
-                entryDirectory.setComment( entryForm.getComment(  ) );
-                entryDirectory.setHelpMessage( entryForm.getHelpMessage(  ) );
-                entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage(  ) );
+                entryDirectory.setTitle( entryForm.getTitle( ) );
+                entryDirectory.setComment( entryForm.getComment( ) );
+                entryDirectory.setHelpMessage( entryForm.getHelpMessage( ) );
+                entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage( ) );
 
-                if ( request.getParameter( PARAMETER_IS_IN_RESULT_LIST + String.valueOf( entryForm.getIdEntry(  ) ) ) != null )
+                if ( request.getParameter( PARAMETER_IS_IN_RESULT_LIST + String.valueOf( entryForm.getIdEntry( ) ) ) != null )
                 {
                     entryDirectory.setShownInResultList( true );
                 }
@@ -325,7 +328,7 @@ public final class ExportDirectoryUtils
                     entryDirectory.setShownInResultList( false );
                 }
 
-                if ( request.getParameter( PARAMETER_IS_IN_SEARCH + String.valueOf( entryForm.getIdEntry(  ) ) ) != null )
+                if ( request.getParameter( PARAMETER_IS_IN_SEARCH + String.valueOf( entryForm.getIdEntry( ) ) ) != null )
                 {
                     entryDirectory.setIndexed( true );
                 }
@@ -336,10 +339,10 @@ public final class ExportDirectoryUtils
 
                 entryDirectory.setShownInResultRecord( true );
                 entryDirectory.setShownInExport( true );
-                entryDirectory.setMandatory( entryForm.isMandatory(  ) );
+                entryDirectory.setMandatory( entryForm.isMandatory( ) );
 
                 //For entry type sql
-                entryDirectory.setRequestSQL( entryForm.getComment(  ) );
+                entryDirectory.setRequestSQL( entryForm.getComment( ) );
 
                 if ( entryGroup != null )
                 {
@@ -349,18 +352,18 @@ public final class ExportDirectoryUtils
                 EntryHome.create( entryDirectory, pluginDirectory );
 
                 //add association between entry Form and entry directory
-                EntryConfiguration entryConfiguration = new EntryConfiguration(  );
-                entryConfiguration.setIdFormEntry( entryForm.getIdEntry(  ) );
-                entryConfiguration.setIdDirectoryEntry( entryDirectory.getIdEntry(  ) );
-                entryConfiguration.setIdForm( entryForm.getForm(  ).getIdForm(  ) );
+                EntryConfiguration entryConfiguration = new EntryConfiguration( );
+                entryConfiguration.setIdFormEntry( entryForm.getIdEntry( ) );
+                entryConfiguration.setIdDirectoryEntry( entryDirectory.getIdEntry( ) );
+                entryConfiguration.setIdForm( entryForm.getIdResource( ) );
                 EntryConfigurationHome.insert( entryConfiguration, pluginExport );
 
-                createAllDirectoryField( entryForm.getIdEntry(  ), entryDirectory, pluginForm, pluginDirectory );
+                createAllDirectoryField( entryForm.getIdEntry( ), entryDirectory, pluginForm, pluginDirectory );
 
-                if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
+                if ( isDirectoryImageType( entryDirectory.getEntryType( ).getIdType( ) ) )
                 {
                     //create the fields here for image because thumbnails are not generated in form so there is no formfield for thumbnails
-                    int nIdEntryForm = entryForm.getIdEntry(  );
+                    int nIdEntryForm = entryForm.getIdEntry( );
                     String strCreateThumbnail = request.getParameter( PARAMETER_CREATE_THUMBNAIL + nIdEntryForm );
                     String strCreateBigThumbnail = request.getParameter( PARAMETER_CREATE_BIG_THUMBNAIL + nIdEntryForm );
                     String strThumbnailWidth = request.getParameter( PARAMETER_THUMBNAIL_WIDTH + nIdEntryForm );
@@ -400,7 +403,7 @@ public final class ExportDirectoryUtils
                             return MESSAGE_ERROR_FIELD_THUMBNAIL;
                         }
 
-                        fr.paris.lutece.plugins.directory.business.Field thumbnailField = new Field(  );
+                        fr.paris.lutece.plugins.directory.business.Field thumbnailField = new Field( );
                         thumbnailField.setWidth( nThumbnailWidth );
                         thumbnailField.setHeight( nThumbnailHeight );
                         thumbnailField.setValue( FIELD_THUMBNAIL );
@@ -416,20 +419,21 @@ public final class ExportDirectoryUtils
                             return MESSAGE_ERROR_FIELD_BIG_THUMBNAIL;
                         }
 
-                        fr.paris.lutece.plugins.directory.business.Field bigThumbnailField = new Field(  );
+                        fr.paris.lutece.plugins.directory.business.Field bigThumbnailField = new Field( );
                         bigThumbnailField.setWidth( nBigThumbnailWidth );
                         bigThumbnailField.setHeight( nBigThumbnailHeight );
                         bigThumbnailField.setValue( FIELD_BIG_THUMBNAIL );
                         bigThumbnailField.setEntry( entryDirectory );
-                        fr.paris.lutece.plugins.directory.business.FieldHome.create( bigThumbnailField, pluginDirectory );
+                        fr.paris.lutece.plugins.directory.business.FieldHome
+                                .create( bigThumbnailField, pluginDirectory );
                     }
                 }
 
-                if ( entryForm.getEntryType(  ).getGroup(  ) )
+                if ( entryForm.getEntryType( ).getGroup( ) )
                 {
                     String error = null;
 
-                    for ( fr.paris.lutece.plugins.form.business.IEntry entryFormChildren : entryForm.getChildren(  ) )
+                    for ( fr.paris.lutece.plugins.form.business.IEntry entryFormChildren : entryForm.getChildren( ) )
                     {
                         error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
                                 directory, entryDirectory );
@@ -454,11 +458,11 @@ public final class ExportDirectoryUtils
      */
     public static void createDirectoryNumberingEntry( Plugin pluginDirectory, Directory directory, String strPrefix )
     {
-        int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( 
-                    PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
+        int directoryNumberingType = DirectoryUtils.convertStringToInt( AppPropertiesService
+                .getProperty( PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING ) );
         EntryType entryType = EntryTypeHome.findByPrimaryKey( directoryNumberingType, pluginDirectory );
-        fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType( directoryNumberingType,
-                pluginDirectory );
+        fr.paris.lutece.plugins.directory.business.IEntry entryDirectory = DirectoryUtils.createEntryByType(
+                directoryNumberingType, pluginDirectory );
 
         if ( entryDirectory != null )
         {
@@ -474,7 +478,7 @@ public final class ExportDirectoryUtils
 
             EntryHome.create( entryDirectory, pluginDirectory );
 
-            Field fieldDirectory = new Field(  );
+            Field fieldDirectory = new Field( );
             fieldDirectory.setEntry( entryDirectory );
             fieldDirectory.setTitle( strPrefix );
             fieldDirectory.setDefaultValue( false );
@@ -506,36 +510,36 @@ public final class ExportDirectoryUtils
      * @param pluginDirectory the plugin directory
      */
     public static void createAllDirectoryField( int nIdEntryForm,
-        fr.paris.lutece.plugins.directory.business.IEntry entryDirectory, Plugin pluginForm, Plugin pluginDirectory )
+            fr.paris.lutece.plugins.directory.business.IEntry entryDirectory, Plugin pluginForm, Plugin pluginDirectory )
     {
-        fr.paris.lutece.plugins.form.business.IEntry entryForm = fr.paris.lutece.plugins.form.business.EntryHome.findByPrimaryKey( nIdEntryForm,
-                pluginForm );
+        fr.paris.lutece.plugins.form.business.IEntry entryForm = fr.paris.lutece.plugins.form.business.EntryHome
+                .findByPrimaryKey( nIdEntryForm );
         fr.paris.lutece.plugins.directory.business.Field fieldDirectory = null;
 
-        if ( entryForm.getFields(  ) != null )
+        if ( entryForm.getFields( ) != null )
         {
-            for ( fr.paris.lutece.plugins.form.business.Field fieldForm : entryForm.getFields(  ) )
+            for ( fr.paris.lutece.plugins.form.business.Field fieldForm : entryForm.getFields( ) )
             {
-                fieldDirectory = new Field(  );
+                fieldDirectory = new Field( );
                 fieldDirectory.setEntry( entryDirectory );
-                fieldDirectory.setTitle( fieldForm.getTitle(  ) );
-                fieldDirectory.setDefaultValue( fieldForm.isDefaultValue(  ) );
-                fieldDirectory.setHeight( fieldForm.getHeight(  ) );
-                fieldDirectory.setWidth( fieldForm.getWidth(  ) );
-                fieldDirectory.setMaxSizeEnter( fieldForm.getMaxSizeEnter(  ) );
+                fieldDirectory.setTitle( fieldForm.getTitle( ) );
+                fieldDirectory.setDefaultValue( fieldForm.isDefaultValue( ) );
+                fieldDirectory.setHeight( fieldForm.getHeight( ) );
+                fieldDirectory.setWidth( fieldForm.getWidth( ) );
+                fieldDirectory.setMaxSizeEnter( fieldForm.getMaxSizeEnter( ) );
 
-                fieldDirectory.setValueTypeDate( fieldForm.getValueTypeDate(  ) );
+                fieldDirectory.setValueTypeDate( fieldForm.getValueTypeDate( ) );
                 fieldDirectory.setShownInResultRecord( true );
 
-                if ( ( entryForm.getEntryType(  ).getIdType(  ) == AppPropertiesService.getPropertyInt( 
-                            ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) ) &&
-                        StringUtils.isBlank( fieldForm.getTitle(  ) ) )
+                if ( ( entryForm.getEntryType( ).getIdType( ) == AppPropertiesService.getPropertyInt(
+                        ProcessorExportdirectory.PROPERTY_FORM_ENTRY_TYPE_IMAGE, 12 ) )
+                        && StringUtils.isBlank( fieldForm.getTitle( ) ) )
                 {
                     fieldDirectory.setValue( FIELD_IMAGE );
                 }
                 else
                 {
-                    fieldDirectory.setValue( fieldForm.getValue(  ) );
+                    fieldDirectory.setValue( fieldForm.getValue( ) );
                 }
 
                 fr.paris.lutece.plugins.directory.business.FieldHome.create( fieldDirectory, pluginDirectory );
@@ -550,84 +554,80 @@ public final class ExportDirectoryUtils
      * @param formSubmit the form submit
      * @param pluginForm the plugin form
      * @param pluginDirectory the plugin directory
-     * @throws UnsupportedEncodingException error if there is an encoding problem
+     * @throws UnsupportedEncodingException error if there is an encoding
+     *             problem
      */
     public static void createDirectoryRecord( HttpServletRequest request, FormConfiguration formConfiguration,
-        FormSubmit formSubmit, Plugin pluginForm, Plugin pluginDirectory )
-        throws UnsupportedEncodingException
+            FormSubmit formSubmit, Plugin pluginForm, Plugin pluginDirectory ) throws UnsupportedEncodingException
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
-        Record record = new Record(  );
-        Directory directory = DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory(  ), pluginDirectory );
+        Record record = new Record( );
+        Directory directory = DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory( ), pluginDirectory );
         record.setDirectory( directory );
-        record.setDateCreation( formSubmit.getDateResponse(  ) );
-        record.setEnabled( directory.isRecordActivated(  ) );
-        record.setListRecordField( new ArrayList<RecordField>(  ) );
+        record.setDateCreation( formSubmit.getDateResponse( ) );
+        record.setEnabled( directory.isRecordActivated( ) );
+        record.setListRecordField( new ArrayList<RecordField>( ) );
         RecordHome.create( record, pluginDirectory );
 
-        IResponseService responseService = (IResponseService) SpringContextService.getPluginBean( FormPlugin.PLUGIN_NAME,
-                FormUtils.BEAN_FORM_RESPONSE_SERVICE );
+        IResponseService responseService = SpringContextService.getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
 
         // The index is used to distinguish the thumbnails of one image from another
         int nIndexForImg = 0;
 
-        for ( Response response : formSubmit.getListResponse(  ) )
+        for ( Response response : formSubmit.getListResponse( ) )
         {
-            EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( formSubmit.getForm(  )
-                                                                                                       .getIdForm(  ),
-                    response.getEntry(  ).getIdEntry(  ), pluginExport );
+            EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( formSubmit.getForm( )
+                    .getIdForm( ), response.getEntry( ).getIdEntry( ), pluginExport );
 
             if ( entryConfiguration != null )
             {
-                IEntry entryDirectory = EntryHome.findByPrimaryKey( entryConfiguration.getIdDirectoryEntry(  ),
+                IEntry entryDirectory = EntryHome.findByPrimaryKey( entryConfiguration.getIdDirectoryEntry( ),
                         pluginDirectory );
 
                 if ( entryDirectory != null )
                 {
-                    RecordField recordField = new RecordField(  );
+                    RecordField recordField = new RecordField( );
                     recordField.setEntry( entryDirectory );
 
                     // Entry of type file
-                    if ( isDirectoryFileType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
+                    if ( isDirectoryFileType( entryDirectory.getEntryType( ).getIdType( ) ) )
                     {
-                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse(  ), true );
-
-                        if ( ( responseFile.getFile(  ) != null ) &&
-                                ( responseFile.getFile(  ).getPhysicalFile(  ) != null ) &&
-                                ( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
+                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse( ), true );
+                        if ( ( responseFile.getFile( ) != null )
+                                && ( responseFile.getFile( ).getPhysicalFile( ) != null )
+                                && ( responseFile.getFile( ).getPhysicalFile( ).getValue( ) != null ) )
                         {
-                            File file = new File(  );
-                            file.setTitle( responseFile.getFile(  ).getTitle(  ) );
-                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile(  ).getTitle(  ) ) );
-                            file.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
+                            File file = new File( );
+                            file.setTitle( responseFile.getFile( ).getTitle( ) );
+                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile( ).getTitle( ) ) );
+                            file.setMimeType( responseFile.getFile( ).getMimeType( ) );
 
-                            PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) );
+                            PhysicalFile physicalFile = new PhysicalFile( );
+                            physicalFile.setValue( responseFile.getFile( ).getPhysicalFile( ).getValue( ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( responseFile.getFile(  ).getSize(  ) );
+                            file.setSize( responseFile.getFile( ).getSize( ) );
 
                             recordField.setFile( file );
                         }
                     }
 
                     // Entry of type file
-                    else if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
+                    else if ( isDirectoryImageType( entryDirectory.getEntryType( ).getIdType( ) ) )
                     {
-                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse(  ), true );
-
-                        if ( ( responseFile.getFile(  ) != null ) &&
-                                ( responseFile.getFile(  ).getPhysicalFile(  ) != null ) &&
-                                ( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) != null ) )
+                        Response responseFile = responseService.findByPrimaryKey( response.getIdResponse( ), true );
+                        if ( ( responseFile.getFile( ) != null )
+                                && ( responseFile.getFile( ).getPhysicalFile( ) != null )
+                                && ( responseFile.getFile( ).getPhysicalFile( ).getValue( ) != null ) )
                         {
-                            File file = new File(  );
-                            file.setTitle( responseFile.getFile(  ).getTitle(  ) );
-                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile(  ).getTitle(  ) ) );
-                            file.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
+                            File file = new File( );
+                            file.setTitle( responseFile.getFile( ).getTitle( ) );
+                            file.setExtension( FilenameUtils.getExtension( responseFile.getFile( ).getTitle( ) ) );
+                            file.setMimeType( responseFile.getFile( ).getMimeType( ) );
 
-                            PhysicalFile physicalFile = new PhysicalFile(  );
-                            physicalFile.setValue( responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) );
+                            PhysicalFile physicalFile = new PhysicalFile( );
+                            physicalFile.setValue( responseFile.getFile( ).getPhysicalFile( ).getValue( ) );
                             file.setPhysicalFile( physicalFile );
-                            file.setSize( responseFile.getFile(  ).getSize(  ) );
+                            file.setSize( responseFile.getFile( ).getSize( ) );
 
                             recordField.setFile( file );
 
@@ -635,39 +635,37 @@ public final class ExportDirectoryUtils
                             try
                             {
                                 //verify that the file is an image
-                                ImageIO.read( new ByteArrayInputStream( 
-                                        responseFile.getFile(  ).getPhysicalFile(  ).getValue(  ) ) );
+                                ImageIO.read( new ByteArrayInputStream( responseFile.getFile( ).getPhysicalFile( )
+                                        .getValue( ) ) );
 
-                                for ( Field field : entryDirectory.getFields(  ) )
+                                for ( Field field : entryDirectory.getFields( ) )
                                 {
-                                    if ( ( field.getValue(  ) != null ) && ( field.getValue(  ).equals( FIELD_IMAGE ) ) )
+                                    if ( ( field.getValue( ) != null ) && ( field.getValue( ).equals( FIELD_IMAGE ) ) )
                                     {
-                                        recordField.setValue( FIELD_IMAGE + FormUtils.CONSTANT_UNDERSCORE +
-                                            nIndexForImg );
+                                        recordField.setValue( FIELD_IMAGE + FormUtils.CONSTANT_UNDERSCORE
+                                                + nIndexForImg );
                                         recordField.setField( field );
                                     }
 
-                                    if ( ( field.getValue(  ) != null ) &&
-                                            ( ( field.getValue(  ).equals( FIELD_THUMBNAIL ) ) ||
-                                            ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) ) ) )
+                                    if ( ( field.getValue( ) != null )
+                                            && ( ( field.getValue( ).equals( FIELD_THUMBNAIL ) ) || ( field.getValue( )
+                                                    .equals( FIELD_BIG_THUMBNAIL ) ) ) )
                                     {
-                                        byte[] resizedImage = ImageUtil.resizeImage( responseFile.getFile(  )
-                                                                                                 .getPhysicalFile(  )
-                                                                                                 .getValue(  ),
-                                                String.valueOf( field.getWidth(  ) ),
-                                                String.valueOf( field.getHeight(  ) ), INTEGER_QUALITY_MAXIMUM );
+                                        byte[] resizedImage = ImageUtil.resizeImage( responseFile.getFile( )
+                                                .getPhysicalFile( ).getValue( ), String.valueOf( field.getWidth( ) ),
+                                                String.valueOf( field.getHeight( ) ), INTEGER_QUALITY_MAXIMUM );
 
-                                        RecordField thbnailRecordField = new RecordField(  );
+                                        RecordField thbnailRecordField = new RecordField( );
                                         thbnailRecordField.setEntry( entryDirectory );
 
-                                        PhysicalFile thbnailPhysicalFile = new PhysicalFile(  );
+                                        PhysicalFile thbnailPhysicalFile = new PhysicalFile( );
                                         thbnailPhysicalFile.setValue( resizedImage );
 
-                                        File thbnailFile = new File(  );
-                                        thbnailFile.setTitle( responseFile.getFile(  ).getTitle(  ) );
-                                        thbnailFile.setExtension( FilenameUtils.getExtension( 
-                                                responseFile.getFile(  ).getTitle(  ) ) );
-                                        thbnailFile.setMimeType( responseFile.getFile(  ).getMimeType(  ) );
+                                        File thbnailFile = new File( );
+                                        thbnailFile.setTitle( responseFile.getFile( ).getTitle( ) );
+                                        thbnailFile.setExtension( FilenameUtils.getExtension( responseFile.getFile( )
+                                                .getTitle( ) ) );
+                                        thbnailFile.setMimeType( responseFile.getFile( ).getMimeType( ) );
                                         thbnailFile.setPhysicalFile( thbnailPhysicalFile );
                                         thbnailFile.setSize( resizedImage.length );
 
@@ -676,15 +674,15 @@ public final class ExportDirectoryUtils
 
                                         thbnailRecordField.setRecord( record );
 
-                                        if ( field.getValue(  ).equals( FIELD_THUMBNAIL ) )
+                                        if ( field.getValue( ).equals( FIELD_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_THUMBNAIL +
-                                                FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
+                                            thbnailRecordField.setValue( FIELD_THUMBNAIL
+                                                    + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
-                                        else if ( field.getValue(  ).equals( FIELD_BIG_THUMBNAIL ) )
+                                        else if ( field.getValue( ).equals( FIELD_BIG_THUMBNAIL ) )
                                         {
-                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL +
-                                                FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
+                                            thbnailRecordField.setValue( FIELD_BIG_THUMBNAIL
+                                                    + FormUtils.CONSTANT_UNDERSCORE + nIndexForImg );
                                         }
 
                                         RecordFieldHome.create( thbnailRecordField, pluginDirectory );
@@ -703,32 +701,31 @@ public final class ExportDirectoryUtils
                     {
                         String strValue = DirectoryUtils.EMPTY_STRING;
 
-                        if ( StringUtils.isNotBlank( response.getResponseValue(  ) ) )
+                        if ( StringUtils.isNotBlank( response.getResponseValue( ) ) )
                         {
-                            strValue = response.getResponseValue(  );
+                            strValue = response.getResponseValue( );
                         }
 
                         recordField.setValue( strValue );
 
-                        if ( ( response.getField(  ) != null ) )
+                        if ( ( response.getField( ) != null ) )
                         {
                             Field fieldDirectory = null;
 
                             // entry of type geolocation ==> get response value
-                            if ( ( entryDirectory != null ) && ( entryDirectory.getEntryType(  ) != null ) &&
-                                    ( isGeolocationEntry( entryDirectory.getEntryType(  ).getIdType(  ) ) ) )
+                            if ( ( entryDirectory.getEntryType( ) != null )
+                                    && ( isGeolocationEntry( entryDirectory.getEntryType( ).getIdType( ) ) ) )
                             {
-                                fr.paris.lutece.plugins.form.business.Field formField = fr.paris.lutece.plugins.form.business.FieldHome.findByPrimaryKey( response.getField(  )
-                                                                                                                                                                  .getIdField(  ),
-                                        pluginForm );
-                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ),
-                                        formField.getValue(  ), pluginDirectory );
+                                fr.paris.lutece.plugins.form.business.Field formField = fr.paris.lutece.plugins.form.business.FieldHome
+                                        .findByPrimaryKey( response.getField( ).getIdField( ) );
+                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry( ),
+                                        formField.getValue( ), pluginDirectory );
                             }
 
                             // Entry of type select box, checkbox, radio
-                            else if ( ( response.getField(  ).getIdField(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+                            else if ( ( response.getField( ).getIdField( ) != DirectoryUtils.CONSTANT_ID_NULL ) )
                             {
-                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry(  ), strValue,
+                                fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry( ), strValue,
                                         pluginDirectory );
                             }
 
@@ -742,29 +739,29 @@ public final class ExportDirectoryUtils
             }
         }
 
-        EntryFilter entryFilter = new EntryFilter(  );
-        entryFilter.setIdDirectory( directory.getIdDirectory(  ) );
+        EntryFilter entryFilter = new EntryFilter( );
+        entryFilter.setIdDirectory( directory.getIdDirectory( ) );
 
         List<IEntry> listEntry = EntryHome.getEntryList( entryFilter, pluginDirectory );
 
         for ( IEntry entry : listEntry )
         {
-            if ( isDirectoryNumberingType( entry.getEntryType(  ).getIdType(  ) ) )
+            if ( isDirectoryNumberingType( entry.getEntryType( ).getIdType( ) ) )
             {
-                RecordFieldFilter filter = new RecordFieldFilter(  );
-                filter.setIdEntry( entry.getIdEntry(  ) );
-                filter.setIdRecord( record.getIdRecord(  ) );
+                RecordFieldFilter filter = new RecordFieldFilter( );
+                filter.setIdEntry( entry.getIdEntry( ) );
+                filter.setIdRecord( record.getIdRecord( ) );
 
                 List<RecordField> listRecordFields = RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
 
-                if ( ( listRecordFields == null ) || listRecordFields.isEmpty(  ) )
+                if ( ( listRecordFields == null ) || listRecordFields.isEmpty( ) )
                 {
-                    RecordField recordField = new RecordField(  );
+                    RecordField recordField = new RecordField( );
                     recordField.setEntry( entry );
                     recordField.setRecord( record );
 
-                    List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry(  ), pluginDirectory );
-                    int numbering = DirectoryService.getInstance(  ).getMaxNumber( entry );
+                    List<Field> listField = FieldHome.getFieldListByIdEntry( entry.getIdEntry( ), pluginDirectory );
+                    int numbering = DirectoryService.getInstance( ).getMaxNumber( entry );
                     recordField.setValue( String.valueOf( numbering ) );
                     RecordFieldHome.create( recordField, pluginDirectory );
 
@@ -774,22 +771,23 @@ public final class ExportDirectoryUtils
             }
         }
 
-        WorkflowService workflowService = WorkflowService.getInstance(  );
+        WorkflowService workflowService = WorkflowService.getInstance( );
 
-        if ( workflowService.isAvailable(  ) && ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+        if ( workflowService.isAvailable( ) && ( directory.getIdWorkflow( ) != DirectoryUtils.CONSTANT_ID_NULL ) )
         {
-            State state = workflowService.getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                    directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+            State state = workflowService.getState( record.getIdRecord( ), Record.WORKFLOW_RESOURCE_TYPE,
+                    directory.getIdWorkflow( ), Integer.valueOf( directory.getIdDirectory( ) ) );
 
             if ( state != null )
             {
-                workflowService.executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                    directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+                workflowService.executeActionAutomatic( record.getIdRecord( ), Record.WORKFLOW_RESOURCE_TYPE,
+                        directory.getIdWorkflow( ), Integer.valueOf( directory.getIdDirectory( ) ) );
             }
             else
             {
-                AppLogService.info( " FormExportDirectory : No initial state for workflow : " +
-                    directory.getIdWorkflow(  ) + ". The form will be recorded but will not be shown in directory." );
+                AppLogService.info( " FormExportDirectory : No initial state for workflow : "
+                        + directory.getIdWorkflow( )
+                        + ". The form will be recorded but will not be shown in directory." );
             }
         }
     }
@@ -872,15 +870,16 @@ public final class ExportDirectoryUtils
     /**
      * Finds if the given form entry is a geolocation entry
      * @param formEntry the form entry
-     * @return <code>true</code> if the entry type is a geolocation type, <code>false</code> otherwise.
+     * @return <code>true</code> if the entry type is a geolocation type,
+     *         <code>false</code> otherwise.
      */
     public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.form.business.IEntry formEntry )
     {
-        List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType(  ) );
+        List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType( ) );
 
         for ( EntryType entryType : entryTypes )
         {
-            if ( isGeolocationEntry( entryType.getIdType(  ) ) )
+            if ( isGeolocationEntry( entryType.getIdType( ) ) )
             {
                 return true;
             }
@@ -890,9 +889,11 @@ public final class ExportDirectoryUtils
     }
 
     /**
-     * Geolocation type ids are set with the proprety {@link ExportDirectoryUtils#PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION}
+     * Geolocation type ids are set with the proprety
+     * {@link ExportDirectoryUtils#PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION}
      * @param nIdEntryType the type to check
-     * @return <code>true</code> if the entry type is a geolocation type, <code>false</code> otherwise.
+     * @return <code>true</code> if the entry type is a geolocation type,
+     *         <code>false</code> otherwise.
      */
     public static boolean isGeolocationEntry( int nIdEntryType )
     {

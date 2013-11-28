@@ -37,14 +37,13 @@ import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.form.business.EntryHome;
 import fr.paris.lutece.plugins.form.business.IEntry;
 import fr.paris.lutece.plugins.form.service.EntryRemovalListenerService;
-import fr.paris.lutece.plugins.form.service.FormPlugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 
 
 /**
- *
+ * 
  * @author ELY
- *
+ * 
  */
 public class EntryConfiguration
 {
@@ -55,25 +54,25 @@ public class EntryConfiguration
     private int _nIdDirectoryEntry;
 
     /**
-    * Initialize the EntryConfiguration
-    */
-    public static void init(  )
+     * Initialize the EntryConfiguration
+     */
+    public static void init( )
     {
         // Create removal listeners and register them
         if ( _listenerForm == null )
         {
-            _listenerForm = new EntryConfigurationEntryFormRemovalListener(  );
-            EntryRemovalListenerService.getService(  ).registerListener( _listenerForm );
-            _listenerDirectory = new EntryConfigurationEntryDirectoryRemovalListener(  );
-            fr.paris.lutece.plugins.directory.business.EntryRemovalListenerService.getService(  )
-                                                                                  .registerListener( _listenerDirectory );
+            _listenerForm = new EntryConfigurationEntryFormRemovalListener( );
+            EntryRemovalListenerService.getService( ).registerListener( _listenerForm );
+            _listenerDirectory = new EntryConfigurationEntryDirectoryRemovalListener( );
+            fr.paris.lutece.plugins.directory.business.EntryRemovalListenerService.getService( ).registerListener(
+                    _listenerDirectory );
         }
     }
 
     /**
      * @return the idForm
      */
-    public int getIdForm(  )
+    public int getIdForm( )
     {
         return _nIdForm;
     }
@@ -89,7 +88,7 @@ public class EntryConfiguration
     /**
      * @return the idFormEntry
      */
-    public int getIdFormEntry(  )
+    public int getIdFormEntry( )
     {
         return _nIdFormEntry;
     }
@@ -105,7 +104,7 @@ public class EntryConfiguration
     /**
      * @return the idDirectoryEntry
      */
-    public int getIdDirectoryEntry(  )
+    public int getIdDirectoryEntry( )
     {
         return _nIdDirectoryEntry;
     }
@@ -122,36 +121,30 @@ public class EntryConfiguration
      * Get the Entry title
      * @return The entry title
      */
-    public String getFormEntryTitle(  )
+    public String getFormEntryTitle( )
     {
-        IEntry entry = EntryHome.findByPrimaryKey( getIdFormEntry(  ), PluginService.getPlugin( FormPlugin.PLUGIN_NAME ) );
+        IEntry entry = EntryHome.findByPrimaryKey( getIdFormEntry( ) );
 
         if ( entry != null )
         {
-            return entry.getTitle(  );
+            return entry.getTitle( );
         }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 
     /**
      * Get the Entry title
      * @return The entry title
      */
-    public String getDirectoryEntryTitle(  )
+    public String getDirectoryEntryTitle( )
     {
-        fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome.findByPrimaryKey( getIdDirectoryEntry(  ),
-                PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
+        fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome
+                .findByPrimaryKey( getIdDirectoryEntry( ), PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
 
         if ( entry != null )
         {
-            return entry.getTitle(  );
+            return entry.getTitle( );
         }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 }

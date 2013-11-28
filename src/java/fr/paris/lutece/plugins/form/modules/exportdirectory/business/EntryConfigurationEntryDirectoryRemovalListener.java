@@ -53,10 +53,10 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
     private static final String PROPERTY_FORM_CANNOT_BE_REMOVED = "module.form.exportdirectory.message.entryDirectoryCannotBeRemoved";
 
     /**
-    * Check if the object can be safely removed
-    * @param strId The object id
-    * @return true if the pbject can be removed otherwise false
-    */
+     * Check if the object can be safely removed
+     * @param strId The object id
+     * @return true if the pbject can be removed otherwise false
+     */
     public boolean canBeRemoved( String strId )
     {
         if ( strId == null )
@@ -67,29 +67,29 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
-        if ( pluginExportdirectory.isInstalled(  ) )
+        if ( pluginExportdirectory.isInstalled( ) )
         {
-            fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome.findByPrimaryKey( Integer.parseInt( 
-                        strId ), pluginDirectory );
+            fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome
+                    .findByPrimaryKey( Integer.parseInt( strId ), pluginDirectory );
             Collection<FormConfiguration> listFormConfiguration = FormConfigurationHome.findAll( pluginExportdirectory );
             int nIdForm = -1;
 
             for ( FormConfiguration formConfiguration : listFormConfiguration )
             {
-                if ( formConfiguration.getIdDirectory(  ) == entry.getDirectory(  ).getIdDirectory(  ) )
+                if ( formConfiguration.getIdDirectory( ) == entry.getDirectory( ).getIdDirectory( ) )
                 {
-                    nIdForm = formConfiguration.getIdForm(  );
+                    nIdForm = formConfiguration.getIdForm( );
                 }
             }
 
             if ( nIdForm != -1 )
             {
-                Collection<EntryConfiguration> listEntryConfiguration = EntryConfigurationHome.findEntryConfigurationListByIdForm( nIdForm,
-                        pluginExportdirectory );
+                Collection<EntryConfiguration> listEntryConfiguration = EntryConfigurationHome
+                        .findEntryConfigurationListByIdForm( nIdForm, pluginExportdirectory );
 
                 for ( EntryConfiguration entryConfiguration : listEntryConfiguration )
                 {
-                    if ( entryConfiguration.getIdDirectoryEntry(  ) == DirectoryUtils.convertStringToInt( strId ) )
+                    if ( entryConfiguration.getIdDirectoryEntry( ) == DirectoryUtils.convertStringToInt( strId ) )
                     {
                         return false;
                     }
@@ -97,15 +97,9 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
 
                 return true;
             }
-            else
-            {
-                return true;
-            }
+            return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     /**

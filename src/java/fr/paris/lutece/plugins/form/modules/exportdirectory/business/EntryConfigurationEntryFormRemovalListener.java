@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 import fr.paris.lutece.plugins.form.business.EntryHome;
 import fr.paris.lutece.plugins.form.business.IEntry;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
-import fr.paris.lutece.plugins.form.service.FormPlugin;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -65,9 +64,8 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
         }
 
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
-        Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
-        IEntry entry = EntryHome.findByPrimaryKey( Integer.parseInt( strId ), pluginForm );
-        EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( entry.getForm(  ).getIdForm(  ),
+        IEntry entry = EntryHome.findByPrimaryKey( Integer.parseInt( strId ) );
+        EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( entry.getIdResource( ),
                 entry.getIdEntry(  ), pluginExportdirectory );
 
         if ( entryConfiguration != null )

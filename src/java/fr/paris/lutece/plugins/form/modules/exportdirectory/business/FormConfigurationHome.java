@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
-import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
@@ -41,20 +40,20 @@ import java.util.Collection;
 
 
 /**
- *
+ * 
  * @author ELY
- *
+ * 
  */
 public final class FormConfigurationHome
 {
     // Static variable pointed at the DAO instance
-    private static IFormConfigurationDAO _dao = (IFormConfigurationDAO) SpringContextService.getPluginBean( ExportdirectoryPlugin.PLUGIN_NAME,
-            "formConfigurationDAO" );
+    private static IFormConfigurationDAO _dao = SpringContextService
+            .getBean( "form-exportdirectory.formConfigurationDAO" );
 
     /**
      * Private constructor - this class need not be instantiated
      */
-    private FormConfigurationHome(  )
+    private FormConfigurationHome( )
     {
     }
 
@@ -81,7 +80,7 @@ public final class FormConfigurationHome
 
     /**
      * Insert a new Form configuration into database
-     *
+     * 
      * @param formConfiguration The new {@link FormConfiguration}
      * @param plugin The plugin
      */
@@ -102,7 +101,7 @@ public final class FormConfigurationHome
 
     /**
      * Update an existing {@link FormConfiguration}
-     *
+     * 
      * @param formConfiguration The {@link FormConfiguration} to update
      * @param plugin The plugin
      */
