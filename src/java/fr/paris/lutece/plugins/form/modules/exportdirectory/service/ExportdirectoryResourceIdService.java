@@ -43,20 +43,23 @@ import java.util.Locale;
 
 
 /**
- *
- * class  ActionResourceIdService
- *
+ * 
+ * class ActionResourceIdService
+ * 
  */
 public class ExportdirectoryResourceIdService extends ResourceIdService
 {
     /** Permission for viewing a action */
     public static final String RESOURCE_TYPE = "FORM_EXPORT_DIRECTORY_TYPE";
+    /**
+     * Permission to manage export directory
+     */
     public static final String PERMISSION_MANAGE_EXPORT_DIRECTORY = "MANAGE_EXPORT_DIRECTORY";
     private static final String PROPERTY_LABEL_RESOURCE_TYPE = "module.form.exportdirectory.permission.label.resource_type";
     private static final String PROPERTY_LABEL_MANAGE_EXPORT_DIRECTORY = "module.form.exportdirectory.permission.label.manage_export_directory";
 
     /** Creates a new instance of DocumentTypeResourceIdService */
-    public ExportdirectoryResourceIdService(  )
+    public ExportdirectoryResourceIdService( )
     {
         setPluginName( ExportdirectoryPlugin.PLUGIN_NAME );
     }
@@ -64,15 +67,15 @@ public class ExportdirectoryResourceIdService extends ResourceIdService
     /**
      * Initializes the service
      */
-    public void register(  )
+    public void register( )
     {
-        ResourceType rt = new ResourceType(  );
-        rt.setResourceIdServiceClass( ExportdirectoryResourceIdService.class.getName(  ) );
+        ResourceType rt = new ResourceType( );
+        rt.setResourceIdServiceClass( ExportdirectoryResourceIdService.class.getName( ) );
         rt.setPluginName( ExportdirectoryPlugin.PLUGIN_NAME );
         rt.setResourceTypeKey( RESOURCE_TYPE );
         rt.setResourceTypeLabelKey( PROPERTY_LABEL_RESOURCE_TYPE );
 
-        Permission p = new Permission(  );
+        Permission p = new Permission( );
         p.setPermissionKey( PERMISSION_MANAGE_EXPORT_DIRECTORY );
         p.setPermissionTitleKey( PROPERTY_LABEL_MANAGE_EXPORT_DIRECTORY );
         rt.registerPermission( p );

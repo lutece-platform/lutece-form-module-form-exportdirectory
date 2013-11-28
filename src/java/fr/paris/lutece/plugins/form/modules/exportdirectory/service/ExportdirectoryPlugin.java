@@ -39,20 +39,23 @@ import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
 
 /**
- *
+ * 
  * ExportdirectoryPlugin
- *
+ * 
  */
 public class ExportdirectoryPlugin extends PluginDefaultImplementation
 {
+    /**
+     * Name of the form export directory module
+     */
     public static final String PLUGIN_NAME = "form-exportdirectory";
 
     /**
      * Initialize the module form exportdatabase
      */
-    public void init(  )
+    public void init( )
     {
-        FormConfiguration.init(  );
-        EntryConfiguration.init(  );
+        FormConfiguration.init( );
+        EntryConfiguration.init( );
     }
 }
