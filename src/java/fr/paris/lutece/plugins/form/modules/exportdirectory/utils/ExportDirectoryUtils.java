@@ -56,7 +56,6 @@ import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
 import fr.paris.lutece.plugins.form.business.FormSubmit;
-import fr.paris.lutece.plugins.form.business.Response;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfiguration;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfigurationHome;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfiguration;
@@ -65,6 +64,7 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorEx
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
+import fr.paris.lutece.plugins.genericattributes.business.Response;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -156,7 +156,7 @@ public final class ExportDirectoryUtils
      * @return a list of entry types
      */
     public static List<EntryType> getDirectoryEntryForFormEntry(
-            fr.paris.lutece.plugins.form.business.EntryType entryType )
+            fr.paris.lutece.plugins.genericattributes.business.EntryType entryType )
     {
         List<EntryType> listEntryTypeDirectory = new ArrayList<EntryType>( );
         String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_"
@@ -237,7 +237,7 @@ public final class ExportDirectoryUtils
         FormConfigurationHome.insert( formConfiguration, pluginExport );
 
         //get List Entry
-        List<fr.paris.lutece.plugins.form.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm,
+        List<fr.paris.lutece.plugins.genericattributes.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm,
                 pluginForm );
 
         String error = null;
@@ -248,7 +248,7 @@ public final class ExportDirectoryUtils
             createDirectoryNumberingEntry( pluginDirectory, directory, strPrefix );
         }
 
-        for ( fr.paris.lutece.plugins.form.business.IEntry formEntry : listFormEntry )
+        for ( fr.paris.lutece.plugins.genericattributes.business.IEntry formEntry : listFormEntry )
         {
             error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null );
 
@@ -271,7 +271,7 @@ public final class ExportDirectoryUtils
      * @param entryGroup the entry group
      * @return a property error message if there is an error
      */
-    public static String createDirectoryEntry( fr.paris.lutece.plugins.form.business.IEntry entryForm,
+    public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.IEntry entryForm,
             HttpServletRequest request, Plugin pluginForm, Plugin pluginDirectory, Directory directory,
             fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
     {
@@ -433,7 +433,7 @@ public final class ExportDirectoryUtils
                 {
                     String error = null;
 
-                    for ( fr.paris.lutece.plugins.form.business.IEntry entryFormChildren : entryForm.getChildren( ) )
+                    for ( fr.paris.lutece.plugins.genericattributes.business.IEntry entryFormChildren : entryForm.getChildren( ) )
                     {
                         error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
                                 directory, entryDirectory );
@@ -512,13 +512,13 @@ public final class ExportDirectoryUtils
     public static void createAllDirectoryField( int nIdEntryForm,
             fr.paris.lutece.plugins.directory.business.IEntry entryDirectory, Plugin pluginForm, Plugin pluginDirectory )
     {
-        fr.paris.lutece.plugins.form.business.IEntry entryForm = fr.paris.lutece.plugins.form.business.EntryHome
+        fr.paris.lutece.plugins.genericattributes.business.IEntry entryForm = fr.paris.lutece.plugins.genericattributes.business.EntryHome
                 .findByPrimaryKey( nIdEntryForm );
         fr.paris.lutece.plugins.directory.business.Field fieldDirectory = null;
 
         if ( entryForm.getFields( ) != null )
         {
-            for ( fr.paris.lutece.plugins.form.business.Field fieldForm : entryForm.getFields( ) )
+            for ( fr.paris.lutece.plugins.genericattributes.business.Field fieldForm : entryForm.getFields( ) )
             {
                 fieldDirectory = new Field( );
                 fieldDirectory.setEntry( entryDirectory );
@@ -716,7 +716,7 @@ public final class ExportDirectoryUtils
                             if ( ( entryDirectory.getEntryType( ) != null )
                                     && ( isGeolocationEntry( entryDirectory.getEntryType( ).getIdType( ) ) ) )
                             {
-                                fr.paris.lutece.plugins.form.business.Field formField = fr.paris.lutece.plugins.form.business.FieldHome
+                                fr.paris.lutece.plugins.genericattributes.business.Field formField = fr.paris.lutece.plugins.genericattributes.business.FieldHome
                                         .findByPrimaryKey( response.getField( ).getIdField( ) );
                                 fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry( ),
                                         formField.getValue( ), pluginDirectory );
@@ -873,7 +873,7 @@ public final class ExportDirectoryUtils
      * @return <code>true</code> if the entry type is a geolocation type,
      *         <code>false</code> otherwise.
      */
-    public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.form.business.IEntry formEntry )
+    public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.genericattributes.business.IEntry formEntry )
     {
         List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType( ) );
 

@@ -44,16 +44,17 @@ import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
 import fr.paris.lutece.plugins.form.business.FormSubmit;
 import fr.paris.lutece.plugins.form.business.FormSubmitHome;
-import fr.paris.lutece.plugins.form.business.IEntry;
-import fr.paris.lutece.plugins.form.business.ResponseFilter;
 import fr.paris.lutece.plugins.form.business.outputprocessor.OutputProcessor;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryResourceIdService;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.utils.ExportDirectoryUtils;
 import fr.paris.lutece.plugins.form.service.FormPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
+import fr.paris.lutece.plugins.form.service.entrytype.EntryTypeImage;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.form.web.FormJspBean;
+import fr.paris.lutece.plugins.genericattributes.business.IEntry;
+import fr.paris.lutece.plugins.genericattributes.business.ResponseFilter;
 import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -146,9 +147,6 @@ public class ProcessorExportdirectory extends OutputProcessor
     //DEFAULT
     private static final String DEFAULT_FORM_IMAGE_TYPE = "12";
 
-    //constants
-    private static final String CONSTANT_IMAGE_CLASS_NAME = "fr.paris.lutece.plugins.form.business.EntryTypeImage";
-
     /**
      * {@inheritDoc}
      */
@@ -195,7 +193,7 @@ public class ProcessorExportdirectory extends OutputProcessor
             }
 
             if ( ( entry.getEntryType( ) != null )
-                    && entry.getEntryType( ).getClassName( ).equals( CONSTANT_IMAGE_CLASS_NAME ) )
+                    && StringUtils.equals( entry.getEntryType( ).getBeanName( ), EntryTypeImage.BEAN_NAME ) )
             {
                 formEntriesImage.add( entry );
             }
@@ -281,7 +279,7 @@ public class ProcessorExportdirectory extends OutputProcessor
         }
 
         ResponseFilter filter = new ResponseFilter( );
-        filter.setIdForm( form.getIdForm( ) );
+        filter.setIdResource( form.getIdForm( ) );
 
         model.put( MARK_LIST_ENTRY_GEOLOCATION, formEntriesMapProvider );
         model.put( MARK_LIST_ENTRY_IMAGE, formEntriesImage );
@@ -476,12 +474,12 @@ public class ProcessorExportdirectory extends OutputProcessor
                 && ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_EXPORT_ALL ) ) == 1 ) )
         {
             ResponseFilter responseFilter = new ResponseFilter( );
-            responseFilter.setIdForm( form.getIdForm( ) );
+            responseFilter.setIdResource( form.getIdForm( ) );
 
             for ( FormSubmit formSubmit : FormSubmitHome.getFormSubmitList( responseFilter, pluginForm ) )
             {
                 ResponseFilter responseFilterFormSubmit = new ResponseFilter( );
-                responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit( ) );
+                responseFilterFormSubmit.setIdResource( formSubmit.getIdFormSubmit( ) );
 
                 IResponseService responseService = SpringContextService.getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
                 formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
@@ -572,12 +570,12 @@ public class ProcessorExportdirectory extends OutputProcessor
                     && ( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_EXPORT_ALL ) ) == 1 ) )
             {
                 ResponseFilter responseFilter = new ResponseFilter( );
-                responseFilter.setIdForm( form.getIdForm( ) );
+                responseFilter.setIdResource( form.getIdForm( ) );
 
                 for ( FormSubmit formSubmit : FormSubmitHome.getFormSubmitList( responseFilter, pluginForm ) )
                 {
                     ResponseFilter responseFilterFormSubmit = new ResponseFilter( );
-                    responseFilterFormSubmit.setIdForm( formSubmit.getIdFormSubmit( ) );
+                    responseFilterFormSubmit.setIdResource( formSubmit.getIdFormSubmit( ) );
 
                     IResponseService responseService = SpringContextService
                             .getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
