@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.form.service.EntryRemovalListenerService;
 import fr.paris.lutece.plugins.genericattributes.business.EntryHome;
-import fr.paris.lutece.plugins.genericattributes.business.IEntry;
+import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 
 
@@ -123,7 +123,7 @@ public class EntryConfiguration
      */
     public String getFormEntryTitle( )
     {
-        IEntry entry = EntryHome.findByPrimaryKey( getIdFormEntry( ) );
+        Entry entry = EntryHome.findByPrimaryKey( getIdFormEntry( ) );
 
         if ( entry != null )
         {

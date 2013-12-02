@@ -237,7 +237,7 @@ public final class ExportDirectoryUtils
         FormConfigurationHome.insert( formConfiguration, pluginExport );
 
         //get List Entry
-        List<fr.paris.lutece.plugins.genericattributes.business.IEntry> listFormEntry = FormUtils.getEntriesList( nIdForm,
+        List<fr.paris.lutece.plugins.genericattributes.business.Entry> listFormEntry = FormUtils.getEntriesList( nIdForm,
                 pluginForm );
 
         String error = null;
@@ -248,7 +248,7 @@ public final class ExportDirectoryUtils
             createDirectoryNumberingEntry( pluginDirectory, directory, strPrefix );
         }
 
-        for ( fr.paris.lutece.plugins.genericattributes.business.IEntry formEntry : listFormEntry )
+        for ( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry : listFormEntry )
         {
             error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null );
 
@@ -271,7 +271,7 @@ public final class ExportDirectoryUtils
      * @param entryGroup the entry group
      * @return a property error message if there is an error
      */
-    public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.IEntry entryForm,
+    public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.Entry entryForm,
             HttpServletRequest request, Plugin pluginForm, Plugin pluginDirectory, Directory directory,
             fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
     {
@@ -433,7 +433,7 @@ public final class ExportDirectoryUtils
                 {
                     String error = null;
 
-                    for ( fr.paris.lutece.plugins.genericattributes.business.IEntry entryFormChildren : entryForm.getChildren( ) )
+                    for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                     {
                         error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
                                 directory, entryDirectory );
@@ -512,7 +512,7 @@ public final class ExportDirectoryUtils
     public static void createAllDirectoryField( int nIdEntryForm,
             fr.paris.lutece.plugins.directory.business.IEntry entryDirectory, Plugin pluginForm, Plugin pluginDirectory )
     {
-        fr.paris.lutece.plugins.genericattributes.business.IEntry entryForm = fr.paris.lutece.plugins.genericattributes.business.EntryHome
+        fr.paris.lutece.plugins.genericattributes.business.Entry entryForm = fr.paris.lutece.plugins.genericattributes.business.EntryHome
                 .findByPrimaryKey( nIdEntryForm );
         fr.paris.lutece.plugins.directory.business.Field fieldDirectory = null;
 
@@ -873,7 +873,7 @@ public final class ExportDirectoryUtils
      * @return <code>true</code> if the entry type is a geolocation type,
      *         <code>false</code> otherwise.
      */
-    public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.genericattributes.business.IEntry formEntry )
+    public static boolean isGeolocationFormEntry( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry )
     {
         List<EntryType> entryTypes = getDirectoryEntryForFormEntry( formEntry.getEntryType( ) );
 

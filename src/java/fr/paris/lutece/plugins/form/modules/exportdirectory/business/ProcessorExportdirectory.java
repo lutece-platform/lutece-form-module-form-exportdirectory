@@ -53,7 +53,7 @@ import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.service.entrytype.EntryTypeImage;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.form.web.FormJspBean;
-import fr.paris.lutece.plugins.genericattributes.business.IEntry;
+import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.plugins.genericattributes.business.ResponseFilter;
 import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
@@ -182,10 +182,10 @@ public class ProcessorExportdirectory extends OutputProcessor
         ReferenceList listDirectory = DirectoryHome.getDirectoryList( pluginDirectory );
         Collection<Map<String, Object>> entryConfigurationList = new ArrayList<Map<String, Object>>( );
         Collection<Map<String, Object>> formEntryTypeWithSeveralDirectoryEntryType = new ArrayList<Map<String, Object>>( );
-        List<IEntry> formEntriesMapProvider = new ArrayList<IEntry>( );
-        List<IEntry> formEntriesImage = new ArrayList<IEntry>( );
+        List<Entry> formEntriesMapProvider = new ArrayList<Entry>( );
+        List<Entry> formEntriesImage = new ArrayList<Entry>( );
 
-        for ( IEntry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
+        for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
         {
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
             {
@@ -437,7 +437,7 @@ public class ProcessorExportdirectory extends OutputProcessor
         Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
-        for ( IEntry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
+        for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
         {
             List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry
                     .getEntryType( ) );
@@ -527,7 +527,7 @@ public class ProcessorExportdirectory extends OutputProcessor
             Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
             List<EntryConfiguration> listEntryConfiguration = new ArrayList<EntryConfiguration>( );
 
-            for ( IEntry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
+            for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
             {
                 if ( entry.getEntryType( ).getIdType( ) != nFormEntryTypeComment )
                 {
