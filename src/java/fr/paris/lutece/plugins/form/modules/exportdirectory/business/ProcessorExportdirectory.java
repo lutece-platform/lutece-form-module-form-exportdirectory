@@ -577,8 +577,12 @@ public class ProcessorExportdirectory extends OutputProcessor
 
                 for ( FormSubmit formSubmit : FormSubmitHome.getFormSubmitList( responseFilter, pluginForm ) )
                 {
+
                     ResponseFilter responseFilterFormSubmit = new ResponseFilter( );
-                    responseFilterFormSubmit.setIdResource( formSubmit.getIdFormSubmit( ) );
+
+                    List<Integer> responseId = FormSubmitHome.getResponseListFromIdFormSubmit(
+                            formSubmit.getIdFormSubmit( ), plugin );
+                    responseFilterFormSubmit.setListId( responseId );
 
                     IResponseService responseService = SpringContextService
                             .getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );

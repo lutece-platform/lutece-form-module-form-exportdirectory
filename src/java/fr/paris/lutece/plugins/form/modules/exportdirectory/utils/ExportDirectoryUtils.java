@@ -126,6 +126,7 @@ public final class ExportDirectoryUtils
     private static final String PROPERTY_NUMBER_RECORD_PER_PAGE = "form-exportdirectory.directory.number_record_per_page";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE = "form-exportdirectory.mapping_entry_type.id";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_FILE = "form-exportdirectory.mapping_entry_type_file";
+    private static final String PROPERTY_MAPPING_ENTRY_TYPE_ARRAY = "form-exportdirectory.mapping_entry_type_array";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_IMAGE = "form-exportdirectory.mapping_entry_type_image";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING = "form-exportdirectory.mapping_entry_type_numbering";
     private static final String PROPERTY_TITLE_ENTRY_TYPE_NUMBERING = "form-exportdirectory.title_entry_type_numbering";
@@ -237,8 +238,8 @@ public final class ExportDirectoryUtils
         FormConfigurationHome.insert( formConfiguration, pluginExport );
 
         //get List Entry
-        List<fr.paris.lutece.plugins.genericattributes.business.Entry> listFormEntry = FormUtils.getEntriesList( nIdForm,
-                pluginForm );
+        List<fr.paris.lutece.plugins.genericattributes.business.Entry> listFormEntry = FormUtils.getEntriesList(
+                nIdForm, pluginForm );
 
         String error = null;
 
@@ -340,6 +341,8 @@ public final class ExportDirectoryUtils
                 entryDirectory.setShownInResultRecord( true );
                 entryDirectory.setShownInExport( true );
                 entryDirectory.setMandatory( entryForm.isMandatory( ) );
+                entryDirectory.setNumberRow( entryForm.getNumberRow( ) );
+                entryDirectory.setNumberColumn( entryForm.getNumberColumn( ) );
 
                 //For entry type sql
                 entryDirectory.setRequestSQL( entryForm.getComment( ) );
@@ -433,7 +436,8 @@ public final class ExportDirectoryUtils
                 {
                     String error = null;
 
-                    for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
+                    for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm
+                            .getChildren( ) )
                     {
                         error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
                                 directory, entryDirectory );
@@ -608,6 +612,24 @@ public final class ExportDirectoryUtils
                             file.setSize( responseFile.getFile( ).getSize( ) );
 
                             recordField.setFile( file );
+                        }
+                    }
+
+                    // entry of type array
+                    else if ( isDirectoryArrayType( entryDirectory.getEntryType( ).getIdType( ) ) )
+                    {
+                        if ( StringUtils.isBlank( response.getResponseValue( ) ) )
+                        {
+                            continue;
+                        }
+                        recordField.setValue( response.getResponseValue( ) );
+                        fr.paris.lutece.plugins.genericattributes.business.Field fieldForm = fr.paris.lutece.plugins.genericattributes.business.FieldHome
+                                .findByPrimaryKey( response.getField( ).getIdField( ) );
+                        Field fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry( ),
+                                fieldForm.getValue( ), pluginDirectory );
+                        if ( fieldDirectory != null )
+                        {
+                            recordField.setField( fieldDirectory );
                         }
                     }
 
@@ -808,6 +830,31 @@ public final class ExportDirectoryUtils
             for ( String strIdTypeFile : tabFileType )
             {
                 if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeFile ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the given id entry type is an entry type array
+     * @param nIdEntryType the id entry type
+     * @return true if it is an entry type array, false otherwise
+     */
+    public static boolean isDirectoryArrayType( int nIdEntryType )
+    {
+        String strMappingArrayType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_ARRAY );
+
+        if ( strMappingArrayType != null )
+        {
+            String[] tabArrayType = strMappingArrayType.split( "," );
+
+            for ( String strIdTypeArray : tabArrayType )
+            {
+                if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeArray ) )
                 {
                     return true;
                 }
