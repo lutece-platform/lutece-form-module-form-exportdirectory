@@ -66,6 +66,7 @@ import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.genericattributes.business.Response;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -123,6 +124,7 @@ public final class ExportDirectoryUtils
      * form-exportdirectory.form-entry-type_geolocation
      */
     private static final String PROPERTY_DIRECTORY_ID_ENTRY_TYPE_GEOLOCATION = "form-exportdirectory.directory-entry-type_geolocation";
+    private static final String PROPERTY_DIRECTORY_ID_ENTRY_TYPE_SELECT = "form-exportdirectory.directory-entry-type_select";
     private static final String PROPERTY_NUMBER_RECORD_PER_PAGE = "form-exportdirectory.directory.number_record_per_page";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE = "form-exportdirectory.mapping_entry_type.id";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_FILE = "form-exportdirectory.mapping_entry_type_file";
@@ -130,6 +132,7 @@ public final class ExportDirectoryUtils
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_IMAGE = "form-exportdirectory.mapping_entry_type_image";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING = "form-exportdirectory.mapping_entry_type_numbering";
     private static final String PROPERTY_TITLE_ENTRY_TYPE_NUMBERING = "form-exportdirectory.title_entry_type_numbering";
+    private static final String PROPERTY_FORM_NO_VALUE = "form.xpage.form.noValue";
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_RECORD_STYLE = 5;
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_FORM_SEARCH_STYLE = 3;
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_LIST_STYLE = 4;
@@ -305,6 +308,12 @@ public final class ExportDirectoryUtils
                 {
                     entryDirectory.setMapProvider( MapProviderManager.getMapProvider( request
                             .getParameter( PARAMETER_PREFIX_KEY_GEOLOCATION + entryForm.getIdEntry( ) ) ) );
+                }
+                else if ( isSelectEntry( entryType.getIdType( ) ) )
+                {
+                    entryDirectory.setAddValueAllSearch( true );
+                    entryDirectory.setLabelValueAllSearch( I18nService.getLocalizedString( PROPERTY_FORM_NO_VALUE,
+                            request.getLocale( ) ) );
                 }
 
                 //if it's an image
@@ -954,6 +963,34 @@ public final class ExportDirectoryUtils
             for ( String strIdTypeGeolocation : tabGeolocationType )
             {
                 if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeGeolocation ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Selects ids are set with the proprety
+     * {@link ExportDirectoryUtils#PROPERTY_DIRECTORY_ID_ENTRY_TYPE_SELECT}
+     * @param nIdEntryType the type to check
+     * @return <code>true</code> if the entry type is a select type,
+     *         <code>false</code> otherwise.
+     */
+    public static boolean isSelectEntry( int nIdEntryType )
+    {
+        String strIdsSelect = AppPropertiesService.getProperty( PROPERTY_DIRECTORY_ID_ENTRY_TYPE_SELECT,
+                DirectoryUtils.EMPTY_STRING );
+
+        if ( StringUtils.isNotBlank( strIdsSelect ) )
+        {
+            String[] tabSelectType = strIdsSelect.split( "," );
+
+            for ( String strIdTypeSelect : tabSelectType )
+            {
+                if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeSelect ) )
                 {
                     return true;
                 }
