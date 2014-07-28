@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS form_exportdirectory_formconfiguration;
+DROP TABLE IF EXISTS form_exportdirectory_entryconfiguration;
 
 --
 -- table struture for form_exportdatabase_formconfiguration
