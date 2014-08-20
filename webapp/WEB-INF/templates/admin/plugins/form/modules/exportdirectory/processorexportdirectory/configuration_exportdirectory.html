@@ -174,8 +174,10 @@ if(document.getElementById("form_directory")!=null){
 }
 */
 <#if (list_entry_image?size > 0) >
+<#list list_entry_image as image>
 document.getElementById( 'thumbnail_field_${image.idEntry}' ).style.display="none";
 document.getElementById( 'big_thumbnail_field_${image.idEntry}' ).style.display="none";
+</#list>
 </#if>
 
 function display(){
