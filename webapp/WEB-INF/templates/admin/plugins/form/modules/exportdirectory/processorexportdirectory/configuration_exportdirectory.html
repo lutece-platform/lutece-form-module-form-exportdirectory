@@ -5,46 +5,60 @@
 		<strong>${mapped_directory_title}</strong>
 		</p>
 		<p>
-		<label class="radio inline" for="delete_mapping_directory">
-			<i class="icon-trash"></i>&nbsp;#i18n{module.form.exportdirectory.configuration_exportdirectory.removeMappingDirectory} 
-		</span>
-		<input type="radio" name="action_exportdirectory" id="delete_mapping_directory" tabindex="1" value="delete_mapping_directory" onclick="javascript:display()"/>
+		<label class="radio-inline" for="delete_mapping_directory">
+			<input type="radio" name="action_exportdirectory" id="delete_mapping_directory" tabindex="1" value="delete_mapping_directory" onclick="javascript:display()"/>
+			<i class="glyphicon glyphicon-trash"></i>&nbsp;#i18n{module.form.exportdirectory.configuration_exportdirectory.removeMappingDirectory} 
 		</label>
 	</#if>
-	<label for="create_directory" class="radio inline">
-	<#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.createDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory}</#if> 
-	        <input type="radio" name="action_exportdirectory" id="create_directory" tabindex="1" value="create_directory" onclick="javascript:display()"/>
+	<label for="create_directory" class="radio-inline">
+        <input type="radio" name="action_exportdirectory" id="create_directory" tabindex="1" value="create_directory" onclick="javascript:display()">
+		<#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.createDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory}</#if> 
 	</label>
 	<#if !directory_list_is_empty>
-	<label for="use_directory_exist" class="radio inline">
-		<#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.useDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory}</#if>
+	<label for="use_directory_exist" class="radio-inline">
 	        <#if use_directory_exist>
-	        	<input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" checked="checked" onclick="javascript:display()"/>
+	        <input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" checked="checked" onclick="javascript:display()">
 			<#else>
-	        	<input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" onclick="javascript:display()"/>
+	        <input type="radio" name="action_exportdirectory" id="use_directory_exist" tabindex="1" value="use_directory_exist" onclick="javascript:display()">
 			</#if>
+		<#if is_mapped>#i18n{module.form.exportdirectory.configuration_exportdirectory.isMapped.useDirectory}<#else>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory}</#if>
 	</label>
 	</p>
 	<div class="well" id="display_use_directory_exist">
+		<div class="form-group">
 			<label for="directory_list">#i18n{module.form.exportdirectory.configuration_exportdirectory.directoryExist}</label>
-		   	<div class="input-append">
-			<@combo name="id_directory"  items=directory_list default_value=directory_list_default_item/>
-			<button class="btn btn-primary" type="submit" name="redirect">
-				<i class="icon-ok icon-white"></i>
-			</button>
+		   	<div class="input-group">
+				<@comboWithParams name="id_directory" items=directory_list default_value="directory_list_default_item" additionalParameters="class='form-control input-sm'" />
+				<div class="input-group-btn">
+					<button class="btn btn-default btn-sm" type="submit" name="redirect">
+					<i class="glyphicon glyphicon-ok"></i>
+					</button>
+				</div>
 			</div>
-			<label>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</label>
-			<#list entry_configuration_list as entry>
-			<label>${entry.use_directory_form_entry.formEntryTitle} *</label>
-				    <@combo name="id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}" items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry />
-			</#list>
+		</div>
+		<div class="form-group">
+		<label>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</label>
+		</div>
+		<div class="form-group">
+		<#list entry_configuration_list as entry>
+		<label>${entry.use_directory_form_entry.formEntryTitle} *</label>
+		    <@comboWithParams name="id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}" items=entry.use_directory_list_directory_entry default_value="entry.use_directory_default_directory_entry" additionalParameters="class='form-control input-sm'" />
+			<span class="help-block"></span>
+		</#list>
+		</div>
 	</div>
 	</#if>
+	
+	
+	
+	
 	<div class="well" id="display_create_directory">
 			<#if workflow_list?exists && workflow_list?size &gt; 0 >
+			<div class="form-group">
 			<label for="id_workflow">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddWorkflow}
-				<@combo name="id_workflow"  items=workflow_list default_value="-1" />
 			</label>
+				<@comboWithParams name="id_workflow"  items=workflow_list default_value="-1" additionalParameters="class='form-control input-sm'" />
+			</div>
 			</#if>
 			<#if entry_configuration_list?exists && entry_configuration_list?size &gt; 0 >
 			<table class="table table-striped">
@@ -67,39 +81,48 @@
 			</table>
 			</#if>
 			<p>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntry}</p>
-			<label class="radio inline" for="add_numbering_entry1">
-				<input type="radio" name="add_numbering_entry" id="add_numbering_entry1" tabindex="1" value="1" checked="checked" />#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryYes}
+			
+			<label class="radio-inline" for="add_numbering_entry1">
+				<input type="radio" name="add_numbering_entry" id="add_numbering_entry1" tabindex="1" value="1" checked="checked">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryYes}
 			</label>
-			<label class="radio inline" for="add_numbering_entry2">
-				<input type="radio" name="add_numbering_entry" id="add_numbering_entry2" tabindex="1" value="0"/>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryNo}
+			<label class="radio-inline" for="add_numbering_entry2">
+				<input type="radio" name="add_numbering_entry" id="add_numbering_entry2" tabindex="1" value="0">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryNo}
 			</label>
-			<label for="add_numbering_entry_prefix">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryPrefix}
-			</label>
-			<input type="text" name="add_numbering_entry_prefix" value="" class="input-mini" maxlength="255" />
-			<label for="activate_directory_record" class="checkbox">#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.activate_directory_record}
-			    <input name="activate_directory_record" id="activate_directory_record" value="1" type="checkbox" checked="checked" />
+			
+			<div class="form-group">
+				<label for="add_numbering_entry_prefix">#i18n{module.form.exportdirectory.configuration_exportdirectory.labelAddNumberingEntryPrefix}
+				</label>
+				<input type="text" name="add_numbering_entry_prefix" value="" class="form-control input-sm" maxlength="255">
+			</div>
+			
+			<div class="checkbox">
+			<label for="activate_directory_record">
+			    <input name="activate_directory_record" id="activate_directory_record" value="1" type="checkbox" checked="checked">
+				#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.activate_directory_record}
 			</label>
 		   	<p class="help-block">
 				#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.activate_directory_record_comment}
 			</p>
-			<label for="is_indexed" class="checkbox">
-				#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.is_indexed}
-				<input name="is_indexed" id="is_indexed" value="1" type="checkbox" checked="checked" />
+			</div>
+			
+			<div class="checkbox">
+			<label for="is_indexed">
+				<input name="is_indexed" id="is_indexed" value="1" type="checkbox" checked="checked">#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.is_indexed}
 			</label>
-		   	<p class="help-block">
-				#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.is_indexed_comment}
-			</p>
+		   	<p class="help-block">#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.is_indexed_comment}</p>
+			</div>
+			
 			<#if create_directory?has_content>
 				<p>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title}</p>
 				<#list create_directory as entry>
-				<div class="row-fluid">
-					<div class="span2"><strong>${entry.form_entry.title} *</strong></div>
-					<div class="span9">
+				<div class="row">
+					<div class="col-md-2"><strong>${entry.form_entry.title} *</strong></div>
+					<div class="col-md-9">
 					<#list entry.directory_entry_type as entry_type>
-					<label class="radio inline">
+					<label class="radio-inline">
 						<input type="radio" name="id_entry_type_${entry.form_entry.idEntry}" value="${entry_type.idType}">
 						#i18n{${entry_type.titleI18nKey}}
-					</label>	
+					</label>
 					</#list>
 					</div>
 				</div>
@@ -150,12 +173,12 @@
 		</div>
 		<#if record_form &gt; 0>
 			<div class="" id="record_Form">
-				<span class="badge badge-warning"><i class="icon-warning-sign icon-white"></i></span> #i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAll}
-				<label for="export_all" class="radio inline">
+				<span class="badge badge-warning"><i class="glyphicon glyphicon-warning-sign"></i></span> #i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAll}
+				<label for="export_all" class="radio-inline">
 					<input type="radio" name="export_all" id="export_record_form" tabindex="1" value="1" checked="checked" >
 					#i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAllYes}
 				</label>
-				<label for="export_all" class="radio inline">
+				<label for="export_all" class="radio-inline">
 					<input type="radio" name="export_all" id="export_record_form" tabindex="1" value="0"/>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelExportAllNo}
 				</label>
 			</div>
