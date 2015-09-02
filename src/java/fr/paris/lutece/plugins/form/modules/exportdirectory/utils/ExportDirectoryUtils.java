@@ -73,12 +73,14 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
+import fr.paris.lutece.util.date.DateUtil;
 import fr.paris.lutece.util.image.ImageUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -131,6 +133,7 @@ public final class ExportDirectoryUtils
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_ARRAY = "form-exportdirectory.mapping_entry_type_array";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_IMAGE = "form-exportdirectory.mapping_entry_type_image";
     private static final String PROPERTY_MAPPING_ENTRY_TYPE_NUMBERING = "form-exportdirectory.mapping_entry_type_numbering";
+    private static final String PROPERTY_MAPPING_ENTRY_TYPE_DATE = "form-exportdirectory.form-entry-type_date";
     private static final String PROPERTY_TITLE_ENTRY_TYPE_NUMBERING = "form-exportdirectory.title_entry_type_numbering";
     private static final String PROPERTY_FORM_NO_VALUE = "form.xpage.form.noValue";
     private static final int PROPERTY_DEFAULT_DIRECTORY_ID_RESULT_RECORD_STYLE = 5;
@@ -728,7 +731,15 @@ public final class ExportDirectoryUtils
 
                         nIndexForImg++;
                     }
-                    else
+                    // Entry of type date
+                    else if ( isDirectoryDateType( entryDirectory.getEntryType( ).getIdType( ) ) )
+                    {   
+                        Date date = DateUtil.formatDate(response.getResponseValue( ), request.getLocale());
+                        if (date != null) {
+                            recordField.setValue( String.valueOf(date.getTime()) );
+                        }
+                    } 
+                    else 
                     {
                         String strValue = DirectoryUtils.EMPTY_STRING;
 
@@ -870,6 +881,26 @@ public final class ExportDirectoryUtils
             }
         }
 
+        return false;
+    }
+    
+    public static boolean isDirectoryDateType ( int nIdEntryType ) {
+        
+        String strMappingDateType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE_DATE );
+        
+        if ( strMappingDateType != null )
+        {
+            String[] tabDateType = strMappingDateType.split( "," );
+
+            for ( String strIdTypeDate : tabDateType )
+            {
+                if ( nIdEntryType == DirectoryUtils.convertStringToInt( strIdTypeDate ) )
+                {
+                    return true;
+                }
+            }
+        }
+        
         return false;
     }
 
