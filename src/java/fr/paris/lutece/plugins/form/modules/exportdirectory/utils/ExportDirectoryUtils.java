@@ -769,9 +769,17 @@ public final class ExportDirectoryUtils
                             {
                                 fieldDirectory = FieldHome.findByValue( entryDirectory.getIdEntry( ), strValue,
                                         pluginDirectory );
+                                
+                                if (entryDirectory.isRoleAssociated() && fieldDirectory.getRoleKey() != null && 
+                                    !Directory.ROLE_NONE.equals(fieldDirectory.getRoleKey())) {
+                                
+                                    record.setRoleKey(fieldDirectory.getRoleKey());                           
+                                    RecordHome.update(record, pluginDirectory);
+                                
+                                }
                             }
 
-                            recordField.setField( fieldDirectory );
+                            recordField.setField( fieldDirectory );   
                         }
                     }
 
