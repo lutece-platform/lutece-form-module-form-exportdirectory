@@ -164,11 +164,17 @@
 				<#list list_entry_geolocalisation as entry>
 					<label for="create_directory_${entry.idEntry}">${entry.title} <#if entry.mapProvider?has_content> (${entry.mapProvider.displayedName}) </#if></label> *
 					    <#list list_directory_map_providers as map_provider>
-					    	${map_provider.displayedName}<input type="radio" name="key_geolocation_${entry.idEntry}" value="${map_provider.key}" />
-					    </#list>
-						<label class="radio">
-					    #i18n{module.form.exportdirectory.configuration_exportdirectory.noMapProvider}<input type="radio" name="key_geolocation_${entry.idEntry}" value="none" />
+						<div class="radio">
+						<label>
+						<input name="key_geolocation_${entry.idEntry}" value="${map_provider.key}" type="radio">${map_provider.displayedName}
 						</label>
+						</div>
+					    </#list>
+						<div class="radio">
+						<label>
+						<input name="key_geolocation_${entry.idEntry}" value="none" type="radio">#i18n{module.form.exportdirectory.configuration_exportdirectory.noMapProvider}
+						</label>
+						</div>
 				</#list>
 		</div>
 		<#if record_form &gt; 0>
