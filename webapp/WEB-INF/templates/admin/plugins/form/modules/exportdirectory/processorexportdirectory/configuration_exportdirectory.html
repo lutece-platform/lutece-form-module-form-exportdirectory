@@ -189,7 +189,7 @@ document.getElementById( 'big_thumbnail_field_${image.idEntry}' ).style.display=
 </#list>
 </#if>
 
-<#if use_directory_exist>
+<#if use_directory_exist?? && use_directory_exist>
 	<#if !directory_list_is_empty>
 		document.getElementById("display_use_directory_exist").style.display="block";
 	</#if>
