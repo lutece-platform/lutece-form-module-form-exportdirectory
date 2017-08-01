@@ -100,10 +100,10 @@
 		</@formGroup>
 		
 		<#if create_directory?has_content>
-			<fieldset>
+			<fieldset id="directoryTypeEntry">
 				<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title}</legend>
 				<#list create_directory as entry>
-				<@formGroup labelKey='${entry.form_entry.title}' mandatory=true rows=2>
+				<@formGroup labelKey='${entry.form_entry.title}' rows=2>
 					<#list entry.directory_entry_type as entry_type>
 						<@radioButton orientation='horizontal' name='id_entry_type_${entry.form_entry.idEntry}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
 					</#list>
@@ -204,6 +204,19 @@ function exportDirectory(buttonElement) {
 	var currentBtn = document.getElementById(elementId);
 	currentBtn.checked=true;
 	
+	if (elementId == "delete_mapping_directory" || "use_directory_exist") {
+		if(currentBtn.checked) {
+			var asterisks = $("label.col-xs-12").children();
+			$(asterisks).remove();
+			
+			var radioButtons = $("[name^='id_entry_type_']");
+			for (i=0; i < radioButtons.length; i++) {
+				radioButton = radioButtons[i];
+				$(radioButton).removeAttr("required","true");
+			};
+		};
+	}
+	
 	if (elementId == "delete_mapping_directory") {
 		if(currentBtn.checked)
 		{
@@ -221,6 +234,20 @@ function exportDirectory(buttonElement) {
 			document.getElementById("record_Form").style.display="block";
 			</#if>
 			document.getElementById("display_create_directory").style.display="block";
+			
+			var radioButtonsLabels = $("#directoryTypeEntry").find("label.col-xs-12");
+			for (i=0; i < radioButtonsLabels.length; i++) {
+				var radioButtonLabel = radioButtonsLabels[i];
+				var asterisk = '<i class="fa fa-asterisk"></i>';
+				$(radioButtonLabel).append(asterisk);
+			}
+			
+			var radioButtons = $("[name^='id_entry_type_']");
+			for (i=0; i < radioButtons.length; i++) {
+				radioButton = radioButtons[i];
+				$(radioButton).attr("required","true");
+			}
+
 		}
 	}	else if (elementId == "use_directory_exist") {
 		if(currentBtn.checked)
