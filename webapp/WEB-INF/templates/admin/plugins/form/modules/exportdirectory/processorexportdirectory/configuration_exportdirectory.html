@@ -48,7 +48,7 @@
 			<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</legend>
 			<#list entry_configuration_list as entry>
 				<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' mandatory=true>
-					<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value='entry.use_directory_default_directory_entry' />
+					<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
 				</@formGroup>
 			</#list>
 		</fieldset>
