@@ -38,7 +38,7 @@
 	<div id="display_use_directory_exist" style="display:none;">
 		<@formGroup rows=2 labelFor='directory_list' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.directoryExist}'>
 			<@inputGroup>
-				<@select name='id_directory' items=directory_list default_value='directory_list_default_item' size='sm' />
+				<@select name='id_directory' items=directory_list default_value=directory_list_default_item?string size='sm' />
 				<@inputGroupItem>
 					<@button type='submit' name='redirect' buttonIcon='check' color='btn-secondary' />
 				</@inputGroupItem>
