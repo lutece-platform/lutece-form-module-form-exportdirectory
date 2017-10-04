@@ -200,7 +200,7 @@ document.getElementById( 'big_thumbnail_field_${image.idEntry}' ).style.display=
 </#if>
 
 function exportDirectory(buttonElement) {
-	elementId = buttonElement.querySelector(":scope > input").id;
+	elementId = buttonElement.getElementsByTagName("input")[0].id;
 	var currentBtn = document.getElementById(elementId);
 	currentBtn.checked=true;
 	
