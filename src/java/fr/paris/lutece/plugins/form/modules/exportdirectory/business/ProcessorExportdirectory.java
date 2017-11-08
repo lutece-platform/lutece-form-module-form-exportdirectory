@@ -85,7 +85,6 @@ import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
-
 /**
  * 
  * @author FBU
@@ -146,11 +145,11 @@ public class ProcessorExportdirectory extends OutputProcessor
     private static final String ACTION_USE_DIRECTORY_EXIST = "use_directory_exist";
     private static final String ACTION_DELETE_MAPPING_DIRECTORY = "delete_mapping_directory";
 
-    //property
+    // property
     private static final String PROPERTY_FORM_ENTRY_TYPE_COMMENT = "form-exportdirectory.form-entry-type_comment";
     private static final String PROPERTY_FORM_ENTRY_TYPE_FILE = "form-exportdirectory.form-entry-type_file";
 
-    //DEFAULT
+    // DEFAULT
     private static final String DEFAULT_FORM_IMAGE_TYPE = "12";
 
     /**
@@ -159,17 +158,14 @@ public class ProcessorExportdirectory extends OutputProcessor
     public String getOutputConfigForm( HttpServletRequest request, Form form, Locale locale, Plugin plugin )
     {
         boolean apply = false;
-        int nFormEntryTypeComment = DirectoryUtils.convertStringToInt( AppPropertiesService
-                .getProperty( PROPERTY_FORM_ENTRY_TYPE_COMMENT ) );
+        int nFormEntryTypeComment = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_COMMENT ) );
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         Map<String, Object> model = new HashMap<String, Object>( );
-        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ),
-                pluginExportdirectory );
+        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory );
 
-        model.put( MARK_PERMISSION_MANAGE, RBACService.isAuthorized( ExportdirectoryResourceIdService.RESOURCE_TYPE,
-                RBAC.WILDCARD_RESOURCES_ID, ExportdirectoryResourceIdService.PERMISSION_MANAGE_EXPORT_DIRECTORY,
-                AdminUserService.getAdminUser( request ) ) );
+        model.put( MARK_PERMISSION_MANAGE, RBACService.isAuthorized( ExportdirectoryResourceIdService.RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID,
+                ExportdirectoryResourceIdService.PERMISSION_MANAGE_EXPORT_DIRECTORY, AdminUserService.getAdminUser( request ) ) );
 
         boolean isMapped = false;
 
@@ -181,8 +177,7 @@ public class ProcessorExportdirectory extends OutputProcessor
         else
         {
             isMapped = true;
-            model.put( MARK_MAPPED_DIRECTORY_TITLE,
-                    DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory( ), pluginDirectory ).getTitle( ) );
+            model.put( MARK_MAPPED_DIRECTORY_TITLE, DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory( ), pluginDirectory ).getTitle( ) );
         }
 
         ReferenceList listDirectory = DirectoryHome.getDirectoryList( pluginDirectory );
@@ -199,8 +194,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                 formEntriesMapProvider.add( entry );
             }
 
-            if ( ( entry.getEntryType( ) != null )
-                    && StringUtils.equals( entry.getEntryType( ).getBeanName( ), EntryTypeImage.BEAN_NAME ) )
+            if ( ( entry.getEntryType( ) != null ) && StringUtils.equals( entry.getEntryType( ).getBeanName( ), EntryTypeImage.BEAN_NAME ) )
             {
                 formEntriesImage.add( entry );
             }
@@ -208,8 +202,7 @@ public class ProcessorExportdirectory extends OutputProcessor
             if ( entry.getEntryType( ).getIdType( ) != nFormEntryTypeComment )
             {
                 Map<String, Object> entryFormType = new HashMap<String, Object>( );
-                List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry
-                        .getEntryType( ) );
+                List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) );
 
                 if ( listEntryTypeDirectory.size( ) > 1 )
                 {
@@ -219,8 +212,8 @@ public class ProcessorExportdirectory extends OutputProcessor
                 }
 
                 Map<String, Object> resourceActions = new HashMap<String, Object>( );
-                EntryConfiguration entryConfigurationFromEntry = EntryConfigurationHome.findByPrimaryKey(
-                        form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory );
+                EntryConfiguration entryConfigurationFromEntry = EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ),
+                        pluginExportdirectory );
 
                 if ( entryConfigurationFromEntry == null )
                 {
@@ -228,14 +221,14 @@ public class ProcessorExportdirectory extends OutputProcessor
                     entryConfigurationFromEntry.setIdFormEntry( entry.getIdEntry( ) );
                     entryConfigurationFromEntry.setIdForm( form.getIdForm( ) );
                 }
-                
+
                 // If the entry belong to an iterable group we will create an IterationEntry object for it
                 // and we will associate it to the configuration of the entry
                 if ( EntryTypeGroupUtils.entryBelongIterableGroup( entry ) )
                 {
                     IterationEntry iterationEntry = EntryTypeGroupUtils.createIterationEntry( entry.getIdEntry( ), form.getIdForm( ) );
                     entryConfigurationFromEntry.setIterationEntry( iterationEntry );
-                    
+
                     mapIdEntryIterationNumber.put( String.valueOf( entry.getIdEntry( ) ), iterationEntry.getIterationNumber( ) );
                 }
 
@@ -243,50 +236,45 @@ public class ProcessorExportdirectory extends OutputProcessor
 
                 if ( ( listDirectory != null ) && !listDirectory.isEmpty( ) )
                 {
-                    for ( EntryType entryTypeDirectory : ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry
-                            .getEntryType( ) ) )
+                    for ( EntryType entryTypeDirectory : ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) ) )
                     {
                         EntryFilter entryFilterDirectory = new EntryFilter( );
 
                         if ( request.getParameter( PARAMETER_ID_DIRECTORY ) != null )
                         {
-                            entryFilterDirectory.setIdDirectory( Integer.parseInt( request
-                                    .getParameter( PARAMETER_ID_DIRECTORY ) ) );
+                            entryFilterDirectory.setIdDirectory( Integer.parseInt( request.getParameter( PARAMETER_ID_DIRECTORY ) ) );
                             apply = true;
                         }
-                        else if ( isMapped )
-                        {
-                            entryFilterDirectory.setIdDirectory( formConfiguration.getIdDirectory( ) );
-                        }
                         else
-                        {
-                            entryFilterDirectory.setIdDirectory( Integer.parseInt( listDirectory.get( 0 ).getCode( ) ) );
-                        }
+                            if ( isMapped )
+                            {
+                                entryFilterDirectory.setIdDirectory( formConfiguration.getIdDirectory( ) );
+                            }
+                            else
+                            {
+                                entryFilterDirectory.setIdDirectory( Integer.parseInt( listDirectory.get( 0 ).getCode( ) ) );
+                            }
 
                         entryFilterDirectory.setIdType( entryTypeDirectory.getIdType( ) );
 
-                        List<fr.paris.lutece.plugins.directory.business.IEntry> listEntryDirectoryForEntryTypeForm = EntryHome
-                                .getEntryList( entryFilterDirectory, pluginDirectory );
+                        List<fr.paris.lutece.plugins.directory.business.IEntry> listEntryDirectoryForEntryTypeForm = EntryHome.getEntryList(
+                                entryFilterDirectory, pluginDirectory );
                         listEntryDirectory.addAll( listEntryDirectoryForEntryTypeForm );
                     }
                 }
 
-                ReferenceList referenceListEntryDirectory = ReferenceList.convert( listEntryDirectory, "idEntry",
-                        "title", true );
+                ReferenceList referenceListEntryDirectory = ReferenceList.convert( listEntryDirectory, "idEntry", "title", true );
 
                 // Modify the ReferenceList for the iterable entry if they are present
                 manageReferenceListIterableEntry( form.getIdForm( ), referenceListEntryDirectory );
-                
+
                 referenceListEntryDirectory.addItem( -1, "" );
                 resourceActions.put( MARK_USE_DIRECTORY_LIST_ENTRY_DIRECTORY, referenceListEntryDirectory );
 
-                if ( isMapped
-                        && ( EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ),
-                                pluginExportdirectory ) != null ) && !apply )
+                if ( isMapped && ( EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory ) != null ) && !apply )
                 {
-                    resourceActions.put( MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY, EntryConfigurationHome
-                            .findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory )
-                            .getIdDirectoryEntry( ) );
+                    resourceActions.put( MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY,
+                            EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory ).getIdDirectoryEntry( ) );
                 }
                 else
                 {
@@ -318,16 +306,17 @@ public class ProcessorExportdirectory extends OutputProcessor
                 model.put( MARK_DIRECTORY_LIST_DEFAULT_ITEM, request.getParameter( PARAMETER_ID_DIRECTORY ) );
                 model.put( MARK_USE_DIRECTORY_EXIST, true );
             }
-            else if ( isMapped )
-            {
-                model.put( MARK_DIRECTORY_LIST_DEFAULT_ITEM, formConfiguration.getIdDirectory( ) );
-                model.put( MARK_USE_DIRECTORY_EXIST, false );
-            }
             else
-            {
-                model.put( MARK_DIRECTORY_LIST_DEFAULT_ITEM, listDirectory.get( 0 ).getCode( ) );
-                model.put( MARK_USE_DIRECTORY_EXIST, false );
-            }
+                if ( isMapped )
+                {
+                    model.put( MARK_DIRECTORY_LIST_DEFAULT_ITEM, formConfiguration.getIdDirectory( ) );
+                    model.put( MARK_USE_DIRECTORY_EXIST, false );
+                }
+                else
+                {
+                    model.put( MARK_DIRECTORY_LIST_DEFAULT_ITEM, listDirectory.get( 0 ).getCode( ) );
+                    model.put( MARK_USE_DIRECTORY_EXIST, false );
+                }
 
             model.put( MARK_DIRECTORY_LIST, listDirectory );
 
@@ -340,19 +329,14 @@ public class ProcessorExportdirectory extends OutputProcessor
         model.put( MARK_FORM, form );
         model.put( MARK_LOCALE, locale );
         model.put( MARK_FORM_CONFIGURATION, formConfiguration );
-        model.put( MARK_FORM_ENTRY_FILE,
-                DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_FILE ) ) );
-        model.put( MARK_FORM_ENTRY_IMAGE, DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty(
-                PROPERTY_FORM_ENTRY_TYPE_IMAGE, DEFAULT_FORM_IMAGE_TYPE ) ) );
+        model.put( MARK_FORM_ENTRY_FILE, DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_FILE ) ) );
+        model.put( MARK_FORM_ENTRY_IMAGE,
+                DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_IMAGE, DEFAULT_FORM_IMAGE_TYPE ) ) );
 
         if ( WorkflowService.getInstance( ).isAvailable( )
-                && ( WorkflowService.getInstance( ).getWorkflowsEnabled( AdminUserService.getAdminUser( request ),
-                        locale ) != null ) )
+                && ( WorkflowService.getInstance( ).getWorkflowsEnabled( AdminUserService.getAdminUser( request ), locale ) != null ) )
         {
-            model.put(
-                    MARK_WORKFLOW,
-                    WorkflowService.getInstance( ).getWorkflowsEnabled( AdminUserService.getAdminUser( request ),
-                            locale ) );
+            model.put( MARK_WORKFLOW, WorkflowService.getInstance( ).getWorkflowsEnabled( AdminUserService.getAdminUser( request ), locale ) );
         }
 
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_CONFIGURATION_EXPORTDIRECTORY, locale, model );
@@ -384,26 +368,29 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         if ( request.getParameter( FormJspBean.PARAMETER_ACTION_REDIRECT ) != null )
         {
-            return FormJspBean.getJspManageOutputProcessForm( request, form.getIdForm( ), PARAMETER_ID_DIRECTORY,
-                    request.getParameter( PARAMETER_ID_DIRECTORY ) );
+            return FormJspBean
+                    .getJspManageOutputProcessForm( request, form.getIdForm( ), PARAMETER_ID_DIRECTORY, request.getParameter( PARAMETER_ID_DIRECTORY ) );
         }
 
         if ( ( strActionExportdatabase == null ) )
         {
             return null;
         }
-        else if ( strActionExportdatabase.equals( ACTION_CREATE_DIRECTORY ) )
-        {
-            return doActionCreateDirectory( request, form, plugin, pluginExportdirectory );
-        }
-        else if ( strActionExportdatabase.equals( ACTION_USE_DIRECTORY_EXIST ) )
-        {
-            return doActionUseDirectoryExist( request, form, plugin, pluginExportdirectory );
-        }
-        else if ( strActionExportdatabase.equals( ACTION_DELETE_MAPPING_DIRECTORY ) )
-        {
-            return doActionRemoveMapping( request, form, pluginExportdirectory );
-        }
+        else
+            if ( strActionExportdatabase.equals( ACTION_CREATE_DIRECTORY ) )
+            {
+                return doActionCreateDirectory( request, form, plugin, pluginExportdirectory );
+            }
+            else
+                if ( strActionExportdatabase.equals( ACTION_USE_DIRECTORY_EXIST ) )
+                {
+                    return doActionUseDirectoryExist( request, form, plugin, pluginExportdirectory );
+                }
+                else
+                    if ( strActionExportdatabase.equals( ACTION_DELETE_MAPPING_DIRECTORY ) )
+                    {
+                        return doActionRemoveMapping( request, form, pluginExportdirectory );
+                    }
 
         return null;
     }
@@ -416,40 +403,39 @@ public class ProcessorExportdirectory extends OutputProcessor
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
-        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey(
-                formSubmit.getForm( ).getIdForm( ), pluginExportdirectory );
+        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( formSubmit.getForm( ).getIdForm( ), pluginExportdirectory );
 
-        if ( ( formConfiguration != null )
-                && ( DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory( ), pluginDirectory ) != null ) )
+        if ( ( formConfiguration != null ) && ( DirectoryHome.findByPrimaryKey( formConfiguration.getIdDirectory( ), pluginDirectory ) != null ) )
         {
             try
             {
-                ExportDirectoryUtils.createDirectoryRecord( request, formConfiguration, formSubmit, pluginForm,
-                        pluginDirectory );
+                ExportDirectoryUtils.createDirectoryRecord( request, formConfiguration, formSubmit, pluginForm, pluginDirectory );
             }
-            catch ( UnsupportedEncodingException e )
+            catch( UnsupportedEncodingException e )
             {
                 return null;
             }
         }
 
-        return null; //No error
+        return null; // No error
     }
 
     /**
      * Process the create directorty
      * 
-     * @param request The {@link HttpServletRequest}
-     * @param form The {@link Form} linked to this outputProcessor
-     * @param plugin The {@link Plugin}
-     * @param pluginExportdirectory the plugin export directory
+     * @param request
+     *            The {@link HttpServletRequest}
+     * @param form
+     *            The {@link Form} linked to this outputProcessor
+     * @param plugin
+     *            The {@link Plugin}
+     * @param pluginExportdirectory
+     *            the plugin export directory
      * @return An error message key or null if no error
      */
-    private String doActionCreateDirectory( HttpServletRequest request, Form form, Plugin plugin,
-            Plugin pluginExportdirectory )
+    private String doActionCreateDirectory( HttpServletRequest request, Form form, Plugin plugin, Plugin pluginExportdirectory )
     {
-        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ),
-                pluginExportdirectory );
+        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory );
 
         if ( formConfiguration != null )
         {
@@ -461,13 +447,11 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
         {
-            List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry
-                    .getEntryType( ) );
+            List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) );
 
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
             {
-                if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION
-                        + entry.getIdEntry( ) ) ) )
+                if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION + entry.getIdEntry( ) ) ) )
                 {
                     return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
                 }
@@ -483,8 +467,7 @@ public class ProcessorExportdirectory extends OutputProcessor
         }
 
         String error = null;
-        error = ExportDirectoryUtils.createDirectoryByIdForm( form.getIdForm( ), request,
-                PluginService.getPlugin( FormPlugin.PLUGIN_NAME ),
+        error = ExportDirectoryUtils.createDirectoryByIdForm( form.getIdForm( ), request, PluginService.getPlugin( FormPlugin.PLUGIN_NAME ),
                 PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
 
         if ( error != null )
@@ -502,8 +485,7 @@ public class ProcessorExportdirectory extends OutputProcessor
             {
                 ResponseFilter responseFilterFormSubmit = new ResponseFilter( );
 
-                List<Integer> responseId = FormSubmitHome.getResponseListFromIdFormSubmit(
-                        formSubmit.getIdFormSubmit( ), plugin );
+                List<Integer> responseId = FormSubmitHome.getResponseListFromIdFormSubmit( formSubmit.getIdFormSubmit( ), plugin );
                 responseFilterFormSubmit.setListId( responseId );
 
                 IResponseService responseService = SpringContextService.getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
@@ -511,11 +493,10 @@ public class ProcessorExportdirectory extends OutputProcessor
 
                 try
                 {
-                    ExportDirectoryUtils.createDirectoryRecord( request,
-                            FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory ),
+                    ExportDirectoryUtils.createDirectoryRecord( request, FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory ),
                             formSubmit, pluginForm, pluginDirectory );
                 }
-                catch ( UnsupportedEncodingException e )
+                catch( UnsupportedEncodingException e )
                 {
                     return null;
                 }
@@ -527,19 +508,21 @@ public class ProcessorExportdirectory extends OutputProcessor
 
     /**
      * Process use a directory already exist
-     * @param request The {@link HttpServletRequest}
-     * @param form The {@link Form} linked to this outputProcessor
-     * @param plugin The {@link Plugin}
-     * @param pluginExportdirectory the plugin export directory
+     * 
+     * @param request
+     *            The {@link HttpServletRequest}
+     * @param form
+     *            The {@link Form} linked to this outputProcessor
+     * @param plugin
+     *            The {@link Plugin}
+     * @param pluginExportdirectory
+     *            the plugin export directory
      * @return An error message key or null if no error
      */
-    private String doActionUseDirectoryExist( HttpServletRequest request, Form form, Plugin plugin,
-            Plugin pluginExportdirectory )
+    private String doActionUseDirectoryExist( HttpServletRequest request, Form form, Plugin plugin, Plugin pluginExportdirectory )
     {
-        int nFormEntryTypeComment = DirectoryUtils.convertStringToInt( AppPropertiesService
-                .getProperty( PROPERTY_FORM_ENTRY_TYPE_COMMENT ) );
-        FormConfiguration formConfigurationInitial = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ),
-                pluginExportdirectory );
+        int nFormEntryTypeComment = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_COMMENT ) );
+        FormConfiguration formConfigurationInitial = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory );
 
         if ( formConfigurationInitial != null )
         {
@@ -557,8 +540,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                 if ( entry.getEntryType( ).getIdType( ) != nFormEntryTypeComment )
                 {
                     if ( ( request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ) == null )
-                            || request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) )
-                                    .equals( "-1" ) )
+                            || request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ).equals( "-1" ) )
                     {
                         return MESSAGE_ERROR_ENTRY_FORM_NOT_ID_DIRECTORY;
                     }
@@ -574,15 +556,14 @@ public class ProcessorExportdirectory extends OutputProcessor
                     EntryConfiguration entryConfiguration = new EntryConfiguration( );
                     entryConfiguration.setIdForm( form.getIdForm( ) );
                     entryConfiguration.setIdFormEntry( entry.getIdEntry( ) );
-                    entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( request
-                            .getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ) ) );
+                    entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY
+                            + "_" + entry.getIdEntry( ) ) ) );
                     listEntryConfiguration.add( entryConfiguration );
                 }
             }
 
             FormConfiguration formConfiguration = new FormConfiguration( );
-            formConfiguration.setIdDirectory( DirectoryUtils.convertStringToInt( request
-                    .getParameter( PARAMETER_ID_DIRECTORY ) ) );
+            formConfiguration.setIdDirectory( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_DIRECTORY ) ) );
             formConfiguration.setIdForm( form.getIdForm( ) );
             FormConfigurationHome.insert( formConfiguration, pluginExportdirectory );
 
@@ -602,21 +583,18 @@ public class ProcessorExportdirectory extends OutputProcessor
 
                     ResponseFilter responseFilterFormSubmit = new ResponseFilter( );
 
-                    List<Integer> responseId = FormSubmitHome.getResponseListFromIdFormSubmit(
-                            formSubmit.getIdFormSubmit( ), plugin );
+                    List<Integer> responseId = FormSubmitHome.getResponseListFromIdFormSubmit( formSubmit.getIdFormSubmit( ), plugin );
                     responseFilterFormSubmit.setListId( responseId );
 
-                    IResponseService responseService = SpringContextService
-                            .getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
+                    IResponseService responseService = SpringContextService.getBean( FormUtils.BEAN_FORM_RESPONSE_SERVICE );
                     formSubmit.setListResponse( responseService.getResponseList( responseFilterFormSubmit, false ) );
 
                     try
                     {
                         ExportDirectoryUtils.createDirectoryRecord( request,
-                                FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory ),
-                                formSubmit, pluginForm, pluginDirectory );
+                                FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory ), formSubmit, pluginForm, pluginDirectory );
                     }
-                    catch ( UnsupportedEncodingException e )
+                    catch( UnsupportedEncodingException e )
                     {
                         return null;
                     }
@@ -630,9 +608,12 @@ public class ProcessorExportdirectory extends OutputProcessor
     /**
      * Process deletion of export directory
      * 
-     * @param request The {@link HttpServletRequest}
-     * @param form The {@link Form} linked to this outputProcessor
-     * @param pluginExportdirectory the plugin export directory
+     * @param request
+     *            The {@link HttpServletRequest}
+     * @param form
+     *            The {@link Form} linked to this outputProcessor
+     * @param pluginExportdirectory
+     *            the plugin export directory
      * @return An error message key or null if no error
      */
     private String doActionRemoveMapping( HttpServletRequest request, Form form, Plugin pluginExportdirectory )
@@ -642,21 +623,21 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         return null;
     }
-    
+
     /**
-     * Change the name of ReferenceItem of a ReferenceList if they belong to an iterable group
-     * to make a way to distinguish them
+     * Change the name of ReferenceItem of a ReferenceList if they belong to an iterable group to make a way to distinguish them
      * 
      * @param idForm
-     *          the id of the form
+     *            the id of the form
      * @param referenceList
-     *          the reference list which represent the entry of the form
+     *            the reference list which represent the entry of the form
      */
     private void manageReferenceListIterableEntry( int idForm, ReferenceList referenceList )
     {
         // Retrieve the Collection of the entry configuration of the form
-        Collection<EntryConfiguration> collectionEntryConfiguration = EntryConfigurationHome.findEntryConfigurationListByIdForm( idForm, PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME ) );
-        
+        Collection<EntryConfiguration> collectionEntryConfiguration = EntryConfigurationHome.findEntryConfigurationListByIdForm( idForm,
+                PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME ) );
+
         if ( referenceList != null && !referenceList.isEmpty( ) && collectionEntryConfiguration != null && !collectionEntryConfiguration.isEmpty( ) )
         {
             // Create the map which associate for each directory entry id its entry form id
@@ -665,7 +646,7 @@ public class ProcessorExportdirectory extends OutputProcessor
             {
                 mapIdDirectoryIdFormEntry.put( entryConfiguration.getIdDirectoryEntry( ), entryConfiguration.getIdFormEntry( ) );
             }
-            
+
             // Check if a referenceItem belong to an iterable group or not and if it the case change its name
             for ( ReferenceItem referenceItem : referenceList )
             {
