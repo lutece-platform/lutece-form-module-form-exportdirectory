@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
+import fr.paris.lutece.plugins.form.business.iteration.IterationEntry;
 import fr.paris.lutece.plugins.form.service.EntryRemovalListenerService;
 import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.plugins.genericattributes.business.EntryHome;
@@ -52,6 +53,7 @@ public class EntryConfiguration
     private int _nIdForm;
     private int _nIdFormEntry;
     private int _nIdDirectoryEntry;
+    private IterationEntry _iterationEntry;
 
     /**
      * Initialize the EntryConfiguration
@@ -116,7 +118,23 @@ public class EntryConfiguration
     {
         this._nIdDirectoryEntry = idDirectoryEntry;
     }
+    
+    /**
+     * @return the iterationEntry
+     */
+    public IterationEntry getIterationEntry( )
+    {
+        return _iterationEntry;
+    }
 
+    /**
+     * @param _iterationEntry the iterationEntry to set
+     */
+    public void setIterationEntry( IterationEntry iterationEntry )
+    {
+        this._iterationEntry = iterationEntry;
+    }
+    
     /**
      * Get the Entry title
      * @return The entry title
@@ -129,6 +147,14 @@ public class EntryConfiguration
         {
             return entry.getTitle( );
         }
+        else
+        {
+            if ( _iterationEntry != null )
+            {
+                return _iterationEntry.getEntryTitle( );
+            }
+        }
+        
         return null;
     }
 

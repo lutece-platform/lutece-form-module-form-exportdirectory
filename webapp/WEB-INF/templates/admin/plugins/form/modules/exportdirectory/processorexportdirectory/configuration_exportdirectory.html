@@ -46,10 +46,29 @@
 		</@formGroup>
 		<fieldset>
 			<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</legend>
+			<#assign modif_iteration = ""/>
 			<#list entry_configuration_list as entry>
-				<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' mandatory=true>
-					<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
-				</@formGroup>
+				<#assign modif_form_entry = entry.use_directory_form_entry>
+				<#if modif_form_entry.iterationEntry?has_content && modif_form_entry.iterationEntry.idIterableParentGroup+'_'+modif_form_entry.iterationEntry.iterationNumber != modif_iteration>
+					<#assign modif_iteration = modif_form_entry.iterationEntry.idIterableParentGroup+'_'+modif_form_entry.iterationEntry.iterationNumber />
+					<div class="form-group">
+						<label id="modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}" class="col-xs-12">
+							${modif_form_entry.iterationEntry.entryParentTitle} - #i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${modif_form_entry.iterationEntry.iterationNumber}
+						</label>
+					</div>
+					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' class='' mandatory=true params="data-for='modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}'">
+						<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
+					</@formGroup>
+				<#else>
+					<#assign iter_class = ''>
+					<#assign parms_form = ''>
+					<#if modif_form_entry.iterationEntry?has_content>
+						<#assign parms_form = "data-for='modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}'">
+					</#if>
+					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' mandatory=true class='' params=parms_form>
+						<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
+					</@formGroup>
+				</#if>
 			</#list>
 		</fieldset>
 	</div>
@@ -68,16 +87,26 @@
 					<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.result_list}</th>
 					<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.search}</th>
 				</tr>
+			<#assign iteration = ""/>
 			<#list entry_configuration_list as entry>
-			<tr>
-				<td>${entry.use_directory_form_entry.formEntryTitle}</td>
-				<td><input type="checkbox" name="is_in_result_list_${entry.use_directory_form_entry.idFormEntry}" /></td>
-				<#if entry.use_directory_form_entry_type!=entry_type_file & entry.use_directory_form_entry_type!=entry_type_image>
-				<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}" /></td>
-					<#else>
-				<td>&nbsp;</td>
+				<#assign form_entry = entry.use_directory_form_entry>
+				<#if form_entry.iterationEntry?has_content && form_entry.iterationEntry.idIterableParentGroup+'_'+form_entry.iterationEntry.iterationNumber != iteration>
+					<#assign iteration = form_entry.iterationEntry.idIterableParentGroup+'_'+form_entry.iterationEntry.iterationNumber />
+					<tr id="iteration_${form_entry.iterationEntry.iterationNumber}_entry_${form_entry.iterationEntry.idIterableParentGroup}" class="">
+						<td colspan=3>
+							${form_entry.iterationEntry.entryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${form_entry.iterationEntry.iterationNumber}</em>
+						</td>
+					</tr>
 				</#if>
-			</tr>
+				<tr <#if form_entry.iterationEntry?has_content>data-for="iteration_${form_entry.iterationEntry.iterationNumber}_entry_${form_entry.iterationEntry.idIterableParentGroup}"</#if>>
+					<td>${form_entry.formEntryTitle}</td>
+					<td><input type="checkbox" name="is_in_result_list_${form_entry.idFormEntry}" /></td>
+					<#if entry.use_directory_form_entry_type!=entry_type_file & entry.use_directory_form_entry_type!=entry_type_image>
+						<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}" /></td>
+					<#else>
+						<td>&nbsp;</td>
+					</#if>
+				</tr>
 			</#list>
 		</@table>
 		</#if>
@@ -103,11 +132,16 @@
 			<fieldset id="directoryTypeEntry">
 				<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title}</legend>
 				<#list create_directory as entry>
-				<@formGroup labelKey='${entry.form_entry.title}' rows=2>
-					<#list entry.directory_entry_type as entry_type>
-						<@radioButton orientation='horizontal' name='id_entry_type_${entry.form_entry.idEntry}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
-					</#list>
-				</@formGroup>
+					<#assign title=entry.form_entry.title>
+					<#assign idEntry = (entry.form_entry.idEntry)?string>
+					<#if map_entry_iteration?has_content && map_entry_iteration[idEntry]?has_content>
+						<#assign title=entry.form_entry.title + ' - ' + '#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}' + map_entry_iteration[idEntry]>
+					</#if>
+					<@formGroup labelKey=title rows=2>
+						<#list entry.directory_entry_type as entry_type>
+							<@radioButton orientation='horizontal' name='id_entry_type_${entry.form_entry.idEntry}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
+						</#list>
+					</@formGroup>
 				</#list>
 			</fieldset>
 		</#if>
@@ -181,7 +215,6 @@
 </#if>
 
 <script type="text/javascript">
-
 <#if (list_entry_image?size > 0) >
 <#list list_entry_image as image>
 document.getElementById( 'thumbnail_field_${image.idEntry}' ).style.display="none";

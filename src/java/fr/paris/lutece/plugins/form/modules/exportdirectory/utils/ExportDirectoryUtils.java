@@ -33,6 +33,20 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.EntryFilter;
@@ -63,8 +77,10 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigu
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
+import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.genericattributes.business.Response;
+import fr.paris.lutece.plugins.genericattributes.util.GenericAttributesUtils;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -75,21 +91,6 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.util.date.DateUtil;
 import fr.paris.lutece.util.image.ImageUtil;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -146,6 +147,9 @@ public final class ExportDirectoryUtils
     private static final String FIELD_BIG_THUMBNAIL = "big_thumbnail";
     private static final int INTEGER_QUALITY_MAXIMUM = 1;
     private static final int CONST_NONE = -1;
+    
+    private static final String FIELD_NB_ITERATIONS = "nb_iterations";
+    private static final String ATTRIBUTE_ITERATION_NUMBER = "iteration_number";
 
     //MESSAGES
     private static final String MESSAGE_ERROR_FIELD_THUMBNAIL = "module.form.exportdirectory.configuration_exportdirectory.message.errorThumbnail";
@@ -295,8 +299,21 @@ public final class ExportDirectoryUtils
             }
             else
             {
-                nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE +
-                            "_" + entryForm.getIdEntry(  ) ) );
+                // Retrieve the id of the DirectoryEntryType
+                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) != null )
+                {
+                    String strIterationNumber = String.valueOf( request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) );
+                    int nIterationNumber = NumberUtils.toInt( strIterationNumber, NumberUtils.INTEGER_MINUS_ONE );
+                    int nComputedId = EntryTypeGroupUtils.computeIterationId( entryForm.getIdEntry( ), nIterationNumber );
+                    
+                    nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE +
+                            "_" + nComputedId ) );
+                }
+                else
+                {
+                    nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE +
+                            "_" + entryForm.getIdEntry(  ) ) );   
+                }
             }
 
             EntryType entryType = EntryTypeHome.findByPrimaryKey( nIdDirectoryEntryType, pluginDirectory );
@@ -331,8 +348,19 @@ public final class ExportDirectoryUtils
                 entryDirectory.setComment( entryForm.getComment(  ) );
                 entryDirectory.setHelpMessage( entryForm.getHelpMessage(  ) );
                 entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage(  ) );
+                
+                // Change the id of the entry of the form for the configuration if the entry belong to an iterable group
+                int nOriginalIdEntry = entryForm.getIdEntry(  );
+                int nParameterIdEntry = entryForm.getIdEntry(  );
+                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) != null )
+                {
+                    int nIterationNumber = (Integer) request.getAttribute( ATTRIBUTE_ITERATION_NUMBER );
+                    
+                    nParameterIdEntry = EntryTypeGroupUtils.computeIterationId( nOriginalIdEntry, nIterationNumber );
+                    entryForm.setIdEntry( nParameterIdEntry );
+                }
 
-                if ( request.getParameter( PARAMETER_IS_IN_RESULT_LIST + String.valueOf( entryForm.getIdEntry(  ) ) ) != null )
+                if ( request.getParameter( PARAMETER_IS_IN_RESULT_LIST + String.valueOf( nParameterIdEntry ) ) != null )
                 {
                     entryDirectory.setShownInResultList( true );
                 }
@@ -341,7 +369,7 @@ public final class ExportDirectoryUtils
                     entryDirectory.setShownInResultList( false );
                 }
 
-                if ( request.getParameter( PARAMETER_IS_IN_SEARCH + String.valueOf( entryForm.getIdEntry(  ) ) ) != null )
+                if ( request.getParameter( PARAMETER_IS_IN_SEARCH + String.valueOf( nParameterIdEntry ) ) != null )
                 {
                     entryDirectory.setIndexed( true );
                 }
@@ -373,6 +401,9 @@ public final class ExportDirectoryUtils
                 entryConfiguration.setIdForm( entryForm.getIdResource(  ) );
                 EntryConfigurationHome.insert( entryConfiguration, pluginExport );
 
+                // Reset the id of the entry because it has been modified if it belongs to an iterable group
+                entryForm.setIdEntry( nOriginalIdEntry );
+                
                 createAllDirectoryField( entryForm.getIdEntry(  ), entryDirectory, pluginForm, pluginDirectory );
 
                 if ( isDirectoryImageType( entryDirectory.getEntryType(  ).getIdType(  ) ) )
@@ -447,14 +478,47 @@ public final class ExportDirectoryUtils
                 {
                     String error = null;
 
-                    for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren(  ) )
+                    // Check if the current entry is an entry group which allow iteration
+                    int nbIterationAllowed = NumberUtils.INTEGER_MINUS_ONE;
+                    List<fr.paris.lutece.plugins.genericattributes.business.Field> listFieldGroup = fr.paris.lutece.plugins.genericattributes.business.FieldHome.getFieldListByIdEntry( entryForm.getIdEntry( ) );
+                    fr.paris.lutece.plugins.genericattributes.business.Field fieldNbIteration = GenericAttributesUtils.findFieldByTitleInTheList( FIELD_NB_ITERATIONS, listFieldGroup );
+                    if ( fieldNbIteration != null )
                     {
-                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
-                                directory, entryDirectory );
-
-                        if ( error != null )
+                        nbIterationAllowed = NumberUtils.toInt( fieldNbIteration.getValue( ), NumberUtils.INTEGER_MINUS_ONE );
+                    }
+                    
+                    // If this entry allow iteration
+                    if ( nbIterationAllowed != NumberUtils.INTEGER_MINUS_ONE )
+                    {
+                        for ( int nCurrentIteration = NumberUtils.INTEGER_ONE ; nCurrentIteration <= nbIterationAllowed ; nCurrentIteration++ )
                         {
-                            return error;
+                            for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren(  ) )
+                            {
+                                request.setAttribute( ATTRIBUTE_ITERATION_NUMBER, nCurrentIteration );
+                                
+                                error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
+                                        directory, entryDirectory );
+                                
+                                request.removeAttribute( ATTRIBUTE_ITERATION_NUMBER );
+
+                                if ( error != null )
+                                {
+                                    return error;
+                                }
+                            }  
+                        }
+                    }
+                    else
+                    {
+                        for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren(  ) )
+                        {
+                            error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory,
+                                    directory, entryDirectory );
+
+                            if ( error != null )
+                            {
+                                return error;
+                            }
                         }
                     }
                 }
