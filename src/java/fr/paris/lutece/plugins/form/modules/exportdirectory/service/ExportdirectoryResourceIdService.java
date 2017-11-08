@@ -41,7 +41,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.Locale;
 
-
 /**
  * 
  * class ActionResourceIdService
@@ -85,7 +84,9 @@ public class ExportdirectoryResourceIdService extends ResourceIdService
 
     /**
      * Returns a list of actionresource ids
-     * @param locale The current locale
+     * 
+     * @param locale
+     *            The current locale
      * @return A list of resource ids
      */
     public ReferenceList getResourceIdList( Locale locale )
@@ -95,8 +96,11 @@ public class ExportdirectoryResourceIdService extends ResourceIdService
 
     /**
      * Returns the Title of a given resource
-     * @param strId The Id of the resource
-     * @param locale The current locale
+     * 
+     * @param strId
+     *            The Id of the resource
+     * @param locale
+     *            The current locale
      * @return The Title of a given resource
      */
     public String getTitle( String strId, Locale locale )

@@ -41,7 +41,6 @@ import fr.paris.lutece.portal.service.util.RemovalListener;
 
 import java.util.Locale;
 
-
 /**
  * {@link FormConfiguration} Removal Listener
  */
@@ -50,10 +49,12 @@ public class FormConfigurationFormRemovalListener implements RemovalListener
     private static final String PROPERTY_FORM_CANNOT_BE_REMOVED = "module.form.exportdirectory.message.formCannotBeRemoved";
 
     /**
-    * Check if the object can be safely removed
-    * @param strId The object id
-    * @return true if the pbject can be removed otherwise false
-    */
+     * Check if the object can be safely removed
+     * 
+     * @param strId
+     *            The object id
+     * @return true if the pbject can be removed otherwise false
+     */
     public boolean canBeRemoved( String strId )
     {
         if ( strId == null )
@@ -62,8 +63,7 @@ public class FormConfigurationFormRemovalListener implements RemovalListener
         }
 
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
-        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( Integer.parseInt( strId ),
-                pluginExportdirectory );
+        FormConfiguration formConfiguration = FormConfigurationHome.findByPrimaryKey( Integer.parseInt( strId ), pluginExportdirectory );
 
         if ( formConfiguration != null )
         {
@@ -75,13 +75,16 @@ public class FormConfigurationFormRemovalListener implements RemovalListener
 
     /**
      * Gives a message explaining why the object can't be removed
-     * @param strId The object id
-     * @param locale The current locale
+     * 
+     * @param strId
+     *            The object id
+     * @param locale
+     *            The current locale
      * @return The message
      */
     public String getRemovalRefusedMessage( String strId, Locale locale )
     {
-        // Build a message mailing list for using this form 
+        // Build a message mailing list for using this form
         return I18nService.getLocalizedString( PROPERTY_FORM_CANNOT_BE_REMOVED, locale );
     }
 }

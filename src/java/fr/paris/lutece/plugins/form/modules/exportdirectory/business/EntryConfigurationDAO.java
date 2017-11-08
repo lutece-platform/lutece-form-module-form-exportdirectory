@@ -40,47 +40,44 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
  * This class represent the {@link EntryConfiguration} DAO
  *
  */
 public class EntryConfigurationDAO implements IEntryConfigurationDAO
 {
-    private static final String SQL_QUERY_SELECT_BY_PRIMARY_KEY = " SELECT id_directory_entry " +
-        "FROM form_exportdirectory_entryconfiguration WHERE id_form = ? AND id_form_entry = ? ";
-    private static final String SQL_QUERY_INSERT = " INSERT INTO form_exportdirectory_entryconfiguration " +
-        "( id_form, id_form_entry, id_directory_entry ) VALUES ( ?, ?, ? ) ";
-    private static final String SQL_QUERY_UPDATE = " UPDATE form_exportdirectory_entryconfiguration " +
-        "SET id_directory_entry = ? WHERE id_form = ? AND id_form_entry = ? ";
-    private static final String SQL_QUERY_DELETE = " DELETE FROM form_exportdirectory_entryconfiguration " +
-        "WHERE id_form = ? AND id_form_entry = ? ";
-    private static final String SQL_QUERY_DELETE_BY_FORM = " DELETE FROM form_exportdirectory_entryconfiguration " +
-        "WHERE id_form = ? ";
-    private static final String SQL_QUERY_SELECT_ENTRY_CONFIGURATION_BY_ID_FORM = " SELECT id_form_entry, id_directory_entry " +
-        "FROM form_exportdirectory_entryconfiguration WHERE id_form = ? ";
+    private static final String SQL_QUERY_SELECT_BY_PRIMARY_KEY = " SELECT id_directory_entry "
+            + "FROM form_exportdirectory_entryconfiguration WHERE id_form = ? AND id_form_entry = ? ";
+    private static final String SQL_QUERY_INSERT = " INSERT INTO form_exportdirectory_entryconfiguration "
+            + "( id_form, id_form_entry, id_directory_entry ) VALUES ( ?, ?, ? ) ";
+    private static final String SQL_QUERY_UPDATE = " UPDATE form_exportdirectory_entryconfiguration "
+            + "SET id_directory_entry = ? WHERE id_form = ? AND id_form_entry = ? ";
+    private static final String SQL_QUERY_DELETE = " DELETE FROM form_exportdirectory_entryconfiguration " + "WHERE id_form = ? AND id_form_entry = ? ";
+    private static final String SQL_QUERY_DELETE_BY_FORM = " DELETE FROM form_exportdirectory_entryconfiguration " + "WHERE id_form = ? ";
+    private static final String SQL_QUERY_SELECT_ENTRY_CONFIGURATION_BY_ID_FORM = " SELECT id_form_entry, id_directory_entry "
+            + "FROM form_exportdirectory_entryconfiguration WHERE id_form = ? ";
 
     /**
      * {@inheritDoc}
      */
     public Collection<EntryConfiguration> findEntryConfigurationListByIdForm( int nIdForm, Plugin plugin )
     {
-        Collection<EntryConfiguration> entryConfigurationList = new ArrayList<EntryConfiguration>(  );
+        Collection<EntryConfiguration> entryConfigurationList = new ArrayList<EntryConfiguration>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ENTRY_CONFIGURATION_BY_ID_FORM, plugin );
         daoUtil.setInt( 1, nIdForm );
 
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            EntryConfiguration entryConfiguration = new EntryConfiguration(  );
+            EntryConfiguration entryConfiguration = new EntryConfiguration( );
 
             entryConfiguration.setIdFormEntry( DirectoryUtils.convertStringToInt( daoUtil.getString( 1 ) ) );
             entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( daoUtil.getString( 2 ) ) );
             entryConfigurationList.add( entryConfiguration );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return entryConfigurationList;
     }
@@ -95,17 +92,17 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         daoUtil.setInt( 1, nIdForm );
         daoUtil.setString( 2, Integer.toString( nIdEntry ) );
 
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            entryConfiguration = new EntryConfiguration(  );
+            entryConfiguration = new EntryConfiguration( );
             entryConfiguration.setIdForm( nIdForm );
             entryConfiguration.setIdFormEntry( nIdEntry );
             entryConfiguration.setIdDirectoryEntry( daoUtil.getInt( 1 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return entryConfiguration;
     }
@@ -119,8 +116,8 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         daoUtil.setInt( 1, nIdForm );
         daoUtil.setString( 2, Integer.toString( nIdEntry ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -131,8 +128,8 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_BY_FORM, plugin );
         daoUtil.setInt( 1, nIdForm );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -142,12 +139,12 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
 
-        daoUtil.setInt( 1, entryConfiguration.getIdForm(  ) );
-        daoUtil.setString( 2, Integer.toString( entryConfiguration.getIdFormEntry(  ) ) );
-        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdDirectoryEntry(  ) ) );
+        daoUtil.setInt( 1, entryConfiguration.getIdForm( ) );
+        daoUtil.setString( 2, Integer.toString( entryConfiguration.getIdFormEntry( ) ) );
+        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdDirectoryEntry( ) ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -157,11 +154,11 @@ public class EntryConfigurationDAO implements IEntryConfigurationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
 
-        daoUtil.setString( 1, Integer.toString( entryConfiguration.getIdDirectoryEntry(  ) ) );
-        daoUtil.setInt( 2, entryConfiguration.getIdForm(  ) );
-        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdFormEntry(  ) ) );
+        daoUtil.setString( 1, Integer.toString( entryConfiguration.getIdDirectoryEntry( ) ) );
+        daoUtil.setInt( 2, entryConfiguration.getIdForm( ) );
+        daoUtil.setString( 3, Integer.toString( entryConfiguration.getIdFormEntry( ) ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 }

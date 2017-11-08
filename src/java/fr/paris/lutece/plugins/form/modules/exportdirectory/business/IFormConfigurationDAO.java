@@ -37,7 +37,6 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 
 import java.util.Collection;
 
-
 /**
  *
  * @author ELY
@@ -48,7 +47,8 @@ public interface IFormConfigurationDAO
     /**
      * Find all {@link FormConfiguration}
      *
-     * @param plugin The {@link Plugin}
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link FormConfiguration} or null if not exists
      */
     Collection<FormConfiguration> findAll( Plugin plugin );
@@ -56,8 +56,10 @@ public interface IFormConfigurationDAO
     /**
      * Find the {@link FormConfiguration} by form id
      *
-     * @param nIdForm The form id
-     * @param plugin The {@link Plugin}
+     * @param nIdForm
+     *            The form id
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link FormConfiguration} or null if not exists
      */
     FormConfiguration findByPrimaryKey( int nIdForm, Plugin plugin );
@@ -65,23 +67,30 @@ public interface IFormConfigurationDAO
     /**
      * Insert a new Form configuration into database
      *
-     * @param formConfiguration The new {@link FormConfiguration}
-     * @param plugin The plugin
+     * @param formConfiguration
+     *            The new {@link FormConfiguration}
+     * @param plugin
+     *            The plugin
      */
     void insert( FormConfiguration formConfiguration, Plugin plugin );
 
     /**
      * Delete a Form configuration
-     * @param nIdForm The form identifier
-     * @param plugin The plugin
+     * 
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The plugin
      */
     void delete( int nIdForm, Plugin plugin );
 
     /**
      * Update an existing {@link FormConfiguration}
      *
-     * @param formConfiguration The {@link FormConfiguration} to update
-     * @param plugin The plugin
+     * @param formConfiguration
+     *            The {@link FormConfiguration} to update
+     * @param plugin
+     *            The plugin
      */
     void store( FormConfiguration formConfiguration, Plugin plugin );
 }

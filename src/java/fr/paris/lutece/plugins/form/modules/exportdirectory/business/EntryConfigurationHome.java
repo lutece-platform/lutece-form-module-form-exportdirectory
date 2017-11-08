@@ -38,7 +38,6 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
 
-
 /**
  * 
  * @author ELY
@@ -47,8 +46,7 @@ import java.util.Collection;
 public final class EntryConfigurationHome
 {
     // Static variable pointed at the DAO instance
-    private static IEntryConfigurationDAO _dao = SpringContextService
-            .getBean( "form-exportdirectory.entryConfigurationDAO" );
+    private static IEntryConfigurationDAO _dao = SpringContextService.getBean( "form-exportdirectory.entryConfigurationDAO" );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -60,9 +58,12 @@ public final class EntryConfigurationHome
     /**
      * Find the {@link EntryConfiguration} by ids
      * 
-     * @param nIdForm The form id
-     * @param nIdEntry The entry id
-     * @param plugin The {@link Plugin}
+     * @param nIdForm
+     *            The form id
+     * @param nIdEntry
+     *            The entry id
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link EntryConfiguration} or null if not exists
      */
     public static EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, Plugin plugin )
@@ -73,8 +74,10 @@ public final class EntryConfigurationHome
     /**
      * Find the {@link EntryConfiguration} list from the form identifier
      * 
-     * @param nIdForm The form identifier
-     * @param plugin The {@link Plugin}
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link Collection} of {@link EntryConfiguration}
      */
     public static Collection<EntryConfiguration> findEntryConfigurationListByIdForm( int nIdForm, Plugin plugin )
@@ -85,9 +88,12 @@ public final class EntryConfigurationHome
     /**
      * Delete an Entry configuration
      * 
-     * @param nIdForm The form identifier
-     * @param nIdEntry The entry identifier
-     * @param plugin The plugin
+     * @param nIdForm
+     *            The form identifier
+     * @param nIdEntry
+     *            The entry identifier
+     * @param plugin
+     *            The plugin
      */
     public static void delete( int nIdForm, int nIdEntry, Plugin plugin )
     {
@@ -97,8 +103,10 @@ public final class EntryConfigurationHome
     /**
      * Delete all Entry configuration by Form
      * 
-     * @param nIdForm The form identifier
-     * @param plugin The plugin
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The plugin
      */
     public static void deleteByForm( int nIdForm, Plugin plugin )
     {
@@ -108,8 +116,10 @@ public final class EntryConfigurationHome
     /**
      * Insert a new Entry configuration into database
      * 
-     * @param entryConfiguration The new {@link EntryConfiguration}
-     * @param plugin The plugin
+     * @param entryConfiguration
+     *            The new {@link EntryConfiguration}
+     * @param plugin
+     *            The plugin
      */
     public static void insert( EntryConfiguration entryConfiguration, Plugin plugin )
     {
@@ -119,8 +129,10 @@ public final class EntryConfigurationHome
     /**
      * Update an existing {@link EntryConfiguration}
      * 
-     * @param entryConfiguration The {@link EntryConfiguration} to update
-     * @param plugin The plugin
+     * @param entryConfiguration
+     *            The {@link EntryConfiguration} to update
+     * @param plugin
+     *            The plugin
      */
     public static void store( EntryConfiguration entryConfiguration, Plugin plugin )
     {

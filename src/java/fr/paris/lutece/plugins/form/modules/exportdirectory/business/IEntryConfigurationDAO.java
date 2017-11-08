@@ -37,7 +37,6 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 
 import java.util.Collection;
 
-
 /**
  *
  * @author ELY
@@ -48,8 +47,10 @@ public interface IEntryConfigurationDAO
     /**
      * Find the {@link EntryConfiguration} list from the form identifier
      *
-     * @param nIdForm The form identifier
-     * @param plugin The {@link Plugin}
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link Collection} of {@link EntryConfiguration}
      */
     Collection<EntryConfiguration> findEntryConfigurationListByIdForm( int nIdForm, Plugin plugin );
@@ -57,9 +58,12 @@ public interface IEntryConfigurationDAO
     /**
      * Find the {@link EntryConfiguration} by ids
      *
-     * @param nIdForm The form id
-     * @param nIdEntry The entry id
-     * @param plugin The {@link Plugin}
+     * @param nIdForm
+     *            The form id
+     * @param nIdEntry
+     *            The entry id
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link EntryConfiguration} or null if not exists
      */
     EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, Plugin plugin );
@@ -67,33 +71,42 @@ public interface IEntryConfigurationDAO
     /**
      * Delete an Entry configuration
      *
-     * @param nIdForm The form identifier
-     * @param nIdEntry The entry identifier
-     * @param plugin The plugin
+     * @param nIdForm
+     *            The form identifier
+     * @param nIdEntry
+     *            The entry identifier
+     * @param plugin
+     *            The plugin
      */
     void delete( int nIdForm, int nIdEntry, Plugin plugin );
 
     /**
      * Delete all Entry configuration by Form
      *
-     * @param nIdForm The form identifier
-     * @param plugin The plugin
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The plugin
      */
     void deleteByForm( int nIdForm, Plugin plugin );
 
     /**
      * Insert a new Entry configuration into database
      *
-     * @param entryConfiguration The new {@link EntryConfiguration}
-     * @param plugin The plugin
+     * @param entryConfiguration
+     *            The new {@link EntryConfiguration}
+     * @param plugin
+     *            The plugin
      */
     void insert( EntryConfiguration entryConfiguration, Plugin plugin );
 
     /**
      * Update an existing {@link EntryConfiguration}
      *
-     * @param entryConfiguration The {@link EntryConfiguration} to update
-     * @param plugin The plugin
+     * @param entryConfiguration
+     *            The {@link EntryConfiguration} to update
+     * @param plugin
+     *            The plugin
      */
     void store( EntryConfiguration entryConfiguration, Plugin plugin );
 }

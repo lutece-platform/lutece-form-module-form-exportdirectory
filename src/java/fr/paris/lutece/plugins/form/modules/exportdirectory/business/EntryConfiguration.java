@@ -40,7 +40,6 @@ import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.plugins.genericattributes.business.EntryHome;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 
-
 /**
  * 
  * @author ELY
@@ -66,8 +65,7 @@ public class EntryConfiguration
             _listenerForm = new EntryConfigurationEntryFormRemovalListener( );
             EntryRemovalListenerService.getService( ).registerListener( _listenerForm );
             _listenerDirectory = new EntryConfigurationEntryDirectoryRemovalListener( );
-            fr.paris.lutece.plugins.directory.business.EntryRemovalListenerService.getService( ).registerListener(
-                    _listenerDirectory );
+            fr.paris.lutece.plugins.directory.business.EntryRemovalListenerService.getService( ).registerListener( _listenerDirectory );
         }
     }
 
@@ -80,7 +78,8 @@ public class EntryConfiguration
     }
 
     /**
-     * @param nIdForm the idForm to set
+     * @param nIdForm
+     *            the idForm to set
      */
     public void setIdForm( int nIdForm )
     {
@@ -96,7 +95,8 @@ public class EntryConfiguration
     }
 
     /**
-     * @param idFormEntry the idFormEntry to set
+     * @param idFormEntry
+     *            the idFormEntry to set
      */
     public void setIdFormEntry( int idFormEntry )
     {
@@ -112,13 +112,14 @@ public class EntryConfiguration
     }
 
     /**
-     * @param idDirectoryEntry the idDirectoryEntry to set
+     * @param idDirectoryEntry
+     *            the idDirectoryEntry to set
      */
     public void setIdDirectoryEntry( int idDirectoryEntry )
     {
         this._nIdDirectoryEntry = idDirectoryEntry;
     }
-    
+
     /**
      * @return the iterationEntry
      */
@@ -128,15 +129,17 @@ public class EntryConfiguration
     }
 
     /**
-     * @param _iterationEntry the iterationEntry to set
+     * @param _iterationEntry
+     *            the iterationEntry to set
      */
     public void setIterationEntry( IterationEntry iterationEntry )
     {
         this._iterationEntry = iterationEntry;
     }
-    
+
     /**
      * Get the Entry title
+     * 
      * @return The entry title
      */
     public String getFormEntryTitle( )
@@ -154,18 +157,19 @@ public class EntryConfiguration
                 return _iterationEntry.getEntryTitle( );
             }
         }
-        
+
         return null;
     }
 
     /**
      * Get the Entry title
+     * 
      * @return The entry title
      */
     public String getDirectoryEntryTitle( )
     {
-        fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome
-                .findByPrimaryKey( getIdDirectoryEntry( ), PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
+        fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome.findByPrimaryKey(
+                getIdDirectoryEntry( ), PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME ) );
 
         if ( entry != null )
         {

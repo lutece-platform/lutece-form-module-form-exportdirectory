@@ -44,7 +44,6 @@ import fr.paris.lutece.portal.service.util.RemovalListener;
 import java.util.Collection;
 import java.util.Locale;
 
-
 /**
  * {@link FormConfiguration} Removal Listener
  */
@@ -54,7 +53,9 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
 
     /**
      * Check if the object can be safely removed
-     * @param strId The object id
+     * 
+     * @param strId
+     *            The object id
      * @return true if the pbject can be removed otherwise false
      */
     public boolean canBeRemoved( String strId )
@@ -69,8 +70,8 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
 
         if ( pluginExportdirectory.isInstalled( ) )
         {
-            fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome
-                    .findByPrimaryKey( Integer.parseInt( strId ), pluginDirectory );
+            fr.paris.lutece.plugins.directory.business.IEntry entry = fr.paris.lutece.plugins.directory.business.EntryHome.findByPrimaryKey(
+                    Integer.parseInt( strId ), pluginDirectory );
             Collection<FormConfiguration> listFormConfiguration = FormConfigurationHome.findAll( pluginExportdirectory );
             int nIdForm = -1;
 
@@ -84,8 +85,8 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
 
             if ( nIdForm != -1 )
             {
-                Collection<EntryConfiguration> listEntryConfiguration = EntryConfigurationHome
-                        .findEntryConfigurationListByIdForm( nIdForm, pluginExportdirectory );
+                Collection<EntryConfiguration> listEntryConfiguration = EntryConfigurationHome.findEntryConfigurationListByIdForm( nIdForm,
+                        pluginExportdirectory );
 
                 for ( EntryConfiguration entryConfiguration : listEntryConfiguration )
                 {
@@ -104,13 +105,16 @@ public class EntryConfigurationEntryDirectoryRemovalListener implements RemovalL
 
     /**
      * Gives a message explaining why the object can't be removed
-     * @param strId The object id
-     * @param locale The current locale
+     * 
+     * @param strId
+     *            The object id
+     * @param locale
+     *            The current locale
      * @return The message
      */
     public String getRemovalRefusedMessage( String strId, Locale locale )
     {
-        // Build a message mailing list for using this form 
+        // Build a message mailing list for using this form
         return I18nService.getLocalizedString( PROPERTY_FORM_CANNOT_BE_REMOVED, locale );
     }
 }

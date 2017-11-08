@@ -39,7 +39,6 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 /**
  *
  * @author ELY
@@ -56,26 +55,27 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
     /**
      * Find all {@link FormConfiguration}
      *
-     * @param plugin The {@link Plugin}
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link FormConfiguration} or null if not exists
      */
     public Collection<FormConfiguration> findAll( Plugin plugin )
     {
-        Collection<FormConfiguration> formConfigurationList = new ArrayList<FormConfiguration>(  );
+        Collection<FormConfiguration> formConfigurationList = new ArrayList<FormConfiguration>( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL, plugin );
 
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            FormConfiguration formConfiguration = new FormConfiguration(  );
+            FormConfiguration formConfiguration = new FormConfiguration( );
             formConfiguration.setIdForm( daoUtil.getInt( 1 ) );
             formConfiguration.setIdDirectory( daoUtil.getInt( 2 ) );
             formConfigurationList.add( formConfiguration );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return formConfigurationList;
     }
@@ -89,16 +89,16 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_PRIMARY_KEY, plugin );
         daoUtil.setInt( 1, nIdForm );
 
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            formConfiguration = new FormConfiguration(  );
+            formConfiguration = new FormConfiguration( );
             formConfiguration.setIdForm( nIdForm );
             formConfiguration.setIdDirectory( daoUtil.getInt( 1 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return formConfiguration;
     }
@@ -111,8 +111,8 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nIdForm );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -122,11 +122,11 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
 
-        daoUtil.setInt( 1, formConfiguration.getIdForm(  ) );
-        daoUtil.setInt( 2, formConfiguration.getIdDirectory(  ) );
+        daoUtil.setInt( 1, formConfiguration.getIdForm( ) );
+        daoUtil.setInt( 2, formConfiguration.getIdDirectory( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -135,10 +135,10 @@ public class FormConfigurationDAO implements IFormConfigurationDAO
     public void store( FormConfiguration formConfiguration, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        daoUtil.setInt( 1, formConfiguration.getIdDirectory(  ) );
-        daoUtil.setInt( 2, formConfiguration.getIdForm(  ) );
+        daoUtil.setInt( 1, formConfiguration.getIdDirectory( ) );
+        daoUtil.setInt( 2, formConfiguration.getIdForm( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 }

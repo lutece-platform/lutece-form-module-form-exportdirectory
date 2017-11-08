@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 import fr.paris.lutece.plugins.directory.business.DirectoryRemovalListenerService;
 import fr.paris.lutece.plugins.form.service.FormRemovalListenerService;
 
-
 /**
  *
  * @author ELY
@@ -52,28 +51,29 @@ public class FormConfiguration
     /**
      * Initialize the FormConfiguration
      */
-    public static void init(  )
+    public static void init( )
     {
         // Create removal listeners and register them
         if ( _listenerForm == null )
         {
-            _listenerForm = new FormConfigurationFormRemovalListener(  );
-            FormRemovalListenerService.getService(  ).registerListener( _listenerForm );
-            _listenerDirectory = new FormConfigurationDirectoryRemovalListener(  );
-            DirectoryRemovalListenerService.getService(  ).registerListener( _listenerDirectory );
+            _listenerForm = new FormConfigurationFormRemovalListener( );
+            FormRemovalListenerService.getService( ).registerListener( _listenerForm );
+            _listenerDirectory = new FormConfigurationDirectoryRemovalListener( );
+            DirectoryRemovalListenerService.getService( ).registerListener( _listenerDirectory );
         }
     }
 
     /**
      * @return the idForm
      */
-    public int getIdForm(  )
+    public int getIdForm( )
     {
         return _nIdForm;
     }
 
     /**
-     * @param nIdForm the idForm to set
+     * @param nIdForm
+     *            the idForm to set
      */
     public void setIdForm( int nIdForm )
     {
@@ -83,13 +83,14 @@ public class FormConfiguration
     /**
      * @return the id directory
      */
-    public int getIdDirectory(  )
+    public int getIdDirectory( )
     {
         return _nIdDirectory;
     }
 
     /**
-     * @param nIdDirectory the id directory to set
+     * @param nIdDirectory
+     *            the id directory to set
      */
     public void setIdDirectory( int nIdDirectory )
     {

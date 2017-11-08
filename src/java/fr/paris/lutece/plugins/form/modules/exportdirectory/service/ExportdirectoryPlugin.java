@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfig
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfiguration;
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
-
 /**
  * 
  * ExportdirectoryPlugin

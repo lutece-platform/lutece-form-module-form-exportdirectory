@@ -38,7 +38,6 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.Collection;
 
-
 /**
  * 
  * @author ELY
@@ -47,8 +46,7 @@ import java.util.Collection;
 public final class FormConfigurationHome
 {
     // Static variable pointed at the DAO instance
-    private static IFormConfigurationDAO _dao = SpringContextService
-            .getBean( "form-exportdirectory.formConfigurationDAO" );
+    private static IFormConfigurationDAO _dao = SpringContextService.getBean( "form-exportdirectory.formConfigurationDAO" );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -59,7 +57,9 @@ public final class FormConfigurationHome
 
     /**
      * Find all {@link FormConfiguration}
-     * @param plugin The {@link Plugin}
+     * 
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link FormConfiguration} or null if no exists
      */
     public static Collection<FormConfiguration> findAll( Plugin plugin )
@@ -69,8 +69,11 @@ public final class FormConfigurationHome
 
     /**
      * Find the {@link FormConfiguration} from the form id
-     * @param nIdForm The id of form
-     * @param plugin The {@link Plugin}
+     * 
+     * @param nIdForm
+     *            The id of form
+     * @param plugin
+     *            The {@link Plugin}
      * @return The {@link FormConfiguration} or null if no exists
      */
     public static FormConfiguration findByPrimaryKey( int nIdForm, Plugin plugin )
@@ -81,8 +84,10 @@ public final class FormConfigurationHome
     /**
      * Insert a new Form configuration into database
      * 
-     * @param formConfiguration The new {@link FormConfiguration}
-     * @param plugin The plugin
+     * @param formConfiguration
+     *            The new {@link FormConfiguration}
+     * @param plugin
+     *            The plugin
      */
     public static void insert( FormConfiguration formConfiguration, Plugin plugin )
     {
@@ -91,8 +96,11 @@ public final class FormConfigurationHome
 
     /**
      * Delete a Form configuration
-     * @param nIdForm The form identifier
-     * @param plugin The plugin
+     * 
+     * @param nIdForm
+     *            The form identifier
+     * @param plugin
+     *            The plugin
      */
     public static void delete( int nIdForm, Plugin plugin )
     {
@@ -102,8 +110,10 @@ public final class FormConfigurationHome
     /**
      * Update an existing {@link FormConfiguration}
      * 
-     * @param formConfiguration The {@link FormConfiguration} to update
-     * @param plugin The plugin
+     * @param formConfiguration
+     *            The {@link FormConfiguration} to update
+     * @param plugin
+     *            The plugin
      */
     static void store( FormConfiguration formConfiguration, Plugin plugin )
     {
