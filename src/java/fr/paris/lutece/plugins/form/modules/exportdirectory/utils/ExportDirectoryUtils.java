@@ -264,7 +264,7 @@ public final class ExportDirectoryUtils
             int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( formEntry.getIdEntry( ) );
             if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
             {
-                for ( int nIterationNumber = NumberUtils.INTEGER_ONE ; nIterationNumber <= nbIterationAllowed ; nIterationNumber++ )
+                for ( int nIterationNumber = NumberUtils.INTEGER_ONE; nIterationNumber <= nbIterationAllowed; nIterationNumber++ )
                 {
                     error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, nIterationNumber );
                 }
@@ -356,19 +356,20 @@ public final class ExportDirectoryUtils
                 }
 
                 entryDirectory.setDirectory( directory );
-                
+
                 // Add the iteration number in the title of the group if its an iterable entry
                 String strEntryTitle = entryForm.getTitle( );
-                if ( strEntryTitle != null && BooleanUtils.isTrue( entryForm.getEntryType( ).getGroup( ) ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
+                if ( strEntryTitle != null && BooleanUtils.isTrue( entryForm.getEntryType( ).getGroup( ) )
+                        && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
                 {
                     StringBuilder strIterableEntryTitle = new StringBuilder( strEntryTitle );
                     strIterableEntryTitle.append( " " );
                     strIterableEntryTitle.append( nIterationNumber );
-                    
+
                     strEntryTitle = strIterableEntryTitle.toString( );
                 }
                 entryDirectory.setTitle( strEntryTitle );
-                
+
                 entryDirectory.setComment( entryForm.getComment( ) );
                 entryDirectory.setHelpMessage( entryForm.getHelpMessage( ) );
                 entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage( ) );
@@ -518,8 +519,7 @@ public final class ExportDirectoryUtils
                     String error = null;
                     for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                     {
-                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
-                                nIterationNumber );
+                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory, nIterationNumber );
 
                         if ( error != null )
                         {
