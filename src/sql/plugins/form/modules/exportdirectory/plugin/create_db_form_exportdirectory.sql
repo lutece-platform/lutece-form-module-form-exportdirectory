@@ -18,6 +18,7 @@ CREATE TABLE form_exportdirectory_formconfiguration (
 CREATE TABLE form_exportdirectory_entryconfiguration (
   id_form  		INT			 NOT NULL,
   id_form_entry      VARCHAR(255) NOT NULL,
+  iteration_number   INT DEFAULT -1,
   id_directory_entry   VARCHAR(255) NOT NULL,
-  PRIMARY KEY(id_form, id_form_entry)
+  PRIMARY KEY(id_form, id_form_entry, iteration_number)
 );

@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
+import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
 import java.util.Collection;
@@ -56,17 +57,30 @@ public interface IEntryConfigurationDAO
     Collection<EntryConfiguration> findEntryConfigurationListByIdForm( int nIdForm, Plugin plugin );
 
     /**
+     * Find the {@link EntryConfiguration} of the specified {@link IEntry}
+     * 
+     * @param nIdDirectoryEntry
+     *            The {@link IEntry} identifier
+     * @param plugin
+     *            The {@link Plugin}
+     * @return The {@link EntryConfiguration}
+     */
+    EntryConfiguration findDirectoryEntryConfiguration( int nIdDirectoryEntry, Plugin plugin );
+
+    /**
      * Find the {@link EntryConfiguration} by ids
      *
      * @param nIdForm
      *            The form id
      * @param nIdEntry
      *            The entry id
+     * @param nIterationNumber
+     *            The iteration number of the entry
      * @param plugin
      *            The {@link Plugin}
      * @return The {@link EntryConfiguration} or null if not exists
      */
-    EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, Plugin plugin );
+    EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, int nIterationNumber, Plugin plugin );
 
     /**
      * Delete an Entry configuration
@@ -75,10 +89,12 @@ public interface IEntryConfigurationDAO
      *            The form identifier
      * @param nIdEntry
      *            The entry identifier
+     * @param nIterationNumber
+     *            The iteration number of the entry
      * @param plugin
      *            The plugin
      */
-    void delete( int nIdForm, int nIdEntry, Plugin plugin );
+    void delete( int nIdForm, int nIdEntry, int nIterationNumber, Plugin plugin );
 
     /**
      * Delete all Entry configuration by Form

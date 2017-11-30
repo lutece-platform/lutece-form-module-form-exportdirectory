@@ -33,10 +33,11 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
+import java.util.Collection;
+
+import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-
-import java.util.Collection;
 
 /**
  * 
@@ -62,13 +63,15 @@ public final class EntryConfigurationHome
      *            The form id
      * @param nIdEntry
      *            The entry id
+     * @param nIterationNumber
+     *            The iteration number of the entry
      * @param plugin
      *            The {@link Plugin}
      * @return The {@link EntryConfiguration} or null if not exists
      */
-    public static EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, Plugin plugin )
+    public static EntryConfiguration findByPrimaryKey( int nIdForm, int nIdEntry, int nIterationNumber, Plugin plugin )
     {
-        return _dao.findByPrimaryKey( nIdForm, nIdEntry, plugin );
+        return _dao.findByPrimaryKey( nIdForm, nIdEntry, nIterationNumber, plugin );
     }
 
     /**
@@ -86,18 +89,34 @@ public final class EntryConfigurationHome
     }
 
     /**
+     * Find the {@link EntryConfiguration} of the specified {@link IEntry}
+     * 
+     * @param nIdEntry
+     *            The {@link IEntry} identifier
+     * @param plugin
+     *            The {@link Plugin}
+     * @return The {@link EntryConfiguration}
+     */
+    public static EntryConfiguration findDirectoryEntryConfiguration( int nIdEntry, Plugin plugin )
+    {
+        return _dao.findDirectoryEntryConfiguration( nIdEntry, plugin );
+    }
+
+    /**
      * Delete an Entry configuration
      * 
      * @param nIdForm
      *            The form identifier
      * @param nIdEntry
      *            The entry identifier
+     * @param nIterationNumber
+     *            The iteration number of the entry
      * @param plugin
      *            The plugin
      */
-    public static void delete( int nIdForm, int nIdEntry, Plugin plugin )
+    public static void delete( int nIdForm, int nIdEntry, int nIterationNumber, Plugin plugin )
     {
-        _dao.delete( nIdForm, nIdEntry, plugin );
+        _dao.delete( nIdForm, nIdEntry, nIterationNumber, plugin );
     }
 
     /**

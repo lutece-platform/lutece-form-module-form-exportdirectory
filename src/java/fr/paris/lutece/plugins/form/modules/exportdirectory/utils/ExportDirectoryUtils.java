@@ -78,6 +78,7 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorEx
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
+import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.genericattributes.business.Response;
 import fr.paris.lutece.plugins.genericattributes.util.GenericAttributesUtils;
@@ -148,7 +149,7 @@ public final class ExportDirectoryUtils
     private static final int CONST_NONE = -1;
 
     private static final String FIELD_NB_ITERATIONS = "nb_iterations";
-    private static final String ATTRIBUTE_ITERATION_NUMBER = "iteration_number";
+    private static final String PREFIX_ATTRIBUTE_ITERATION = "iteration";
 
     // MESSAGES
     private static final String MESSAGE_ERROR_FIELD_THUMBNAIL = "module.form.exportdirectory.configuration_exportdirectory.message.errorThumbnail";
@@ -260,7 +261,7 @@ public final class ExportDirectoryUtils
 
         for ( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry : listFormEntry )
         {
-            error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null );
+            error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, FormConstants.DEFAULT_ITERATION_NUMBER );
 
             if ( error != null )
             {
@@ -286,10 +287,12 @@ public final class ExportDirectoryUtils
      *            the directory
      * @param entryGroup
      *            the entry group
+     * @param nIteratioNumber
+     *            the iteration number
      * @return a property error message if there is an error
      */
     public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.Entry entryForm, HttpServletRequest request,
-            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup )
+            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup, int nIterationNumber )
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_" + entryForm.getEntryType( ).getIdType( ) );
@@ -304,18 +307,15 @@ public final class ExportDirectoryUtils
             else
             {
                 // Retrieve the id of the DirectoryEntryType
-                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) != null )
-                {
-                    String strIterationNumber = String.valueOf( request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) );
-                    int nIterationNumber = NumberUtils.toInt( strIterationNumber, NumberUtils.INTEGER_MINUS_ONE );
-                    int nComputedId = EntryTypeGroupUtils.computeIterationId( entryForm.getIdEntry( ), nIterationNumber );
+                String strParameterName = PARAMETER_ID_ENTRY_TYPE + FormUtils.CONSTANT_UNDERSCORE + entryForm.getIdEntry( );
 
-                    nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE + "_" + nComputedId ) );
-                }
-                else
+                // Change the parameter name in the case of an entry which belong to an iterable group
+                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
                 {
-                    nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_ENTRY_TYPE + "_" + entryForm.getIdEntry( ) ) );
+                    strParameterName = computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
+
+                nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) );
             }
 
             EntryType entryType = EntryTypeHome.findByPrimaryKey( nIdDirectoryEntryType, pluginDirectory );
@@ -350,18 +350,19 @@ public final class ExportDirectoryUtils
                 entryDirectory.setHelpMessage( entryForm.getHelpMessage( ) );
                 entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage( ) );
 
-                // Change the id of the entry of the form for the configuration if the entry belong to an iterable group
-                int nOriginalIdEntry = entryForm.getIdEntry( );
+                // Check if the current entry belong to an iteration or not
                 int nParameterIdEntry = entryForm.getIdEntry( );
-                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && request.getAttribute( ATTRIBUTE_ITERATION_NUMBER ) != null )
-                {
-                    int nIterationNumber = (Integer) request.getAttribute( ATTRIBUTE_ITERATION_NUMBER );
+                boolean bEntryBelongIterableGroup = EntryTypeGroupUtils.entryBelongIterableGroup( entryForm )
+                        && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER;
 
-                    nParameterIdEntry = EntryTypeGroupUtils.computeIterationId( nOriginalIdEntry, nIterationNumber );
-                    entryForm.setIdEntry( nParameterIdEntry );
+                // Construct the result list parameter name
+                String strResultListParameterName = PARAMETER_IS_IN_RESULT_LIST + nParameterIdEntry;
+                if ( bEntryBelongIterableGroup )
+                {
+                    strResultListParameterName = computeIterableEntryParameterName( strResultListParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
 
-                if ( request.getParameter( PARAMETER_IS_IN_RESULT_LIST + String.valueOf( nParameterIdEntry ) ) != null )
+                if ( request.getParameter( strResultListParameterName ) != null )
                 {
                     entryDirectory.setShownInResultList( true );
                 }
@@ -370,7 +371,14 @@ public final class ExportDirectoryUtils
                     entryDirectory.setShownInResultList( false );
                 }
 
-                if ( request.getParameter( PARAMETER_IS_IN_SEARCH + String.valueOf( nParameterIdEntry ) ) != null )
+                // Construct the result list parameter name
+                String strSearchParameterName = PARAMETER_IS_IN_SEARCH + nParameterIdEntry;
+                if ( bEntryBelongIterableGroup )
+                {
+                    strSearchParameterName = computeIterableEntryParameterName( strSearchParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                }
+
+                if ( request.getParameter( strSearchParameterName ) != null )
                 {
                     entryDirectory.setIndexed( true );
                 }
@@ -381,7 +389,14 @@ public final class ExportDirectoryUtils
 
                 entryDirectory.setShownInResultRecord( true );
                 entryDirectory.setShownInExport( true );
-                entryDirectory.setMandatory( entryForm.isMandatory( ) );
+
+                // For the iteration we will only kept the mandatory aspect on the first iteration
+                boolean bIsMandatory = entryForm.isMandatory( );
+                if ( bEntryBelongIterableGroup && nIterationNumber > NumberUtils.INTEGER_ONE && bIsMandatory )
+                {
+                    bIsMandatory = Boolean.FALSE;
+                }
+                entryDirectory.setMandatory( bIsMandatory );
                 entryDirectory.setNumberRow( entryForm.getNumberRow( ) );
                 entryDirectory.setNumberColumn( entryForm.getNumberColumn( ) );
 
@@ -400,10 +415,8 @@ public final class ExportDirectoryUtils
                 entryConfiguration.setIdFormEntry( entryForm.getIdEntry( ) );
                 entryConfiguration.setIdDirectoryEntry( entryDirectory.getIdEntry( ) );
                 entryConfiguration.setIdForm( entryForm.getIdResource( ) );
+                entryConfiguration.setIterationNumber( nIterationNumber );
                 EntryConfigurationHome.insert( entryConfiguration, pluginExport );
-
-                // Reset the id of the entry because it has been modified if it belongs to an iterable group
-                entryForm.setIdEntry( nOriginalIdEntry );
 
                 createAllDirectoryField( entryForm.getIdEntry( ), entryDirectory, pluginForm, pluginDirectory );
 
@@ -487,21 +500,18 @@ public final class ExportDirectoryUtils
                             FIELD_NB_ITERATIONS, listFieldGroup );
                     if ( fieldNbIteration != null )
                     {
-                        nbIterationAllowed = NumberUtils.toInt( fieldNbIteration.getValue( ), NumberUtils.INTEGER_MINUS_ONE );
+                        nbIterationAllowed = NumberUtils.toInt( fieldNbIteration.getValue( ), FormConstants.DEFAULT_ITERATION_NUMBER );
                     }
 
                     // If this entry allow iteration
-                    if ( nbIterationAllowed != NumberUtils.INTEGER_MINUS_ONE )
+                    if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
                     {
                         for ( int nCurrentIteration = NumberUtils.INTEGER_ONE; nCurrentIteration <= nbIterationAllowed; nCurrentIteration++ )
                         {
                             for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                             {
-                                request.setAttribute( ATTRIBUTE_ITERATION_NUMBER, nCurrentIteration );
-
-                                error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory );
-
-                                request.removeAttribute( ATTRIBUTE_ITERATION_NUMBER );
+                                error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
+                                        nCurrentIteration );
 
                                 if ( error != null )
                                 {
@@ -514,7 +524,8 @@ public final class ExportDirectoryUtils
                     {
                         for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                         {
-                            error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory );
+                            error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
+                                    FormConstants.DEFAULT_ITERATION_NUMBER );
 
                             if ( error != null )
                             {
@@ -671,7 +682,7 @@ public final class ExportDirectoryUtils
         for ( Response response : formSubmit.getListResponse( ) )
         {
             EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( formSubmit.getForm( ).getIdForm( ), response.getEntry( )
-                    .getIdEntry( ), pluginExport );
+                    .getIdEntry( ), response.getIterationNumber( ), pluginExport );
 
             if ( entryConfiguration != null )
             {
@@ -1145,5 +1156,44 @@ public final class ExportDirectoryUtils
         }
 
         return false;
+    }
+    
+    
+    /**
+     * Compute the parameter name for a specified iteration number from a base name.
+     * 
+     * @param strBaseName
+     *          The base name to create the parameter name from
+     * @param nIterationNumber
+     *          The iteration number
+     * @param nIdEntry
+     *          The id of the entry (use for an entry of type Geolocalisation)
+     * @param bIsGeolocalisation
+     *          A boolean which tell if the parameter is for a entry of type Geolocalisation
+     * @return the parameter name for the specified iteration number from the given base name
+     */
+    public static String computeIterableEntryParameterName( String strBaseName, int nIterationNumber, int nIdEntry, boolean bIsGeolocalisation )
+    {
+        StringBuilder strParameterName = new StringBuilder( strBaseName );
+        
+        if ( StringUtils.isNotBlank( strBaseName ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
+        {
+            if ( bIsGeolocalisation && nIdEntry != NumberUtils.INTEGER_MINUS_ONE )
+            {
+                strParameterName.append( PREFIX_ATTRIBUTE_ITERATION );
+                strParameterName.append( nIterationNumber );
+                strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
+                strParameterName.append( nIdEntry );   
+            }
+            else
+            {
+                strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
+                strParameterName.append( PREFIX_ATTRIBUTE_ITERATION );
+                strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
+                strParameterName.append( nIterationNumber ); 
+            }
+        }
+        
+        return strParameterName.toString( );
     }
 }

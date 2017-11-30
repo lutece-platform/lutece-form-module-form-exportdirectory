@@ -46,27 +46,30 @@
 		</@formGroup>
 		<fieldset>
 			<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</legend>
-			<#assign modif_iteration = ""/>
+			<#assign modif_iteration = -1/>
 			<#list entry_configuration_list as entry>
 				<#assign modif_form_entry = entry.use_directory_form_entry>
-				<#if modif_form_entry.iterationEntry?has_content && modif_form_entry.iterationEntry.idIterableParentGroup+'_'+modif_form_entry.iterationEntry.iterationNumber != modif_iteration>
-					<#assign modif_iteration = modif_form_entry.iterationEntry.idIterableParentGroup+'_'+modif_form_entry.iterationEntry.iterationNumber />
+				<#assign buttonName = 'id_entry_directory_for_form_entry_' + entry.use_directory_form_entry.idFormEntry>
+				<#if modif_form_entry.iterationNumber != -1 && modif_form_entry.iterationNumber != modif_iteration>
+					<#assign modif_iteration = modif_form_entry.iterationNumber />
+					<#assign buttonName = buttonName + '_iteration_' + modif_form_entry.iterationNumber>
 					<div class="form-group">
-						<label id="modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}" class="col-xs-12">
-							${modif_form_entry.iterationEntry.entryParentTitle} - #i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${modif_form_entry.iterationEntry.iterationNumber}
+						<label id="modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}" class="col-xs-12">
+							${modif_form_entry.formEntryParentTitle} - #i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${modif_form_entry.iterationNumber}
 						</label>
 					</div>
-					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' class='' mandatory=true params="data-for='modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}'">
-						<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
+					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' class='' mandatory=true params="data-for='modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}'">
+						<@select name='${buttonName}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
 					</@formGroup>
 				<#else>
 					<#assign iter_class = ''>
 					<#assign parms_form = ''>
-					<#if modif_form_entry.iterationEntry?has_content>
-						<#assign parms_form = "data-for='modif_iteration_${modif_form_entry.iterationEntry.iterationNumber}_entry_${modif_form_entry.iterationEntry.idIterableParentGroup}'">
+					<#if modif_form_entry.iterationNumber != -1>
+						<#assign buttonName = buttonName + '_iteration_' + modif_form_entry.iterationNumber>
+						<#assign parms_form = "data-for='modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}'">
 					</#if>
 					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' mandatory=true class='' params=parms_form>
-						<@select name='id_entry_directory_for_form_entry_${entry.use_directory_form_entry.idFormEntry}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
+						<@select name='${buttonName}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
 					</@formGroup>
 				</#if>
 			</#list>
@@ -84,25 +87,25 @@
 		<@table>
 			<tr>
 				<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.entry_form}</th>
-					<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.result_list}</th>
-					<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.search}</th>
-				</tr>
-			<#assign iteration = ""/>
+				<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.result_list}</th>
+				<th>#i18n{module.form.exportdirectory.configuration_exportdirectory.search}</th>
+			</tr>
+			<#assign iteration = -1/>
 			<#list entry_configuration_list as entry>
 				<#assign form_entry = entry.use_directory_form_entry>
-				<#if form_entry.iterationEntry?has_content && form_entry.iterationEntry.idIterableParentGroup+'_'+form_entry.iterationEntry.iterationNumber != iteration>
-					<#assign iteration = form_entry.iterationEntry.idIterableParentGroup+'_'+form_entry.iterationEntry.iterationNumber />
-					<tr id="iteration_${form_entry.iterationEntry.iterationNumber}_entry_${form_entry.iterationEntry.idIterableParentGroup}" class="">
+				<#if form_entry.iterationNumber != -1 && form_entry.iterationNumber != iteration>
+					<#assign iteration = form_entry.iterationNumber/>
+					<tr id="iteration_${form_entry.iterationNumber}_entry_${form_entry.idFormEntry}" class="">
 						<td colspan=3>
-							${form_entry.iterationEntry.entryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${form_entry.iterationEntry.iterationNumber}</em>
+							${form_entry.formEntryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${form_entry.iterationNumber}</em>
 						</td>
 					</tr>
 				</#if>
-				<tr <#if form_entry.iterationEntry?has_content>data-for="iteration_${form_entry.iterationEntry.iterationNumber}_entry_${form_entry.iterationEntry.idIterableParentGroup}"</#if>>
+				<tr <#if form_entry.iterationNumber != -1>data-for="iteration_${form_entry.iterationNumber}_entry_${form_entry.idFormEntry}"</#if>>
 					<td>${form_entry.formEntryTitle}</td>
-					<td><input type="checkbox" name="is_in_result_list_${form_entry.idFormEntry}" /></td>
+					<td><input type="checkbox" name="is_in_result_list_${form_entry.idFormEntry}<#if form_entry.iterationNumber != -1>_iteration_${form_entry.iterationNumber}</#if>" /></td>
 					<#if entry.use_directory_form_entry_type!=entry_type_file & entry.use_directory_form_entry_type!=entry_type_image>
-						<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}" /></td>
+						<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}<#if form_entry.iterationNumber != -1>_iteration_${form_entry.iterationNumber}</#if>" /></td>
 					<#else>
 						<td>&nbsp;</td>
 					</#if>
@@ -133,70 +136,98 @@
 				<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title}</legend>
 				<#list create_directory as entry>
 					<#assign title=entry.form_entry.title>
+					<#assign buttonName = 'id_entry_type_'+ entry.form_entry.idEntry>
 					<#assign idEntry = (entry.form_entry.idEntry)?string>
-					<#if map_entry_iteration?has_content && map_entry_iteration[idEntry]?has_content>
-						<#assign title=entry.form_entry.title + ' - ' + '#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}' + map_entry_iteration[idEntry]>
+					<#if entry.form_entry_configuration?has_content && entry.form_entry_configuration.iterationNumber != -1>
+						<#assign buttonName = buttonName + '_iteration_' + entry.form_entry_configuration.iterationNumber>
+						<#assign title=entry.form_entry.title + ' - ' + '#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}' + entry.form_entry_configuration.iterationNumber>
 					</#if>
 					<@formGroup labelKey=title rows=2>
 						<#list entry.directory_entry_type as entry_type>
-							<@radioButton orientation='horizontal' name='id_entry_type_${entry.form_entry.idEntry}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
+							<@radioButton orientation='horizontal' name='${buttonName}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
 						</#list>
 					</@formGroup>
 				</#list>
 			</fieldset>
 		</#if>
 		
-		<#if (list_entry_image?size > 0) >
+		<#if map_entry_image?has_content >
 			<fieldset>
 				<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.image_configuration} :</legend>
-				<#list list_entry_image as image>
-					<label>${image.title}</label>
+				<#list map_entry_image as image>
+					<#assign imageEntry = image.form_entry>
+					<#assign imageConfig = image.form_entry_configuration>
+					<label>${imageEntry.title}<#if imageConfig?has_content && imageConfig.iterationNumber != -1> - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${imageConfig.iterationNumber}</em></#if></label>
 					
-					<@formGroup labelFor='create_thumbnail_${image.idEntry}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_thumbnail}' showLabel=false>
-						<@checkBox name='create_thumbnail_${image.idEntry}' id='create_thumbnail_${image.idEntry}' params='onclick="hideField(\'create_thumbnail_${image.idEntry}\', \'thumbnail_field_${image.idEntry}\');"' labelFor='create_thumbnail_${image.idEntry}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_thumbnail}' />
+					<#assign name = imageEntry.idEntry>
+					<#if imageConfig?has_content && imageConfig.iterationNumber != -1>
+						<#assign name = 'nIt' + imageConfig.iterationNumber + '_' + name>
+					</#if>
+					
+					<@formGroup labelFor='create_thumbnail_${name}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_thumbnail}' showLabel=false>
+						<@checkBox name='create_thumbnail_${name}' id='create_thumbnail_${name}' params='onclick="hideField(\'create_thumbnail_${name}\', \'thumbnail_field_${name}\');"' labelFor='create_thumbnail_${name}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_thumbnail}' />
 					</@formGroup>
 					
-					<div name="thumbnail_field_${image.idEntry}" id="thumbnail_field_${image.idEntry}">
-						<@formGroup labelFor='thumbnail_height_${image.idEntry}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_height}*' rows=2>
-							<@input type='text' name='thumbnail_height_${image.idEntry}' id='thumbnail_height_${image.idEntry}' />
+					<div name="thumbnail_field_${name}" id="thumbnail_field_${name}">
+						<@formGroup labelFor='thumbnail_height_${name}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_height}*' rows=2>
+							<@input type='text' name='thumbnail_height_${name}' id='thumbnail_height_${name}' />
 						</@formGroup>
-						<@formGroup labelFor='thumbnail_width_${image.idEntry}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_width}*' rows=2>
-							<@input type='text' name='thumbnail_width_${image.idEntry}' id='thumbnail_width_${image.idEntry}' />
+						<@formGroup labelFor='thumbnail_width_${name}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_width}*' rows=2>
+							<@input type='text' name='thumbnail_width_${name}' id='thumbnail_width_${name}' />
 						</@formGroup>
 					</div>
 					
-					<@formGroup labelFor='create_big_thumbnail_${image.idEntry}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_big_thumbnail}' showLabel=false>
-						<@checkBox name='create_big_thumbnail_${image.idEntry}' id='create_big_thumbnail_${image.idEntry}' params='onclick="hideField( \'create_big_thumbnail_${image.idEntry}\',\'big_thumbnail_field_${image.idEntry}\')"' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_big_thumbnail}' />
+					<@formGroup labelFor='create_big_thumbnail_${name}' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_big_thumbnail}' showLabel=false>
+						<@checkBox name='create_big_thumbnail_${name}' id='create_big_thumbnail_${name}' params='onclick="hideField( \'create_big_thumbnail_${name}\',\'big_thumbnail_field_${name}\')"' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.generate_big_thumbnail}' />
 					</@formGroup>
 					
-					<div name="big_thumbnail_field_${image.idEntry}" id="big_thumbnail_field_${image.idEntry}">		
+					<div name="big_thumbnail_field_${name}" id="big_thumbnail_field_${name}">		
 						<@formGroup labelFor='' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_height} *' rows=2>
-							<@input type='text' name='big_thumbnail_height_${image.idEntry}' id='big_thumbnail_height_${image.idEntry}' />
+							<@input type='text' name='big_thumbnail_height_${name}' id='big_thumbnail_height_${name}' />
 						</@formGroup>
 						<@formGroup labelFor='' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.thumbnail_width} *' rows=2>
-							<@input type='text' name='big_thumbnail_width_${image.idEntry}' id='big_thumbnail_width_${image.idEntry}' />
+							<@input type='text' name='big_thumbnail_width_${name}' id='big_thumbnail_width_${name}' />
 						</@formGroup>
 					</div>
 				</#list>
 			</fieldset>
 		</#if>
 		
-	
-		<#list list_entry_geolocalisation as entry>
-			<fieldset>
-				<legend>${entry.title} <#if entry.mapProvider?has_content>(${entry.mapProvider.displayedName})</#if></legend>
+		<#if map_entry_geolocalisation?has_content>
+			<#assign previousEntry = -1>
+			<#list map_entry_geolocalisation as geolocalisation>
+				<#assign entry = geolocalisation.form_entry>
+				<#assign entryConfig = geolocalisation.form_entry_configuration>
+				<#if entryConfig.idFormEntry != previousEntry>
+					<#if previousEntry != -1>
+						</fieldset>
+					</#if>
+					<#assign previousEntry = entryConfig.idFormEntry>
+					<fieldset>
+						<legend>${entry.title} 
+							<#if entry.mapProvider?has_content>(${entry.mapProvider.displayedName})</#if>
+						</legend>
+				</#if>
 				<#assign labelKey>
 					${entry.title}
+					<#if entryConfig?has_content && entryConfig.iterationNumber != -1> - #i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${entryConfig.iterationNumber}</#if>
 					<#if entry.mapProvider?has_content> (${entry.mapProvider.displayedName})</#if>
 				</#assign>
 				<@formGroup labelKey=labelKey rows=2 mandatory=true>
+					<#assign attributeName = entry.idEntry>
+					<#if entryConfig?has_content && entryConfig.iterationNumber != -1>
+						<#assign attributeName = 'nIt' + entryConfig.iterationNumber + '_' + entry.idEntry>
+					</#if>
 					<#list list_directory_map_providers as map_provider>
-						<@radioButton name='key_geolocation_${entry.idEntry}' value='${map_provider.key}' labelKey='${map_provider.displayedName}' />
+						<@radioButton name='key_geolocation_${attributeName}' value='${map_provider.key}' labelKey='${map_provider.displayedName}' />
 					</#list>
-					<@radioButton name='key_geolocation_${entry.idEntry}' value='none' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.noMapProvider}' />
+					<@radioButton name='key_geolocation_${attributeName}' value='none' labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.noMapProvider}' />
 				</@formGroup>
-			</fieldset>
-		</#list>
+			</#list>
+			<#if previousEntry != -1>
+				</fieldset>
+			</#if>
+		</#if>
 	</div>
 		
 	<#if record_form &gt; 0>
@@ -215,11 +246,21 @@
 </#if>
 
 <script type="text/javascript">
-<#if (list_entry_image?size > 0) >
-<#list list_entry_image as image>
-document.getElementById( 'thumbnail_field_${image.idEntry}' ).style.display="none";
-document.getElementById( 'big_thumbnail_field_${image.idEntry}' ).style.display="none";
-</#list>
+<#if map_entry_image?has_content>
+	var listIdName = [];
+	<#list map_entry_image as image>
+		<#assign name = imageEntry.idEntry>
+		<#if image.form_entry_configuration?has_content && image.form_entry_configuration.iterationNumber != -1>
+			<#assign name = 'nIt' + image.form_entry_configuration.iterationNumber + '_' + name>
+		</#if>
+		var item = { thumbnail : 'thumbnail_field_${name}', big_thumbnail : 'big_thumbnail_field_${name}' };
+		listIdName.push( item );
+	</#list>
+	for (var i = 0; i < listIdName.length; i++)
+	{
+		document.getElementById( listIdName[i].thumbnail ).style.display="none";
+		document.getElementById( listIdName[i].big_thumbnail ).style.display="none";
+	}
 </#if>
 
 <#if use_directory_exist?? && use_directory_exist>

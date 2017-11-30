@@ -34,8 +34,8 @@
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
-import fr.paris.lutece.plugins.form.business.iteration.IterationEntry;
 import fr.paris.lutece.plugins.form.service.EntryRemovalListenerService;
+import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.plugins.genericattributes.business.EntryHome;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -51,8 +51,8 @@ public class EntryConfiguration
     private static EntryConfigurationEntryDirectoryRemovalListener _listenerDirectory;
     private int _nIdForm;
     private int _nIdFormEntry;
+    private int _nIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
     private int _nIdDirectoryEntry;
-    private IterationEntry _iterationEntry;
 
     /**
      * Initialize the EntryConfiguration
@@ -104,6 +104,23 @@ public class EntryConfiguration
     }
 
     /**
+     * @return the iterationNumber
+     */
+    public int getIterationNumber( )
+    {
+        return _nIterationNumber;
+    }
+
+    /**
+     * @param iterationNumber
+     *            the iterationNumber to set
+     */
+    public void setIterationNumber( int iterationNumber )
+    {
+        this._nIterationNumber = iterationNumber;
+    }
+
+    /**
      * @return the idDirectoryEntry
      */
     public int getIdDirectoryEntry( )
@@ -121,23 +138,6 @@ public class EntryConfiguration
     }
 
     /**
-     * @return the iterationEntry
-     */
-    public IterationEntry getIterationEntry( )
-    {
-        return _iterationEntry;
-    }
-
-    /**
-     * @param _iterationEntry
-     *            the iterationEntry to set
-     */
-    public void setIterationEntry( IterationEntry iterationEntry )
-    {
-        this._iterationEntry = iterationEntry;
-    }
-
-    /**
      * Get the Entry title
      * 
      * @return The entry title
@@ -150,11 +150,25 @@ public class EntryConfiguration
         {
             return entry.getTitle( );
         }
-        else
+
+        return null;
+    }
+
+    /**
+     * Get the Entry parent title
+     * 
+     * @return The entry parent title
+     */
+    public String getFormEntryParentTitle( )
+    {
+        Entry entry = EntryHome.findByPrimaryKey( getIdFormEntry( ) );
+
+        if ( entry != null && entry.getParent( ) != null )
         {
-            if ( _iterationEntry != null )
+            Entry entryParent = EntryHome.findByPrimaryKey( entry.getParent( ).getIdEntry( ) );
+            if ( entryParent != null )
             {
-                return _iterationEntry.getEntryTitle( );
+                return entryParent.getTitle( );
             }
         }
 

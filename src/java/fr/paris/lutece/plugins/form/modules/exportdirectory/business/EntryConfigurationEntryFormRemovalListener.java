@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
+import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
+import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.genericattributes.business.EntryHome;
 import fr.paris.lutece.plugins.genericattributes.business.Entry;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -41,7 +43,11 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.RemovalListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * {@link FormConfiguration} Removal Listener
@@ -66,9 +72,35 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
 
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         Entry entry = EntryHome.findByPrimaryKey( Integer.parseInt( strId ) );
-        EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( entry.getIdResource( ), entry.getIdEntry( ), pluginExportdirectory );
 
-        if ( entryConfiguration != null )
+        List<EntryConfiguration> listEntryConfiguration = new ArrayList<>( );
+        int nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );
+        if ( nEntryIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
+        {
+            int nCurrentIteration = NumberUtils.INTEGER_ONE;
+            while ( nCurrentIteration <= nEntryIterationNumber )
+            {
+                EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( entry.getIdResource( ), entry.getIdEntry( ),
+                        nCurrentIteration, pluginExportdirectory );
+                if ( entryConfiguration != null )
+                {
+                    listEntryConfiguration.add( entryConfiguration );
+                }
+
+                nCurrentIteration++;
+            }
+        }
+        else
+        {
+            EntryConfiguration entryConfiguration = EntryConfigurationHome.findByPrimaryKey( entry.getIdResource( ), entry.getIdEntry( ),
+                    FormConstants.DEFAULT_ITERATION_NUMBER, pluginExportdirectory );
+            if ( entryConfiguration != null )
+            {
+                listEntryConfiguration.add( entryConfiguration );
+            }
+        }
+
+        if ( listEntryConfiguration != null && !listEntryConfiguration.isEmpty( ) )
         {
             return false;
         }

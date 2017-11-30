@@ -58,7 +58,6 @@ import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
 import fr.paris.lutece.plugins.form.business.FormSubmit;
 import fr.paris.lutece.plugins.form.business.FormSubmitHome;
-import fr.paris.lutece.plugins.form.business.iteration.IterationEntry;
 import fr.paris.lutece.plugins.form.business.outputprocessor.OutputProcessor;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryResourceIdService;
@@ -67,6 +66,7 @@ import fr.paris.lutece.plugins.form.service.FormPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
 import fr.paris.lutece.plugins.form.service.entrytype.EntryTypeImage;
 import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
+import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.form.web.FormJspBean;
 import fr.paris.lutece.plugins.genericattributes.business.Entry;
@@ -81,7 +81,6 @@ import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.portal.web.constants.Messages;
-import fr.paris.lutece.util.ReferenceItem;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
@@ -96,7 +95,6 @@ public class ProcessorExportdirectory extends OutputProcessor
 
     // Templates
     private static final String TEMPLATE_CONFIGURATION_EXPORTDIRECTORY = "admin/plugins/form/modules/exportdirectory/processorexportdirectory/configuration_exportdirectory.html";
-    private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
 
     // Parameters
     private static final String PARAMETER_ID_FORM = "id_form";
@@ -104,6 +102,7 @@ public class ProcessorExportdirectory extends OutputProcessor
     private static final String PARAMETER_ACTION_EXPORTDIRECTORY = "action_exportdirectory";
     private static final String PARAMETER_ID_DIRECTORY = "id_directory";
     private static final String PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY = "id_entry_directory_for_form_entry";
+    private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
 
     // Markers
     private static final String MARK_FORM = "form";
@@ -120,6 +119,7 @@ public class ProcessorExportdirectory extends OutputProcessor
     private static final String MARK_USE_DIRECTORY_LIST_ENTRY_DIRECTORY = "use_directory_list_directory_entry";
     private static final String MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY = "use_directory_default_directory_entry";
     private static final String MARK_FORM_ENTRY = "form_entry";
+    private static final String MARK_FORM_ENTRY_CONFIGURATION = "form_entry_configuration";
     private static final String MARK_DIRECTORY_ENTRY_TYPE = "directory_entry_type";
     private static final String MARK_MAPPED = "is_mapped";
     private static final String MARK_MAPPED_DIRECTORY_TITLE = "mapped_directory_title";
@@ -128,10 +128,9 @@ public class ProcessorExportdirectory extends OutputProcessor
     private static final String MARK_WORKFLOW = "workflow_list";
     private static final String MARK_FORM_ENTRY_FILE = "entry_type_file";
     private static final String MARK_FORM_ENTRY_IMAGE = "entry_type_image";
-    private static final String MARK_LIST_ENTRY_GEOLOCATION = "list_entry_geolocalisation";
+    private static final String MARK_MAP_ENTRY_GEOLOCATION = "map_entry_geolocalisation";
     private static final String MARK_LIST_DIRECTORY_MAP_PROVIDERS = "list_directory_map_providers";
-    private static final String MARK_LIST_ENTRY_IMAGE = "list_entry_image";
-    private static final String MARK_MAP_ENTRY_ITERATION = "map_entry_iteration";
+    private static final String MARK_MAP_ENTRY_IMAGE = "map_entry_image";
 
     // I18n messages
     private static final String MESSAGE_ERROR_ENTRY_FORM_NOT_TYPE_DIRECTORY = "module.form.exportdirectory.configuration_exportdirectory.message.errorCreateDirectory";
@@ -183,98 +182,132 @@ public class ProcessorExportdirectory extends OutputProcessor
         ReferenceList listDirectory = DirectoryHome.getDirectoryList( pluginDirectory );
         Collection<Map<String, Object>> entryConfigurationList = new ArrayList<Map<String, Object>>( );
         Collection<Map<String, Object>> formEntryTypeWithSeveralDirectoryEntryType = new ArrayList<Map<String, Object>>( );
-        Map<String, Integer> mapIdEntryIterationNumber = new LinkedHashMap<>( );
-        List<Entry> formEntriesMapProvider = new ArrayList<Entry>( );
-        List<Entry> formEntriesImage = new ArrayList<Entry>( );
+        Collection<Map<String, Object>> formGeolocalisationEntriesMap = new ArrayList<Map<String, Object>>( );
+        Collection<Map<String, Object>> formEntriesImageConfig = new ArrayList<Map<String, Object>>( );
+        Map<Integer, Integer> mapIdEntryNumIter = new LinkedHashMap<>( );
 
         for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
         {
+            int nIdEntry = entry.getIdEntry( );
+
+            // Retrieve the current iteration number for the current entry
+            boolean bEntryBelongIterableGroup = EntryTypeGroupUtils.entryBelongIterableGroup( entry );
+            int nCurrentIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
+            if ( bEntryBelongIterableGroup )
+            {
+                Integer nIterationNumber = mapIdEntryNumIter.get( nIdEntry );
+                if ( nIterationNumber != null )
+                {
+                    mapIdEntryNumIter.put( nIdEntry, nIterationNumber + NumberUtils.INTEGER_ONE );
+                }
+                else
+                {
+                    mapIdEntryNumIter.put( nIdEntry, NumberUtils.INTEGER_ONE );
+                }
+
+                nCurrentIterationNumber = mapIdEntryNumIter.get( nIdEntry );
+            }
+
+            // Retrieve or create the entry configuration of the current entry
+            int nIdForm = form.getIdForm( );
+            EntryConfiguration entryConfigurationFromEntry = EntryConfigurationHome.findByPrimaryKey( nIdForm, nIdEntry, nCurrentIterationNumber,
+                    pluginExportdirectory );
+
+            if ( entryConfigurationFromEntry == null )
+            {
+                entryConfigurationFromEntry = new EntryConfiguration( );
+                entryConfigurationFromEntry.setIdFormEntry( nIdEntry );
+                entryConfigurationFromEntry.setIdForm( nIdForm );
+                entryConfigurationFromEntry.setIterationNumber( nCurrentIterationNumber );
+            }
+
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
             {
-                formEntriesMapProvider.add( entry );
+                Map<String, Object> mapGeolocalisationEntryConfiguration = new LinkedHashMap<>( );
+                mapGeolocalisationEntryConfiguration.put( MARK_FORM_ENTRY, entry );
+                mapGeolocalisationEntryConfiguration.put( MARK_FORM_ENTRY_CONFIGURATION, entryConfigurationFromEntry );
+
+                formGeolocalisationEntriesMap.add( mapGeolocalisationEntryConfiguration );
             }
 
-            if ( ( entry.getEntryType( ) != null ) && StringUtils.equals( entry.getEntryType( ).getBeanName( ), EntryTypeImage.BEAN_NAME ) )
+            fr.paris.lutece.plugins.genericattributes.business.EntryType entryType = entry.getEntryType( );
+            if ( entryType != null && StringUtils.equals( entryType.getBeanName( ), EntryTypeImage.BEAN_NAME ) )
             {
-                formEntriesImage.add( entry );
+                Map<String, Object> mapImageEntryConfiguration = new LinkedHashMap<>( );
+                mapImageEntryConfiguration.put( MARK_FORM_ENTRY, entry );
+                mapImageEntryConfiguration.put( MARK_FORM_ENTRY_CONFIGURATION, entryConfigurationFromEntry );
+
+                formEntriesImageConfig.add( mapImageEntryConfiguration );
             }
 
-            if ( entry.getEntryType( ).getIdType( ) != nFormEntryTypeComment )
+            if ( entryType.getIdType( ) != nFormEntryTypeComment )
             {
+                Map<String, Object> resourceActions = new HashMap<String, Object>( );
                 Map<String, Object> entryFormType = new HashMap<String, Object>( );
-                List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) );
-
+                List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entryType );
                 if ( listEntryTypeDirectory.size( ) > 1 )
                 {
                     entryFormType.put( MARK_FORM_ENTRY, entry );
+                    entryFormType.put( MARK_FORM_ENTRY_CONFIGURATION, entryConfigurationFromEntry );
                     entryFormType.put( MARK_DIRECTORY_ENTRY_TYPE, listEntryTypeDirectory );
                     formEntryTypeWithSeveralDirectoryEntryType.add( entryFormType );
                 }
 
-                Map<String, Object> resourceActions = new HashMap<String, Object>( );
-                EntryConfiguration entryConfigurationFromEntry = EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ),
-                        pluginExportdirectory );
-
-                if ( entryConfigurationFromEntry == null )
-                {
-                    entryConfigurationFromEntry = new EntryConfiguration( );
-                    entryConfigurationFromEntry.setIdFormEntry( entry.getIdEntry( ) );
-                    entryConfigurationFromEntry.setIdForm( form.getIdForm( ) );
-                }
-
-                // If the entry belong to an iterable group we will create an IterationEntry object for it
-                // and we will associate it to the configuration of the entry
-                if ( EntryTypeGroupUtils.entryBelongIterableGroup( entry ) )
-                {
-                    IterationEntry iterationEntry = EntryTypeGroupUtils.createIterationEntry( entry.getIdEntry( ), form.getIdForm( ) );
-                    entryConfigurationFromEntry.setIterationEntry( iterationEntry );
-
-                    mapIdEntryIterationNumber.put( String.valueOf( entry.getIdEntry( ) ), iterationEntry.getIterationNumber( ) );
-                }
-
                 List<fr.paris.lutece.plugins.directory.business.IEntry> listEntryDirectory = new ArrayList<fr.paris.lutece.plugins.directory.business.IEntry>( );
 
-                if ( ( listDirectory != null ) && !listDirectory.isEmpty( ) )
+                if ( listDirectory != null && !listDirectory.isEmpty( ) )
                 {
-                    for ( EntryType entryTypeDirectory : ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) ) )
-                    {
-                        EntryFilter entryFilterDirectory = new EntryFilter( );
+                    EntryFilter entryFilterDirectory = new EntryFilter( );
 
-                        if ( request.getParameter( PARAMETER_ID_DIRECTORY ) != null )
+                    if ( request.getParameter( PARAMETER_ID_DIRECTORY ) != null )
+                    {
+                        entryFilterDirectory.setIdDirectory( Integer.parseInt( request.getParameter( PARAMETER_ID_DIRECTORY ) ) );
+                        apply = true;
+                    }
+                    else
+                    {
+                        if ( isMapped )
                         {
-                            entryFilterDirectory.setIdDirectory( Integer.parseInt( request.getParameter( PARAMETER_ID_DIRECTORY ) ) );
-                            apply = true;
+                            entryFilterDirectory.setIdDirectory( formConfiguration.getIdDirectory( ) );
                         }
                         else
-                            if ( isMapped )
-                            {
-                                entryFilterDirectory.setIdDirectory( formConfiguration.getIdDirectory( ) );
-                            }
-                            else
-                            {
-                                entryFilterDirectory.setIdDirectory( Integer.parseInt( listDirectory.get( 0 ).getCode( ) ) );
-                            }
+                        {
+                            entryFilterDirectory.setIdDirectory( Integer.parseInt( listDirectory.get( 0 ).getCode( ) ) );
+                        }
+                    }
 
-                        entryFilterDirectory.setIdType( entryTypeDirectory.getIdType( ) );
+                    // Create the map which associate the list of Entry of each EntryType already treated
+                    Map<EntryType, List<fr.paris.lutece.plugins.directory.business.IEntry>> mapEntryTypeListEntry = new LinkedHashMap<>( );
+                    for ( EntryType entryTypeDirectory : ExportDirectoryUtils.getDirectoryEntryForFormEntry( entryType ) )
+                    {
+                        List<fr.paris.lutece.plugins.directory.business.IEntry> listEntryDirectoryForEntryTypeForm = new ArrayList<>( );
 
-                        List<fr.paris.lutece.plugins.directory.business.IEntry> listEntryDirectoryForEntryTypeForm = EntryHome.getEntryList(
-                                entryFilterDirectory, pluginDirectory );
+                        if ( mapEntryTypeListEntry.containsKey( entryTypeDirectory ) )
+                        {
+                            listEntryDirectoryForEntryTypeForm = mapEntryTypeListEntry.get( entryTypeDirectory );
+                        }
+                        else
+                        {
+                            entryFilterDirectory.setIdType( entryTypeDirectory.getIdType( ) );
+                            listEntryDirectoryForEntryTypeForm = EntryHome.getEntryList( entryFilterDirectory, pluginDirectory );
+
+                            mapEntryTypeListEntry.put( entryTypeDirectory, listEntryDirectoryForEntryTypeForm );
+                        }
+
                         listEntryDirectory.addAll( listEntryDirectoryForEntryTypeForm );
                     }
                 }
 
                 ReferenceList referenceListEntryDirectory = ReferenceList.convert( listEntryDirectory, "idEntry", "title", true );
 
-                // Modify the ReferenceList for the iterable entry if they are present
-                manageReferenceListIterableEntry( form.getIdForm( ), referenceListEntryDirectory );
-
                 referenceListEntryDirectory.addItem( -1, "" );
                 resourceActions.put( MARK_USE_DIRECTORY_LIST_ENTRY_DIRECTORY, referenceListEntryDirectory );
 
-                if ( isMapped && ( EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory ) != null ) && !apply )
+                EntryConfiguration entryConfigurationDefaultEntry = EntryConfigurationHome.findByPrimaryKey( nIdForm, nIdEntry, nCurrentIterationNumber,
+                        pluginExportdirectory );
+                if ( isMapped && entryConfigurationDefaultEntry != null && !apply )
                 {
-                    resourceActions.put( MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY,
-                            EntryConfigurationHome.findByPrimaryKey( form.getIdForm( ), entry.getIdEntry( ), pluginExportdirectory ).getIdDirectoryEntry( ) );
+                    resourceActions.put( MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY, entryConfigurationDefaultEntry.getIdDirectoryEntry( ) );
                 }
                 else
                 {
@@ -282,7 +315,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                 }
 
                 resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM, entryConfigurationFromEntry );
-                resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM_TYPE, entry.getEntryType( ).getIdType( ) );
+                resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM_TYPE, entryType.getIdType( ) );
                 entryConfigurationList.add( resourceActions );
             }
         }
@@ -290,14 +323,13 @@ public class ProcessorExportdirectory extends OutputProcessor
         ResponseFilter filter = new ResponseFilter( );
         filter.setIdResource( form.getIdForm( ) );
 
-        model.put( MARK_LIST_ENTRY_GEOLOCATION, formEntriesMapProvider );
-        model.put( MARK_LIST_ENTRY_IMAGE, formEntriesImage );
+        model.put( MARK_MAP_ENTRY_GEOLOCATION, formGeolocalisationEntriesMap );
+        model.put( MARK_MAP_ENTRY_IMAGE, formEntriesImageConfig );
         model.put( MARK_LIST_DIRECTORY_MAP_PROVIDERS, MapProviderManager.getMapProvidersList( ) );
 
         int nCountFormSubmit = FormSubmitHome.getCountFormSubmit( filter, plugin );
         model.put( MARK_RECORD_FORM, nCountFormSubmit );
         model.put( MARK_CREATE_DIRECTORY, formEntryTypeWithSeveralDirectoryEntryType );
-        model.put( MARK_MAP_ENTRY_ITERATION, mapIdEntryIterationNumber );
 
         if ( ( listDirectory != null ) && !listDirectory.isEmpty( ) )
         {
@@ -319,8 +351,6 @@ public class ProcessorExportdirectory extends OutputProcessor
                 }
 
             model.put( MARK_DIRECTORY_LIST, listDirectory );
-
-            // model.put( MARK_ENTRY_CONFIGURATION_LIST, entryConfigurationList );
         }
 
         model.put( MARK_ENTRY_CONFIGURATION_LIST, entryConfigurationList );
@@ -444,22 +474,52 @@ public class ProcessorExportdirectory extends OutputProcessor
 
         Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+        Map<Integer, Integer> mapIdEntryIterationNumber = new LinkedHashMap<>( );
 
         for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
         {
+            int nIdEntry = entry.getIdEntry( );
+            boolean bBelongIterableGroup = EntryTypeGroupUtils.entryBelongIterableGroup( entry );
+            if ( bBelongIterableGroup && !mapIdEntryIterationNumber.containsKey( nIdEntry ) )
+            {
+                mapIdEntryIterationNumber.put( nIdEntry, NumberUtils.INTEGER_ONE );
+            }
+
             List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entry.getEntryType( ) );
 
             if ( ExportDirectoryUtils.isGeolocationFormEntry( entry ) )
             {
-                if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION + entry.getIdEntry( ) ) ) )
+                if ( StringUtils.isBlank( request.getParameter( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION + nIdEntry ) ) )
                 {
-                    return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
+                    // If the entry belong to an iterable the name of the request parameter must be modified
+                    if ( bBelongIterableGroup )
+                    {
+                        // Create the parameter name
+                        String strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION, mapIdEntryIterationNumber.get( nIdEntry ), nIdEntry, Boolean.TRUE );
+
+                        if ( StringUtils.isBlank( request.getParameter( strParameterName ) ) )
+                        {
+                            return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
+                        }
+                    }
+                    else
+                    {
+                        return MESSAGE_ERROR_ENTRY_GEOLOCATION_MISSING;
+                    }
                 }
             }
 
             if ( listEntryTypeDirectory.size( ) > 1 )
             {
-                if ( request.getParameter( PARAMETER_ID_ENTRY_TYPE + "_" + entry.getIdEntry( ) ) == null )
+                String strParameterName = PARAMETER_ID_ENTRY_TYPE + FormUtils.CONSTANT_UNDERSCORE + nIdEntry;
+                Integer nIterationNumber = mapIdEntryIterationNumber.get( nIdEntry );
+                if ( nIterationNumber != null )
+                {
+                    strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    mapIdEntryIterationNumber.put( nIdEntry, nIterationNumber );
+                }
+
+                if ( request.getParameter( strParameterName ) == null )
                 {
                     return MESSAGE_ERROR_ENTRY_FORM_NOT_TYPE_DIRECTORY;
                 }
@@ -534,20 +594,35 @@ public class ProcessorExportdirectory extends OutputProcessor
             Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
             Plugin pluginForm = PluginService.getPlugin( FormPlugin.PLUGIN_NAME );
             List<EntryConfiguration> listEntryConfiguration = new ArrayList<EntryConfiguration>( );
+            Map<Integer, Integer> mapIdEntryNumberIteration = new LinkedHashMap<>( );
 
             for ( Entry entry : FormUtils.getAllQuestionList( form.getIdForm( ), plugin ) )
             {
                 if ( entry.getEntryType( ).getIdType( ) != nFormEntryTypeComment )
                 {
-                    if ( ( request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ) == null )
-                            || request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ).equals( "-1" ) )
+                    // Construct the parameter name for the iteration entry
+                    int nIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
+                    int nIdEntry = entry.getIdEntry( );
+                    String strParameterName = PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + FormUtils.CONSTANT_UNDERSCORE + nIdEntry;
+                    if ( EntryTypeGroupUtils.entryBelongIterableGroup( entry ) )
+                    {
+                        if ( !mapIdEntryNumberIteration.containsKey( nIdEntry ) )
+                        {
+                            mapIdEntryNumberIteration.put( nIdEntry, NumberUtils.INTEGER_ONE );
+                        }
+
+                        nIterationNumber = mapIdEntryNumberIteration.get( nIdEntry );
+                        strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                        mapIdEntryNumberIteration.put( nIdEntry, nIterationNumber + NumberUtils.INTEGER_ONE );
+                    }
+
+                    if ( ( request.getParameter( strParameterName ) == null ) || request.getParameter( strParameterName ).equals( "-1" ) )
                     {
                         return MESSAGE_ERROR_ENTRY_FORM_NOT_ID_DIRECTORY;
                     }
                     for ( EntryConfiguration entryConfiguration : listEntryConfiguration )
                     {
-                        if ( entryConfiguration.getIdDirectoryEntry( ) == DirectoryUtils.convertStringToInt( request
-                                .getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY + "_" + entry.getIdEntry( ) ) ) )
+                        if ( entryConfiguration.getIdDirectoryEntry( ) == DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) ) )
                         {
                             return MESSAGE_ERROR_TWO_ENTRY_FORM_FOR_ONE_ID_DIRECTORY;
                         }
@@ -556,8 +631,8 @@ public class ProcessorExportdirectory extends OutputProcessor
                     EntryConfiguration entryConfiguration = new EntryConfiguration( );
                     entryConfiguration.setIdForm( form.getIdForm( ) );
                     entryConfiguration.setIdFormEntry( entry.getIdEntry( ) );
-                    entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( request.getParameter( PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY
-                            + "_" + entry.getIdEntry( ) ) ) );
+                    entryConfiguration.setIterationNumber( nIterationNumber );
+                    entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) ) );
                     listEntryConfiguration.add( entryConfiguration );
                 }
             }
@@ -622,46 +697,5 @@ public class ProcessorExportdirectory extends OutputProcessor
         EntryConfigurationHome.deleteByForm( form.getIdForm( ), pluginExportdirectory );
 
         return null;
-    }
-
-    /**
-     * Change the name of ReferenceItem of a ReferenceList if they belong to an iterable group to make a way to distinguish them
-     * 
-     * @param idForm
-     *            the id of the form
-     * @param referenceList
-     *            the reference list which represent the entry of the form
-     */
-    private void manageReferenceListIterableEntry( int idForm, ReferenceList referenceList )
-    {
-        // Retrieve the Collection of the entry configuration of the form
-        Collection<EntryConfiguration> collectionEntryConfiguration = EntryConfigurationHome.findEntryConfigurationListByIdForm( idForm,
-                PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME ) );
-
-        if ( referenceList != null && !referenceList.isEmpty( ) && collectionEntryConfiguration != null && !collectionEntryConfiguration.isEmpty( ) )
-        {
-            // Create the map which associate for each directory entry id its entry form id
-            Map<Integer, Integer> mapIdDirectoryIdFormEntry = new LinkedHashMap<>( );
-            for ( EntryConfiguration entryConfiguration : collectionEntryConfiguration )
-            {
-                mapIdDirectoryIdFormEntry.put( entryConfiguration.getIdDirectoryEntry( ), entryConfiguration.getIdFormEntry( ) );
-            }
-
-            // Check if a referenceItem belong to an iterable group or not and if it the case change its name
-            for ( ReferenceItem referenceItem : referenceList )
-            {
-                int nCodeItem = NumberUtils.toInt( referenceItem.getCode( ), NumberUtils.INTEGER_MINUS_ONE );
-                if ( nCodeItem != NumberUtils.INTEGER_MINUS_ONE && mapIdDirectoryIdFormEntry.containsKey( nCodeItem ) )
-                {
-                    // Retrieve the IterationEntry associate to the entry if exist
-                    IterationEntry iterationEntry = EntryTypeGroupUtils.createIterationEntry( mapIdDirectoryIdFormEntry.get( nCodeItem ), idForm );
-                    if ( iterationEntry != null )
-                    {
-                        // If the IterationEntry exist change its name
-                        referenceItem.setName( referenceItem.getName( ) + " - Iteration " + iterationEntry.getIterationNumber( ) );
-                    }
-                }
-            }
-        }
     }
 }
