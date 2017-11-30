@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
@@ -81,7 +82,6 @@ import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
 import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.genericattributes.business.Response;
-import fr.paris.lutece.plugins.genericattributes.util.GenericAttributesUtils;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -148,7 +148,6 @@ public final class ExportDirectoryUtils
     private static final int INTEGER_QUALITY_MAXIMUM = 1;
     private static final int CONST_NONE = -1;
 
-    private static final String FIELD_NB_ITERATIONS = "nb_iterations";
     private static final String PREFIX_ATTRIBUTE_ITERATION = "iteration";
 
     // MESSAGES
@@ -261,7 +260,19 @@ public final class ExportDirectoryUtils
 
         for ( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry : listFormEntry )
         {
-            error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, FormConstants.DEFAULT_ITERATION_NUMBER );
+            // If this entry allow iteration we will create one group entry for each iteration
+            int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( formEntry.getIdEntry( ) );
+            if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
+            {
+                for ( int nIterationNumber = NumberUtils.INTEGER_ONE ; nIterationNumber <= nbIterationAllowed ; nIterationNumber++ )
+                {
+                    error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, nIterationNumber );
+                }
+            }
+            else
+            {
+                error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, FormConstants.DEFAULT_ITERATION_NUMBER );
+            }
 
             if ( error != null )
             {
@@ -345,7 +356,19 @@ public final class ExportDirectoryUtils
                 }
 
                 entryDirectory.setDirectory( directory );
-                entryDirectory.setTitle( entryForm.getTitle( ) );
+                
+                // Add the iteration number in the title of the group if its an iterable entry
+                String strEntryTitle = entryForm.getTitle( );
+                if ( strEntryTitle != null && BooleanUtils.isTrue( entryForm.getEntryType( ).getGroup( ) ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
+                {
+                    StringBuilder strIterableEntryTitle = new StringBuilder( strEntryTitle );
+                    strIterableEntryTitle.append( " " );
+                    strIterableEntryTitle.append( nIterationNumber );
+                    
+                    strEntryTitle = strIterableEntryTitle.toString( );
+                }
+                entryDirectory.setTitle( strEntryTitle );
+                
                 entryDirectory.setComment( entryForm.getComment( ) );
                 entryDirectory.setHelpMessage( entryForm.getHelpMessage( ) );
                 entryDirectory.setHelpMessageSearch( entryForm.getHelpMessage( ) );
@@ -493,46 +516,14 @@ public final class ExportDirectoryUtils
                 if ( entryForm.getEntryType( ).getGroup( ) )
                 {
                     String error = null;
-
-                    // Check if the current entry is an entry group which allow iteration
-                    int nbIterationAllowed = NumberUtils.INTEGER_MINUS_ONE;
-                    List<fr.paris.lutece.plugins.genericattributes.business.Field> listFieldGroup = fr.paris.lutece.plugins.genericattributes.business.FieldHome
-                            .getFieldListByIdEntry( entryForm.getIdEntry( ) );
-                    fr.paris.lutece.plugins.genericattributes.business.Field fieldNbIteration = GenericAttributesUtils.findFieldByTitleInTheList(
-                            FIELD_NB_ITERATIONS, listFieldGroup );
-                    if ( fieldNbIteration != null )
+                    for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                     {
-                        nbIterationAllowed = NumberUtils.toInt( fieldNbIteration.getValue( ), FormConstants.DEFAULT_ITERATION_NUMBER );
-                    }
+                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
+                                nIterationNumber );
 
-                    // If this entry allow iteration
-                    if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
-                    {
-                        for ( int nCurrentIteration = NumberUtils.INTEGER_ONE; nCurrentIteration <= nbIterationAllowed; nCurrentIteration++ )
+                        if ( error != null )
                         {
-                            for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
-                            {
-                                error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
-                                        nCurrentIteration );
-
-                                if ( error != null )
-                                {
-                                    return error;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
-                        {
-                            error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
-                                    FormConstants.DEFAULT_ITERATION_NUMBER );
-
-                            if ( error != null )
-                            {
-                                return error;
-                            }
+                            return error;
                         }
                     }
                 }
