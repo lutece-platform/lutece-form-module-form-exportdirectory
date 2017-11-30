@@ -495,7 +495,8 @@ public class ProcessorExportdirectory extends OutputProcessor
                     if ( bBelongIterableGroup )
                     {
                         // Create the parameter name
-                        String strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION, mapIdEntryIterationNumber.get( nIdEntry ), nIdEntry, Boolean.TRUE );
+                        String strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName(
+                                ExportDirectoryUtils.PARAMETER_PREFIX_KEY_GEOLOCATION, mapIdEntryIterationNumber.get( nIdEntry ), nIdEntry, Boolean.TRUE );
 
                         if ( StringUtils.isBlank( request.getParameter( strParameterName ) ) )
                         {
@@ -515,7 +516,8 @@ public class ProcessorExportdirectory extends OutputProcessor
                 Integer nIterationNumber = mapIdEntryIterationNumber.get( nIdEntry );
                 if ( nIterationNumber != null )
                 {
-                    strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber,
+                            NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                     mapIdEntryIterationNumber.put( nIdEntry, nIterationNumber );
                 }
 
@@ -612,7 +614,8 @@ public class ProcessorExportdirectory extends OutputProcessor
                         }
 
                         nIterationNumber = mapIdEntryNumberIteration.get( nIdEntry );
-                        strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                        strParameterName = ExportDirectoryUtils.computeIterableEntryParameterName( strParameterName, nIterationNumber,
+                                NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                         mapIdEntryNumberIteration.put( nIdEntry, nIterationNumber + NumberUtils.INTEGER_ONE );
                     }
 

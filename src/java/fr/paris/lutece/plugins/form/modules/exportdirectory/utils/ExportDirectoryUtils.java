@@ -359,7 +359,8 @@ public final class ExportDirectoryUtils
                 String strResultListParameterName = PARAMETER_IS_IN_RESULT_LIST + nParameterIdEntry;
                 if ( bEntryBelongIterableGroup )
                 {
-                    strResultListParameterName = computeIterableEntryParameterName( strResultListParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    strResultListParameterName = computeIterableEntryParameterName( strResultListParameterName, nIterationNumber,
+                            NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
 
                 if ( request.getParameter( strResultListParameterName ) != null )
@@ -375,7 +376,8 @@ public final class ExportDirectoryUtils
                 String strSearchParameterName = PARAMETER_IS_IN_SEARCH + nParameterIdEntry;
                 if ( bEntryBelongIterableGroup )
                 {
-                    strSearchParameterName = computeIterableEntryParameterName( strSearchParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    strSearchParameterName = computeIterableEntryParameterName( strSearchParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE,
+                            Boolean.FALSE );
                 }
 
                 if ( request.getParameter( strSearchParameterName ) != null )
@@ -1157,25 +1159,24 @@ public final class ExportDirectoryUtils
 
         return false;
     }
-    
-    
+
     /**
      * Compute the parameter name for a specified iteration number from a base name.
      * 
      * @param strBaseName
-     *          The base name to create the parameter name from
+     *            The base name to create the parameter name from
      * @param nIterationNumber
-     *          The iteration number
+     *            The iteration number
      * @param nIdEntry
-     *          The id of the entry (use for an entry of type Geolocalisation)
+     *            The id of the entry (use for an entry of type Geolocalisation)
      * @param bIsGeolocalisation
-     *          A boolean which tell if the parameter is for a entry of type Geolocalisation
+     *            A boolean which tell if the parameter is for a entry of type Geolocalisation
      * @return the parameter name for the specified iteration number from the given base name
      */
     public static String computeIterableEntryParameterName( String strBaseName, int nIterationNumber, int nIdEntry, boolean bIsGeolocalisation )
     {
         StringBuilder strParameterName = new StringBuilder( strBaseName );
-        
+
         if ( StringUtils.isNotBlank( strBaseName ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
         {
             if ( bIsGeolocalisation && nIdEntry != NumberUtils.INTEGER_MINUS_ONE )
@@ -1183,17 +1184,17 @@ public final class ExportDirectoryUtils
                 strParameterName.append( PREFIX_ATTRIBUTE_ITERATION );
                 strParameterName.append( nIterationNumber );
                 strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
-                strParameterName.append( nIdEntry );   
+                strParameterName.append( nIdEntry );
             }
             else
             {
                 strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
                 strParameterName.append( PREFIX_ATTRIBUTE_ITERATION );
                 strParameterName.append( FormUtils.CONSTANT_UNDERSCORE );
-                strParameterName.append( nIterationNumber ); 
+                strParameterName.append( nIterationNumber );
             }
         }
-        
+
         return strParameterName.toString( );
     }
 }
