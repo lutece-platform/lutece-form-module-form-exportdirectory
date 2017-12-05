@@ -586,11 +586,6 @@ public class ProcessorExportdirectory extends OutputProcessor
         int nFormEntryTypeComment = DirectoryUtils.convertStringToInt( AppPropertiesService.getProperty( PROPERTY_FORM_ENTRY_TYPE_COMMENT ) );
         FormConfiguration formConfigurationInitial = FormConfigurationHome.findByPrimaryKey( form.getIdForm( ), pluginExportdirectory );
 
-        if ( formConfigurationInitial != null )
-        {
-            doActionRemoveMapping( request, form, pluginExportdirectory );
-        }
-
         if ( request.getParameter( PARAMETER_ID_DIRECTORY ) != null )
         {
             Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
@@ -638,6 +633,11 @@ public class ProcessorExportdirectory extends OutputProcessor
                     entryConfiguration.setIdDirectoryEntry( DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) ) );
                     listEntryConfiguration.add( entryConfiguration );
                 }
+            }
+
+            if ( formConfigurationInitial != null )
+            {
+                doActionRemoveMapping( request, form, pluginExportdirectory );
             }
 
             FormConfiguration formConfiguration = new FormConfiguration( );
