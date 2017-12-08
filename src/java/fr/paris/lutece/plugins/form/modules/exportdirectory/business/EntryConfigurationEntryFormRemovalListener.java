@@ -77,13 +77,13 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
         int nEntryIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
         if ( EntryTypeGroupUtils.isEntryTypeGroup( entry ) )
         {
-            nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );    
+            nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );
         }
         else
         {
             nEntryIterationNumber = EntryTypeGroupUtils.getIterationNumberOfIterableEntry( entry );
         }
-        
+
         if ( nEntryIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
         {
             int nCurrentIteration = NumberUtils.INTEGER_ONE;
