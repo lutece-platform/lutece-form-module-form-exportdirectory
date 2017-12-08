@@ -74,7 +74,16 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
         Entry entry = EntryHome.findByPrimaryKey( Integer.parseInt( strId ) );
 
         List<EntryConfiguration> listEntryConfiguration = new ArrayList<>( );
-        int nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );
+        int nEntryIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
+        if ( EntryTypeGroupUtils.isEntryTypeGroup( entry ) )
+        {
+            nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );    
+        }
+        else
+        {
+            nEntryIterationNumber = EntryTypeGroupUtils.getIterationNumberOfIterableEntry( entry );
+        }
+        
         if ( nEntryIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
         {
             int nCurrentIteration = NumberUtils.INTEGER_ONE;
