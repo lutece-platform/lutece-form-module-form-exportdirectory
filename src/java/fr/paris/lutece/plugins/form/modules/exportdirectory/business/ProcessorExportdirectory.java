@@ -70,6 +70,8 @@ import fr.paris.lutece.plugins.form.utils.FormConstants;
 import fr.paris.lutece.plugins.form.utils.FormUtils;
 import fr.paris.lutece.plugins.form.web.FormJspBean;
 import fr.paris.lutece.plugins.genericattributes.business.Entry;
+import fr.paris.lutece.plugins.genericattributes.business.Field;
+import fr.paris.lutece.plugins.genericattributes.business.FieldHome;
 import fr.paris.lutece.plugins.genericattributes.business.ResponseFilter;
 import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
@@ -249,6 +251,24 @@ public class ProcessorExportdirectory extends OutputProcessor
                 {
                     nIdParent = entryParent.getIdEntry( );
                     nMaximumIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdParent );
+                }
+                // Check if the entry is a conditional entry
+                if ( entryParent == null && entry.getFieldDepend( ) != null )
+                {
+                    Field field = FieldHome.findByPrimaryKey( entry.getFieldDepend( ).getIdField( ) );
+                    Entry entryField = fr.paris.lutece.plugins.genericattributes.business.EntryHome.findByPrimaryKey( field.getParentEntry( ).getIdEntry( ) );
+                    while ( entryField.getParent( ) == null && entryField.getFieldDepend( ) != null )
+                    {
+                        field = FieldHome.findByPrimaryKey( entryField.getFieldDepend( ).getIdField( ) );
+                        entryField = fr.paris.lutece.plugins.genericattributes.business.EntryHome.findByPrimaryKey( field.getParentEntry( ).getIdEntry( ) );
+                    }
+
+                    entryParent = entryField.getParent( );
+                    if ( entryParent != null )
+                    {
+                        nIdParent = entryParent.getIdEntry( );
+                        nMaximumIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdParent );
+                    }
                 }
                 FormEntryConfiguration formEntryConfiguration = new FormEntryConfiguration( entryConfigurationFromEntry, nIdParent, nMaximumIterationNumber );
 

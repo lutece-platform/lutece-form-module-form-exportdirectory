@@ -163,12 +163,19 @@ public class EntryConfiguration
     {
         Entry entry = EntryHome.findByPrimaryKey( getIdFormEntry( ) );
 
-        if ( entry != null && entry.getParent( ) != null )
+        if ( entry != null )
         {
-            Entry entryParent = EntryHome.findByPrimaryKey( entry.getParent( ).getIdEntry( ) );
-            if ( entryParent != null )
+            if ( entry.getParent( ) != null)
             {
-                return entryParent.getTitle( );
+                Entry entryParent = EntryHome.findByPrimaryKey( entry.getParent( ).getIdEntry( ) );
+                if ( entryParent != null )
+                {
+                    return entryParent.getTitle( );
+                }
+            }
+            else
+            {
+                return entry.getTitle( );
             }
         }
 
