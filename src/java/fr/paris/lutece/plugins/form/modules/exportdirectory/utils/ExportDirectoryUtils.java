@@ -264,7 +264,7 @@ public final class ExportDirectoryUtils
         for ( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry : listFormEntry )
         {
             FormIterableEntryConfiguration formIterableEntryConfiguration = new FormIterableEntryConfiguration( );
-            
+
             // If this entry allow iteration we will create one group entry for each iteration
             int nIdFormEntry = formEntry.getIdEntry( );
             int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdFormEntry );
@@ -274,14 +274,14 @@ public final class ExportDirectoryUtils
                 String strTypeParameterName = String.format( PATTERN_ITERATION_DUPLICATION_TYPE_CONFIGURATION, nIdFormEntry );
                 boolean bGlobalConfiguration = request.getParameter( strParameterName ) != null;
                 boolean bGlobalTypeConfiguration = request.getParameter( strTypeParameterName ) != null;
-                
+
                 formIterableEntryConfiguration.setGlobalConfiguration( bGlobalConfiguration );
                 formIterableEntryConfiguration.setGlobalTypeConfiguration( bGlobalTypeConfiguration );
-                
+
                 for ( int nIterationNumber = NumberUtils.INTEGER_ONE; nIterationNumber <= nbIterationAllowed; nIterationNumber++ )
                 {
                     formIterableEntryConfiguration.setCurrentIterationNumber( nIterationNumber );
-                    
+
                     error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, formIterableEntryConfiguration );
                 }
             }
@@ -319,12 +319,13 @@ public final class ExportDirectoryUtils
      * @return a property error message if there is an error
      */
     public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.Entry entryForm, HttpServletRequest request,
-            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup, FormIterableEntryConfiguration formIterableEntryConfiguration )
+            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup,
+            FormIterableEntryConfiguration formIterableEntryConfiguration )
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_" + entryForm.getEntryType( ).getIdType( ) );
         int nIdDirectoryEntryType = DirectoryUtils.CONSTANT_ID_NULL;
-        
+
         int nIterationNumber = formIterableEntryConfiguration.getCurrentIterationNumber( );
         boolean bGlobalConfiguration = formIterableEntryConfiguration.isGlobalConfiguration( );
         boolean bGlobalTypeConfiguration = formIterableEntryConfiguration.isGlobalTypeConfiguration( );
@@ -344,7 +345,8 @@ public final class ExportDirectoryUtils
                 if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
                 {
                     int nParameterIterationNumber = bGlobalTypeConfiguration ? NumberUtils.INTEGER_ONE : nIterationNumber;
-                    strParameterName = computeIterableEntryParameterName( strParameterName, nParameterIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    strParameterName = computeIterableEntryParameterName( strParameterName, nParameterIterationNumber, NumberUtils.INTEGER_MINUS_ONE,
+                            Boolean.FALSE );
                 }
 
                 nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) );
@@ -542,7 +544,8 @@ public final class ExportDirectoryUtils
                     String error = null;
                     for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                     {
-                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory, formIterableEntryConfiguration );
+                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory,
+                                formIterableEntryConfiguration );
 
                         if ( error != null )
                         {

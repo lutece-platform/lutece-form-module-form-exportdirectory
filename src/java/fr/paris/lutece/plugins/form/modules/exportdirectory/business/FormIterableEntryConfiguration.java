@@ -10,13 +10,13 @@ public class FormIterableEntryConfiguration
     private int _nCurrentIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
     private boolean _bGlobalConfiguration = Boolean.FALSE;
     private boolean _bGlobalTypeConfiguration = Boolean.FALSE;
-    
+
     // Default constructor
     public FormIterableEntryConfiguration( )
     {
-        
+
     }
-    
+
     // Constructor
     public FormIterableEntryConfiguration( int nCurrentIterationNumber, boolean bGlobalConfiguration, boolean bGlobalTypeConfiguration )
     {
@@ -38,8 +38,8 @@ public class FormIterableEntryConfiguration
     /**
      * Set the current number of iteration
      * 
-     * @param nCurrentIterationNumber 
-     *          the current number of iteration to set
+     * @param nCurrentIterationNumber
+     *            the current number of iteration to set
      */
     public void setCurrentIterationNumber( int nCurrentIterationNumber )
     {
@@ -59,8 +59,8 @@ public class FormIterableEntryConfiguration
     /**
      * Set the bGlobalConfiguration
      * 
-     * @param bGlobalConfiguration 
-     *          the bIsGlobalConfiguration to set
+     * @param bGlobalConfiguration
+     *            the bIsGlobalConfiguration to set
      */
     public void setGlobalConfiguration( boolean bGlobalConfiguration )
     {
@@ -81,7 +81,7 @@ public class FormIterableEntryConfiguration
      * Set the bGlobalTypeConfiguration
      * 
      * @param bGlobalTypeConfiguration
-     *          the bGlobalTypeConfiguration to set
+     *            the bGlobalTypeConfiguration to set
      */
     public void setGlobalTypeConfiguration( boolean bGlobalTypeConfiguration )
     {
