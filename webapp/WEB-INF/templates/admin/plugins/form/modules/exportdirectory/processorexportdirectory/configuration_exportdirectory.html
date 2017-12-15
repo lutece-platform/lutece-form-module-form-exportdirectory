@@ -5,6 +5,7 @@
 			#i18n{module.form.exportdirectory.configuration_exportdirectory.is_mapped.title} : <strong>${mapped_directory_title}</strong>
 		</p>
 	</#if>
+	<input id="selected_action_exportdirectory" type="hidden" name="selected_action_exportdirectory" value=""/>
 	<@formGroup rows=2>
 		<@btnGroup params='data-toggle="buttons"'>
 			<#if is_mapped>
@@ -332,6 +333,7 @@ function exportDirectory(buttonElement) {
 	elementId = buttonElement.getElementsByTagName("input")[0].id;
 	var currentBtn = document.getElementById(elementId);
 	currentBtn.checked=true;
+	$("#selected_action_exportdirectory").val(currentBtn.id);
 	
 	if (elementId == "delete_mapping_directory" || "use_directory_exist") {
 		if(currentBtn.checked) {

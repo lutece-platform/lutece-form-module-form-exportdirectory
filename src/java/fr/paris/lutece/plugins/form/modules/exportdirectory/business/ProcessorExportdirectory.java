@@ -99,7 +99,7 @@ public class ProcessorExportdirectory extends OutputProcessor
     // Parameters
     private static final String PARAMETER_ID_FORM = "id_form";
     private static final String PARAMETER_EXPORT_ALL = "export_all";
-    private static final String PARAMETER_ACTION_EXPORTDIRECTORY = "action_exportdirectory";
+    private static final String PARAMETER_SELECTED_ACTION_EXPORTDIRECTORY = "selected_action_exportdirectory";
     private static final String PARAMETER_ID_DIRECTORY = "id_directory";
     private static final String PARAMETER_ID_DIRECTORY_FOR_FORM_ENTRY = "id_entry_directory_for_form_entry";
     private static final String PARAMETER_ID_ENTRY_TYPE = "id_entry_type";
@@ -392,7 +392,7 @@ public class ProcessorExportdirectory extends OutputProcessor
         Plugin pluginExportdirectory = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         String strIdForm = request.getParameter( PARAMETER_ID_FORM );
 
-        String strActionExportdatabase = request.getParameter( PARAMETER_ACTION_EXPORTDIRECTORY );
+        String strActionExportdatabase = request.getParameter( PARAMETER_SELECTED_ACTION_EXPORTDIRECTORY );
 
         if ( ( strIdForm == null ) || !strIdForm.matches( REGEX_ID ) )
         {
