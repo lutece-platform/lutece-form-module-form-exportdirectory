@@ -165,7 +165,7 @@ public class EntryConfiguration
 
         if ( entry != null )
         {
-            if ( entry.getParent( ) != null)
+            if ( entry.getParent( ) != null )
             {
                 Entry entryParent = EntryHome.findByPrimaryKey( entry.getParent( ).getIdEntry( ) );
                 if ( entryParent != null )
