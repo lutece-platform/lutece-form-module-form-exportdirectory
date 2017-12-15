@@ -48,8 +48,8 @@
 			<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.useDirectory.title}</legend>
 			<#assign modif_iteration = -1/>
 			<#list entry_configuration_list as entry>
-				<#assign modif_form_entry = entry.use_directory_form_entry>
-				<#assign buttonName = 'id_entry_directory_for_form_entry_' + entry.use_directory_form_entry.idFormEntry>
+				<#assign modif_form_entry = entry.use_directory_form_entry.entryConfiguration>
+				<#assign buttonName = 'id_entry_directory_for_form_entry_' + entry.use_directory_form_entry.entryConfiguration.idFormEntry>
 				<#if modif_form_entry.iterationNumber != -1 && modif_form_entry.iterationNumber != modif_iteration>
 					<#assign modif_iteration = modif_form_entry.iterationNumber />
 					<#assign buttonName = buttonName + '_iteration_' + modif_form_entry.iterationNumber>
@@ -58,7 +58,7 @@
 							${modif_form_entry.formEntryParentTitle} - #i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${modif_form_entry.iterationNumber}
 						</label>
 					</div>
-					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' class='' mandatory=true params="data-for='modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}'">
+					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.entryConfiguration.formEntryTitle}' class='' mandatory=true params="data-for='modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}'">
 						<@select name='${buttonName}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
 					</@formGroup>
 				<#else>
@@ -68,7 +68,7 @@
 						<#assign buttonName = buttonName + '_iteration_' + modif_form_entry.iterationNumber>
 						<#assign parms_form = "data-for='modif_iteration_${modif_form_entry.iterationNumber}_entry_${modif_form_entry.idFormEntry}'">
 					</#if>
-					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.formEntryTitle}' mandatory=true class='' params=parms_form>
+					<@formGroup rows=2 labelKey='${entry.use_directory_form_entry.entryConfiguration.formEntryTitle}' mandatory=true class='' params=parms_form>
 						<@select name='${buttonName}' items=entry.use_directory_list_directory_entry default_value=entry.use_directory_default_directory_entry?string />
 					</@formGroup>
 				</#if>
@@ -92,20 +92,34 @@
 			</tr>
 			<#assign iteration = -1/>
 			<#list entry_configuration_list as entry>
-				<#assign form_entry = entry.use_directory_form_entry>
+				<#assign form_entry = entry.use_directory_form_entry.entryConfiguration>
 				<#if form_entry.iterationNumber != -1 && form_entry.iterationNumber != iteration>
 					<#assign iteration = form_entry.iterationNumber/>
+					<#assign duplicateConfig =  iteration == 1 && entry.use_directory_form_entry.iterationMaximumNumber gt 1 >
 					<tr id="iteration_${form_entry.iterationNumber}_entry_${form_entry.idFormEntry}" class="">
-						<td colspan=3>
-							${form_entry.formEntryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${form_entry.iterationNumber}</em>
+						<td colspan=<#if duplicateConfig>1<#else>3</#if>>
+							<div>
+								${form_entry.formEntryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${form_entry.iterationNumber}</em>
+							</div>
 						</td>
+						<#if duplicateConfig>
+							<td colspan=2>
+								<div class="checkbox checkbox-iteration-conf">
+								<#assign checkboxName = "duplicate_iteration_configuration_" + entry.use_directory_form_entry.idEntryParent>
+								<label for="${checkboxName}">
+									<input id="${checkboxName}" type="checkbox" name="${checkboxName}" checked onclick="javascript:displayHideIterationConfiguration(${checkboxName},${entry.use_directory_form_entry.idEntryParent});"/>
+									#i18n{module.form.exportdirectory.configuration_exportdirectory.labelDuplicateIterationConfiguration}
+								</label>
+								</div>
+							</td>
+						</#if>
 					</tr>
 				</#if>
-				<tr <#if form_entry.iterationNumber != -1>data-for="iteration_${form_entry.iterationNumber}_entry_${form_entry.idFormEntry}"</#if>>
+				<tr <#if form_entry.iterationNumber != -1>data-for="iteration_${form_entry.iterationNumber}_entry_${form_entry.idFormEntry}"</#if> <#if form_entry.iterationNumber gt 1>class="group-${entry.use_directory_form_entry.idEntryParent}" style="display:none;"</#if>>
 					<td>${form_entry.formEntryTitle}</td>
 					<td><input type="checkbox" name="is_in_result_list_${form_entry.idFormEntry}<#if form_entry.iterationNumber != -1>_iteration_${form_entry.iterationNumber}</#if>" /></td>
 					<#if entry.use_directory_form_entry_type!=entry_type_file & entry.use_directory_form_entry_type!=entry_type_image>
-						<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.idFormEntry}<#if form_entry.iterationNumber != -1>_iteration_${form_entry.iterationNumber}</#if>" /></td>
+						<td><input type="checkbox" name="is_in_search_${entry.use_directory_form_entry.entryConfiguration.idFormEntry}<#if form_entry.iterationNumber != -1>_iteration_${form_entry.iterationNumber}</#if>" /></td>
 					<#else>
 						<td>&nbsp;</td>
 					</#if>
@@ -134,17 +148,58 @@
 		<#if create_directory?has_content>
 			<fieldset id="directoryTypeEntry">
 				<legend>#i18n{module.form.exportdirectory.configuration_exportdirectory.createDirectory.title}</legend>
+				<#assign previousEntryGroup = -1/>
+				<#assign previousIterationNumber = -1/>
 				<#list create_directory as entry>
-					<#assign title=entry.form_entry.title>
 					<#assign buttonName = 'id_entry_type_'+ entry.form_entry.idEntry>
 					<#assign idEntry = (entry.form_entry.idEntry)?string>
-					<#if entry.form_entry_configuration?has_content && entry.form_entry_configuration.iterationNumber != -1>
-						<#assign buttonName = buttonName + '_iteration_' + entry.form_entry_configuration.iterationNumber>
-						<#assign title=entry.form_entry.title + ' - ' + '#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}' + entry.form_entry_configuration.iterationNumber>
+					<#if entry.form_entry_configuration.entryConfiguration?has_content && entry.form_entry_configuration.entryConfiguration.iterationNumber != -1>
+						<#assign buttonName = buttonName + '_iteration_' + entry.form_entry_configuration.entryConfiguration.iterationNumber>
 					</#if>
-					<@formGroup labelKey=title rows=2>
+					<#assign params = ''/>
+					<#assign class = ''/>
+					<#assign idGroup = entry.form_entry_configuration.idEntryParent />
+					<#assign maxIterationNumber = entry.form_entry_configuration.iterationMaximumNumber />
+					<#assign currentIterationNumber = entry.form_entry_configuration.entryConfiguration.iterationNumber />
+					<#if maxIterationNumber != -1>
+						<#assign class = 'radio-button-iteration-config'/>
+						<div>
+							<div>
+							<#if currentIterationNumber != previousIterationNumber>
+								<#assign previousIterationNumber = currentIterationNumber/>
+								<b>${form_entry.formEntryParentTitle} - <em>#i18n{module.form.exportdirectory.configuration_exportdirectory.labelIteration}${currentIterationNumber}</em></b>
+								<#if currentIterationNumber == maxIterationNumber && currentIterationNumber != 1>
+									<div class="title-separator-group">
+										<br />
+									</div>
+								</#if>
+							</#if>
+							</div>
+							<div>
+							<#if maxIterationNumber gt 1>
+								<#if currentIterationNumber == 1 && previousEntryGroup != idGroup>
+									<#assign previousEntryGroup = idGroup/>
+									<#assign checkBoxTypeName = 'duplicate_iteration_configuration_type_' + idGroup/>
+									<@checkBox id='${idGroup}' name='${checkBoxTypeName}' checked=true labelKey='#i18n{module.form.exportdirectory.configuration_exportdirectory.labelDuplicateIterationConfiguration}' labelFor='${checkBoxTypeName}' params='class="checkbox-group-type" onclick="javascript:displayHideIterationConfigurationType(${checkBoxTypeName}, ${idGroup})"'/>
+									<br />
+								</#if>
+								<#if currentIterationNumber gt 1>
+									<#assign class = 'radio-button-iteration-config type-group-' + idGroup />
+									<#assign params = 'style="display:none;"'/>
+								</#if>
+							</#if>
+							</div>
+						</div>
+					</#if>
+					<@formGroup labelKey=entry.form_entry.title rows=2 params=params class=class>
+						<#assign buttonMandatory = true>
+						<#assign class = ''>
+						<#if currentIterationNumber gt 1>
+							<#assign buttonMandatory = false>
+							<#assign class = 'button-iterable button-iterable-group-' + idGroup>
+						</#if>
 						<#list entry.directory_entry_type as entry_type>
-							<@radioButton orientation='horizontal' name='${buttonName}' value='${entry_type.idType}' labelKey='#i18n{${entry_type.titleI18nKey}}' />
+							<@radioButton orientation='horizontal' name='${buttonName}' value='${entry_type.idType}' mandatory=buttonMandatory labelKey='#i18n{${entry_type.titleI18nKey}}' params='class="${class}"' />
 						</#list>
 					</@formGroup>
 				</#list>
@@ -320,6 +375,9 @@ function exportDirectory(buttonElement) {
 			for (i=0; i < radioButtons.length; i++) {
 				radioButton = radioButtons[i];
 				$(radioButton).attr("required","true");
+				if ( $(radioButton).hasClass("button-iterable") ) {
+					$(radioButton).removeAttr('required');
+				}
 			}
 
 		}
@@ -346,3 +404,4 @@ objfield.style.display=(objcheckbox.checked==false)?"none":"block";
 return true;
 }
 </script>
+<script type="text/javascript" src="js/plugins/form/modules/exportdirectory/form-exportdirectory.js"></script>

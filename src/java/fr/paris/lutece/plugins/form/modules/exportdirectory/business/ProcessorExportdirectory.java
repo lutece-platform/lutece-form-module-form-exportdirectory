@@ -242,13 +242,23 @@ public class ProcessorExportdirectory extends OutputProcessor
 
             if ( entryType.getIdType( ) != nFormEntryTypeComment )
             {
+                int nIdParent = NumberUtils.INTEGER_MINUS_ONE;
+                int nMaximumIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
+                Entry entryParent = entry.getParent( );
+                if ( entryParent != null )
+                {
+                    nIdParent = entryParent.getIdEntry( );
+                    nMaximumIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdParent );
+                }
+                FormEntryConfiguration formEntryConfiguration = new FormEntryConfiguration( entryConfigurationFromEntry, nIdParent, nMaximumIterationNumber );
+
                 Map<String, Object> resourceActions = new HashMap<String, Object>( );
                 Map<String, Object> entryFormType = new HashMap<String, Object>( );
                 List<EntryType> listEntryTypeDirectory = ExportDirectoryUtils.getDirectoryEntryForFormEntry( entryType );
                 if ( listEntryTypeDirectory.size( ) > 1 )
                 {
                     entryFormType.put( MARK_FORM_ENTRY, entry );
-                    entryFormType.put( MARK_FORM_ENTRY_CONFIGURATION, entryConfigurationFromEntry );
+                    entryFormType.put( MARK_FORM_ENTRY_CONFIGURATION, formEntryConfiguration );
                     entryFormType.put( MARK_DIRECTORY_ENTRY_TYPE, listEntryTypeDirectory );
                     formEntryTypeWithSeveralDirectoryEntryType.add( entryFormType );
                 }
@@ -314,7 +324,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                     resourceActions.put( MARK_USE_DIRECTORY_DEFAULT_ENTRY_DIRECTORY, -1 );
                 }
 
-                resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM, entryConfigurationFromEntry );
+                resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM, formEntryConfiguration );
                 resourceActions.put( MARK_USE_DIRECTORY_ENTRY_FORM_TYPE, entryType.getIdType( ) );
                 entryConfigurationList.add( resourceActions );
             }

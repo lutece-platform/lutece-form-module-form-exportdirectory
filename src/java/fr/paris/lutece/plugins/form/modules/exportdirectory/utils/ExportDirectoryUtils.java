@@ -75,6 +75,7 @@ import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfig
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfigurationHome;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfiguration;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfigurationHome;
+import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormIterableEntryConfiguration;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.ProcessorExportdirectory;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.service.IResponseService;
@@ -149,6 +150,8 @@ public final class ExportDirectoryUtils
     private static final int CONST_NONE = -1;
 
     private static final String PREFIX_ATTRIBUTE_ITERATION = "iteration";
+    private static final String PATTERN_ITERATION_DUPLICATION_CONFIGURATION = "duplicate_iteration_configuration_%s";
+    private static final String PATTERN_ITERATION_DUPLICATION_TYPE_CONFIGURATION = "duplicate_iteration_configuration_type_%s";
 
     // MESSAGES
     private static final String MESSAGE_ERROR_FIELD_THUMBNAIL = "module.form.exportdirectory.configuration_exportdirectory.message.errorThumbnail";
@@ -260,18 +263,31 @@ public final class ExportDirectoryUtils
 
         for ( fr.paris.lutece.plugins.genericattributes.business.Entry formEntry : listFormEntry )
         {
+            FormIterableEntryConfiguration formIterableEntryConfiguration = new FormIterableEntryConfiguration( );
+            
             // If this entry allow iteration we will create one group entry for each iteration
-            int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( formEntry.getIdEntry( ) );
+            int nIdFormEntry = formEntry.getIdEntry( );
+            int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdFormEntry );
             if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
             {
+                String strParameterName = String.format( PATTERN_ITERATION_DUPLICATION_CONFIGURATION, nIdFormEntry );
+                String strTypeParameterName = String.format( PATTERN_ITERATION_DUPLICATION_TYPE_CONFIGURATION, nIdFormEntry );
+                boolean bGlobalConfiguration = request.getParameter( strParameterName ) != null;
+                boolean bGlobalTypeConfiguration = request.getParameter( strTypeParameterName ) != null;
+                
+                formIterableEntryConfiguration.setGlobalConfiguration( bGlobalConfiguration );
+                formIterableEntryConfiguration.setGlobalTypeConfiguration( bGlobalTypeConfiguration );
+                
                 for ( int nIterationNumber = NumberUtils.INTEGER_ONE; nIterationNumber <= nbIterationAllowed; nIterationNumber++ )
                 {
-                    error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, nIterationNumber );
+                    formIterableEntryConfiguration.setCurrentIterationNumber( nIterationNumber );
+                    
+                    error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, formIterableEntryConfiguration );
                 }
             }
             else
             {
-                error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, FormConstants.DEFAULT_ITERATION_NUMBER );
+                error = createDirectoryEntry( formEntry, request, pluginForm, pluginDirectory, directory, null, formIterableEntryConfiguration );
             }
 
             if ( error != null )
@@ -303,11 +319,15 @@ public final class ExportDirectoryUtils
      * @return a property error message if there is an error
      */
     public static String createDirectoryEntry( fr.paris.lutece.plugins.genericattributes.business.Entry entryForm, HttpServletRequest request,
-            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup, int nIterationNumber )
+            Plugin pluginForm, Plugin pluginDirectory, Directory directory, fr.paris.lutece.plugins.directory.business.IEntry entryGroup, FormIterableEntryConfiguration formIterableEntryConfiguration )
     {
         Plugin pluginExport = PluginService.getPlugin( ExportdirectoryPlugin.PLUGIN_NAME );
         String strMappingEntryType = AppPropertiesService.getProperty( PROPERTY_MAPPING_ENTRY_TYPE + "_" + entryForm.getEntryType( ).getIdType( ) );
         int nIdDirectoryEntryType = DirectoryUtils.CONSTANT_ID_NULL;
+        
+        int nIterationNumber = formIterableEntryConfiguration.getCurrentIterationNumber( );
+        boolean bGlobalConfiguration = formIterableEntryConfiguration.isGlobalConfiguration( );
+        boolean bGlobalTypeConfiguration = formIterableEntryConfiguration.isGlobalTypeConfiguration( );
 
         if ( strMappingEntryType != null )
         {
@@ -323,7 +343,8 @@ public final class ExportDirectoryUtils
                 // Change the parameter name in the case of an entry which belong to an iterable group
                 if ( EntryTypeGroupUtils.entryBelongIterableGroup( entryForm ) && nIterationNumber != FormConstants.DEFAULT_ITERATION_NUMBER )
                 {
-                    strParameterName = computeIterableEntryParameterName( strParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
+                    int nParameterIterationNumber = bGlobalTypeConfiguration ? NumberUtils.INTEGER_ONE : nIterationNumber;
+                    strParameterName = computeIterableEntryParameterName( strParameterName, nParameterIterationNumber, NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
 
                 nIdDirectoryEntryType = DirectoryUtils.convertStringToInt( request.getParameter( strParameterName ) );
@@ -383,7 +404,8 @@ public final class ExportDirectoryUtils
                 String strResultListParameterName = PARAMETER_IS_IN_RESULT_LIST + nParameterIdEntry;
                 if ( bEntryBelongIterableGroup )
                 {
-                    strResultListParameterName = computeIterableEntryParameterName( strResultListParameterName, nIterationNumber,
+                    int nIterationNumberParameter = bGlobalConfiguration ? NumberUtils.INTEGER_ONE : nIterationNumber;
+                    strResultListParameterName = computeIterableEntryParameterName( strResultListParameterName, nIterationNumberParameter,
                             NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
 
@@ -400,8 +422,9 @@ public final class ExportDirectoryUtils
                 String strSearchParameterName = PARAMETER_IS_IN_SEARCH + nParameterIdEntry;
                 if ( bEntryBelongIterableGroup )
                 {
-                    strSearchParameterName = computeIterableEntryParameterName( strSearchParameterName, nIterationNumber, NumberUtils.INTEGER_MINUS_ONE,
-                            Boolean.FALSE );
+                    int nIterationNumberParameter = bGlobalConfiguration ? NumberUtils.INTEGER_ONE : nIterationNumber;
+                    strSearchParameterName = computeIterableEntryParameterName( strSearchParameterName, nIterationNumberParameter,
+                            NumberUtils.INTEGER_MINUS_ONE, Boolean.FALSE );
                 }
 
                 if ( request.getParameter( strSearchParameterName ) != null )
@@ -519,7 +542,7 @@ public final class ExportDirectoryUtils
                     String error = null;
                     for ( fr.paris.lutece.plugins.genericattributes.business.Entry entryFormChildren : entryForm.getChildren( ) )
                     {
-                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory, nIterationNumber );
+                        error = createDirectoryEntry( entryFormChildren, request, pluginForm, pluginDirectory, directory, entryDirectory, formIterableEntryConfiguration );
 
                         if ( error != null )
                         {
