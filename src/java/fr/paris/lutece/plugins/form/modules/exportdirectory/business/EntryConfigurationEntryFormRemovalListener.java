@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.form.modules.exportdirectory.business;
 
+import fr.paris.lutece.plugins.form.business.iteration.IterationGroup;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.utils.EntryTypeGroupUtils;
 import fr.paris.lutece.plugins.form.utils.FormConstants;
@@ -77,7 +78,7 @@ public class EntryConfigurationEntryFormRemovalListener implements RemovalListen
         int nEntryIterationNumber = FormConstants.DEFAULT_ITERATION_NUMBER;
         if ( EntryTypeGroupUtils.isEntryTypeGroup( entry ) )
         {
-            nEntryIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( entry.getIdEntry( ) );
+            nEntryIterationNumber = new IterationGroup( entry ).getNbMaxIteration( );
         }
         else
         {

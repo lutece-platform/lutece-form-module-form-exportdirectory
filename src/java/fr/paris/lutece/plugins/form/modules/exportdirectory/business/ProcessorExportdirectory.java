@@ -58,6 +58,7 @@ import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
 import fr.paris.lutece.plugins.form.business.FormSubmit;
 import fr.paris.lutece.plugins.form.business.FormSubmitHome;
+import fr.paris.lutece.plugins.form.business.iteration.IterationGroup;
 import fr.paris.lutece.plugins.form.business.outputprocessor.OutputProcessor;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryResourceIdService;
@@ -250,7 +251,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                 if ( entryParent != null )
                 {
                     nIdParent = entryParent.getIdEntry( );
-                    nMaximumIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdParent );
+                    nMaximumIterationNumber = new IterationGroup( entryParent ).getNbMaxIteration( );
                 }
                 // Check if the entry is a conditional entry
                 if ( entryParent == null && entry.getFieldDepend( ) != null )
@@ -267,7 +268,7 @@ public class ProcessorExportdirectory extends OutputProcessor
                     if ( entryParent != null )
                     {
                         nIdParent = entryParent.getIdEntry( );
-                        nMaximumIterationNumber = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdParent );
+                        nMaximumIterationNumber = new IterationGroup( entryParent ).getNbMaxIteration( );
                     }
                 }
                 FormEntryConfiguration formEntryConfiguration = new FormEntryConfiguration( entryConfigurationFromEntry, nIdParent, nMaximumIterationNumber );

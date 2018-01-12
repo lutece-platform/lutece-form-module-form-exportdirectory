@@ -71,6 +71,7 @@ import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.form.business.Form;
 import fr.paris.lutece.plugins.form.business.FormHome;
 import fr.paris.lutece.plugins.form.business.FormSubmit;
+import fr.paris.lutece.plugins.form.business.iteration.IterationGroup;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfiguration;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.EntryConfigurationHome;
 import fr.paris.lutece.plugins.form.modules.exportdirectory.business.FormConfiguration;
@@ -267,7 +268,7 @@ public final class ExportDirectoryUtils
 
             // If this entry allow iteration we will create one group entry for each iteration
             int nIdFormEntry = formEntry.getIdEntry( );
-            int nbIterationAllowed = EntryTypeGroupUtils.getEntryMaxIterationAllowed( nIdFormEntry );
+            int nbIterationAllowed = new IterationGroup( formEntry ).getNbMaxIteration( );
             if ( nbIterationAllowed != FormConstants.DEFAULT_ITERATION_NUMBER )
             {
                 String strParameterName = String.format( PATTERN_ITERATION_DUPLICATION_CONFIGURATION, nIdFormEntry );
