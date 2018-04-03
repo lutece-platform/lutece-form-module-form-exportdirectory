@@ -910,6 +910,12 @@ public final class ExportDirectoryUtils
                                                     record.setRoleKey( fieldDirectory.getRoleKey( ) );
                                                     RecordHome.update( record, pluginDirectory );
                                                 }
+                                                
+                                                if ( entryDirectory.isWorkgroupAssociated( ) && fieldDirectory.getWorkgroup( ) != null )
+                                                {
+                                                	record.setWorkgroup( fieldDirectory.getWorkgroup( ) );
+                                                	RecordHome.update( record, pluginDirectory );
+                                                }
                                             }
 
                                         recordField.setField( fieldDirectory );
