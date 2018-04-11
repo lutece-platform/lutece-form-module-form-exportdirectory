@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+<?xml version="1.0" encoding="UTF-8"?><plug-in>
     
         
     <!-- Plugin Informations -->
 	<name>form-exportdirectory</name>
 	<class>fr.paris.lutece.plugins.form.modules.exportdirectory.service.ExportdirectoryPlugin</class>
-	<version>3.0.3-SNAPSHOT</version>
+	<version>3.1.0</version>
 	<description>module.form.exportdirectory.module.description</description>
 	<documentation/>
 	<installation/>
