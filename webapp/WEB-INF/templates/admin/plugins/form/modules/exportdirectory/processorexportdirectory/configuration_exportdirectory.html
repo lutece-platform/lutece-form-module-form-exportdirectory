@@ -340,7 +340,7 @@ function exportDirectory(buttonElement) {
 			var asterisks = $("label.col-xs-12").children();
 			$(asterisks).remove();
 			
-			var radioButtons = $("[name^='id_entry_type_']");
+			var radioButtons = $("[name^='id_entry_type_'], [name^='key_geolocation_']");
 			for (i=0; i < radioButtons.length; i++) {
 				radioButton = radioButtons[i];
 				$(radioButton).removeAttr("required","true");
@@ -373,7 +373,7 @@ function exportDirectory(buttonElement) {
 				$(radioButtonLabel).append(asterisk);
 			}
 			
-			var radioButtons = $("[name^='id_entry_type_']");
+			var radioButtons = $("[name^='id_entry_type_'], [name^='key_geolocation_']");
 			for (i=0; i < radioButtons.length; i++) {
 				radioButton = radioButtons[i];
 				$(radioButton).attr("required","true");
